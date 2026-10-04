@@ -1159,7 +1159,90 @@
             renderAdminTeacherList();
             syncDataFromCloud();
             showNotification(`Akun guru ${teacherName} dan seluruh catatannya berhasil dihapus.`);
+
+            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
+
+            fetch(HARDCODED_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'deleteTeacher', name: teacherName })
+            }).catch(err => {
+                console.error('Gagal hapus di server:', err);
+            });
         }
 
         function openAddTeacherModal() {
-// ... existing code ... -->
+            document.getElementById('modal-add-teacher').classList.remove('hidden');
+            document.getElementById('modal-add-teacher').classList.add('flex');
+            document.getElementById('new-t-name').value = '';
+            document.getElementById('new-t-pass').value = '';
+        }
+
+        function closeAddTeacherModal() {
+            document.getElementById('modal-add-teacher').classList.add('hidden');
+            document.getElementById('modal-add-teacher').classList.remove('flex');
+        }
+
+        function handleAdminAddTeacher(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-t-name').value.trim();
+            const pass = document.getElementById('new-t-pass').value.trim();
+
+            if (teachersDB.some(t => t.name.toLowerCase() === name.toLowerCase())) {
+                showNotification('Nama guru sudah ada dalam sistem!', 'error');
+                return;
+            }
+
+            const newT = { name, pass };
+            teachersDB.push(newT);
+            localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
+            renderAdminTeacherList();
+            closeAddTeacherModal();
+            showNotification(`Guru ${name} berhasil ditambahkan.`);
+
+            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
+
+            fetch(HARDCODED_APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'registerTeacher', name: name, pass: pass })
+            }).catch(err => {});
+        }
+
+        function applySettingsToUI() {
+            document.getElementById('auth-school-title').innerText = appSettings.schoolName;
+            document.getElementById('header-school-name').innerText = appSettings.schoolName;
+            
+            if (appSettings.logoUrl) {
+                document.getElementById('auth-logo-container').innerHTML = `<img src="${appSettings.logoUrl}" class="w-full h-full object-cover rounded-2xl" alt="Logo">`;
+                document.getElementById('header-logo-wrap').innerHTML = `<img src="${appSettings.logoUrl}" class="w-full h-full object-cover rounded-xl" alt="Logo">`;
+            }
+
+            if (appSettings.bgUrl) {
+                document.getElementById('hero-banner').style.backgroundImage = `url('${appSettings.bgUrl}')`;
+            }
+
+            const body = document.getElementById('app-body');
+            if (appSettings.theme === 'dark') {
+                body.classList.add('dark');
+            } else {
+                body.classList.remove('dark');
+            }
+
+            updateClassDropdown();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+    </script>
+</body>
+</html>
