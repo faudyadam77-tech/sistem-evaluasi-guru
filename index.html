@@ -1,1265 +1,1049 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Evaluasi Kognitif & Karakter Guru</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluasi Siswa</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --primary:#2563eb;--primary-dark:#1d4ed8;--bg:#f1f5f9;--card:#fff;
+    --text:#0f172a;--muted:#64748b;--border:#e2e8f0;
+    --success:#16a34a;--danger:#dc2626;--warn:#f59e0b;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:var(--bg);color:var(--text);min-height:100vh;background-size:cover;
+    background-attachment:fixed;background-position:center}
+  body.has-bg::before{content:'';position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:-1}
+  #root{min-height:100vh}
+  .hidden{display:none!important}
+
+  /* Top bar */
+  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;
+    display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+  .brand img{height:36px;width:36px;object-fit:contain;border-radius:6px}
+  .user-info{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
+  .badge{background:#dbeafe;color:var(--primary-dark);padding:3px 8px;border-radius:20px;
+    font-size:12px;font-weight:600}
+  .badge.admin{background:#fee2e2;color:#991b1b}
+
+  /* Login */
+  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:20px;background:linear-gradient(135deg,#1e3a8a,#2563eb)}
+  .login-card{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:400px;
+    box-shadow:0 20px 40px rgba(0,0,0,.2)}
+  .login-card h1{font-size:22px;margin-bottom:6px}
+  .login-card .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
+  .tabs{display:flex;gap:6px;margin-bottom:18px;background:#f1f5f9;padding:4px;border-radius:10px}
+  .tabs button{flex:1;padding:8px;border:none;background:transparent;cursor:pointer;
+    border-radius:7px;font-weight:600;color:var(--muted);font-size:14px}
+  .tabs button.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  /* Form */
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#334155}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);
+    border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text)}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--primary);border-color:transparent}
+  textarea{resize:vertical;min-height:80px}
+  .field{margin-bottom:14px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  /* Buttons */
+  .btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:600;
+    cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover{background:var(--primary-dark)}
+  .btn-success{background:var(--success);color:#fff}
+  .btn-danger{background:var(--danger);color:#fff}
+  .btn-warn{background:var(--warn);color:#fff}
+  .btn-ghost{background:#f1f5f9;color:var(--text)}
+  .btn-ghost:hover{background:#e2e8f0}
+  .btn-block{width:100%;justify-content:center}
+  .btn-sm{padding:6px 10px;font-size:12px}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+
+  /* Layout */
+  .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 61px)}
+  .sidebar{background:#fff;border-right:1px solid var(--border);padding:16px 0}
+  .sidebar .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;
+    cursor:pointer;font-size:14px;color:#334155;border-left:3px solid transparent}
+  .sidebar .nav-item:hover{background:#f8fafc}
+  .sidebar .nav-item.active{background:#eff6ff;color:var(--primary);
+    border-left-color:var(--primary);font-weight:600}
+  .sidebar .nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.5px;
+    color:var(--muted);padding:14px 20px 6px;font-weight:700}
+  .content{padding:24px;overflow-x:auto}
+  .content h2{font-size:20px;margin-bottom:4px}
+  .content .subtitle{color:var(--muted);font-size:13px;margin-bottom:20px}
+
+  /* Card */
+  .card{background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:20px;margin-bottom:16px}
+  .card h3{font-size:15px;margin-bottom:14px;color:#334155}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:780px){
+    .layout{grid-template-columns:1fr}
+    .sidebar{display:flex;overflow-x:auto;padding:8px;border-right:none;
+      border-bottom:1px solid var(--border)}
+    .sidebar .nav-item{padding:8px 12px;border-left:none;border-bottom:2px solid transparent;
+      white-space:nowrap}
+    .sidebar .nav-item.active{border-left:none;border-bottom-color:var(--primary)}
+    .sidebar .nav-title{display:none}
+    .grid-2,.row{grid-template-columns:1fr}
+  }
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
+  th{background:#f8fafc;font-weight:600;color:#334155;font-size:12px;
+    text-transform:uppercase;letter-spacing:.4px}
+  tr:hover td{background:#f8fafc}
+  .table-wrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:12px}
+
+  /* Score input */
+  .aspect-row{display:grid;grid-template-columns:1fr 90px;align-items:center;
+    gap:10px;padding:8px 0;border-bottom:1px dashed #e2e8f0}
+  .aspect-row:last-child{border-bottom:none}
+  .aspect-row span{font-size:14px}
+  .score-badge{display:inline-block;background:#eff6ff;color:var(--primary-dark);
+    padding:6px 12px;border-radius:8px;font-weight:700;font-size:18px}
+
+  /* Alert */
+  .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
+  .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+  .alert-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
+  .alert-info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
+
+  /* Modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;
+    align-items:center;justify-content:center;z-index:100;padding:16px}
+  .modal{background:#fff;border-radius:12px;padding:24px;max-width:420px;width:100%}
+  .modal h3{margin-bottom:10px}
+  .modal .actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+
+  /* Print view */
+  @media print{
+    body{background:#fff!important}
+    body.has-bg::before{display:none}
+  }
+  .print-only{display:none}
+</style>
 </head>
-<body id="app-body" class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-300">
+<body>
+<div id="root"></div>
 
-    <script>
-        // Masukkan URL Deployment Google Apps Script Anda di sini
-        const HARDCODED_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0EhbgwVyTVO-ctpKFK-_mVPUJGWMOsYJqEw7bahiKNptHvIab5SAelc_eQpRifKil/exec";
-    </script>
+<script>
+'use strict';
 
-    <!-- Authentication View (Modal Login / Register) -->
-    <div id="auth-view" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 p-8 space-y-6">
-            <div class="text-center space-y-2">
-                <div id="auth-logo-container" class="w-16 h-16 bg-indigo-600 text-white rounded-2xl mx-auto flex items-center justify-center text-2xl shadow-lg mb-4">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                </div>
-                <h2 id="auth-school-title" class="text-2xl font-bold text-slate-800 dark:text-white">Evaluasi Kognitif & Karakter</h2>
-                <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400">Masuk atau daftar untuk mengelola catatan peningkatan murid Anda</p>
-            </div>
+/* ============================================================
+ *  GANTI BARIS DI BAWAH INI DENGAN URL WEB APP APPS SCRIPT ANDA
+ *  (Deploy > New deployment > Web app > Execute as: Me,
+ *   Who has access: Anyone > Copy URL)
+ * ============================================================ */
+const API_URL = 'https://script.google.com/macros/s/GANTI_DENGAN_URL_ANDA/exec';
+/* ============================================================ */
 
-            <!-- Auth Tabs -->
-            <div class="flex bg-slate-100 dark:bg-slate-900 p-1 rounded-xl">
-                <button type="button" onclick="switchAuthTab('login')" id="tab-login" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm">Masuk</button>
-                <button type="button" onclick="switchAuthTab('register')" id="tab-register" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400">Daftar Akun</button>
-            </div>
+/* ---------- State ---------- */
+const state = {
+  user: null,
+  config: {},
+  view: 'login',
+  loginTab: 'login',
+  students: [],
+  evaluations: [],
+  teachers: [],
+  loading: false,
+  msg: null
+};
 
-            <!-- Notification in Auth -->
-            <div id="auth-alert" class="hidden p-3 rounded-xl text-xs flex items-center justify-between">
-                <span id="auth-alert-text"></span>
-            </div>
+const saved = localStorage.getItem('evalUser');
+if (saved) { try { state.user = JSON.parse(saved); state.view = state.user.role === 'admin' ? 'admin-config' : 'teacher-home'; } catch(e){} }
 
-            <!-- Login Form -->
-            <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nama Guru</label>
-                    <input type="text" id="login-name" required placeholder="Contoh: Budi Santoso, S.Pd" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Kata Sandi</label>
-                    <input type="password" id="login-pass" required placeholder="••••••••" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-right-to-bracket"></i> Masuk ke Sistem
-                </button>
-            </form>
+/* ---------- API ---------- */
+async function api(action, payload = {}) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action, ...payload })
+  });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'Terjadi kesalahan server');
+  return json.data;
+}
 
-            <!-- Register Form -->
-            <form id="form-register" onsubmit="handleRegister(event)" class="space-y-4 hidden">
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Nama Lengkap & Gelar</label>
-                    <input type="text" id="reg-name" required placeholder="Contoh: Siti Aminah, M.Pd" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Buat Kata Sandi Baru</label>
-                    <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-                <button type="submit" id="btn-reg-submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition-all flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-user-plus"></i> Daftar & Masuk
-                </button>
-            </form>
-        </div>
+function showMsg(text, type = 'info') {
+  state.msg = { text, type };
+  render();
+  setTimeout(() => { state.msg = null; render(); }, 3500);
+}
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtDate(d){ if(!d) return '-'; const x=new Date(d); if(isNaN(x)) return '-';
+  return x.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+
+/* ---------- Auth ---------- */
+async function doLogin(e) {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    state.loading = true; render();
+    const u = await api('login', { username: f.username.value, password: f.password.value });
+    state.user = u;
+    localStorage.setItem('evalUser', JSON.stringify(u));
+    state.view = 'teacher-home';
+    await loadConfig();
+    await loadEvaluations();
+    showMsg('Login berhasil. Selamat datang, ' + u.fullName, 'success');
+  } catch(err){ showMsg(err.message, 'error'); }
+  finally { state.loading = false; render(); }
+}
+
+async function doRegister(e) {
+  e.preventDefault();
+  const f = e.target;
+  try {
+    state.loading = true; render();
+    await api('register', {
+      username: f.username.value, password: f.password.value, fullName: f.fullName.value
+    });
+    showMsg('Akun berhasil dibuat. Silakan login.', 'success');
+    state.loginTab = 'login';
+  } catch(err){ showMsg(err.message, 'error'); }
+  finally { state.loading = false; render(); }
+}
+
+function askAdmin() {
+  const pwd = prompt('Masukkan password admin:');
+  if (!pwd) return;
+  api('adminLogin', { password: pwd }).then(u => {
+    state.user = u;
+    localStorage.setItem('evalUser', JSON.stringify(u));
+    state.view = 'admin-config';
+    loadConfig().then(render);
+    showMsg('Mode admin aktif', 'success');
+  }).catch(err => showMsg(err.message, 'error'));
+}
+
+function logout() {
+  state.user = null; state.evaluations = []; state.students = [];
+  localStorage.removeItem('evalUser');
+  state.view = 'login';
+  render();
+}
+
+/* ---------- Data loaders ---------- */
+async function loadConfig() {
+  try {
+    state.config = await api('getConfig');
+    if (state.config.bgUrl) {
+      document.body.style.backgroundImage = `url('${state.config.bgUrl}')`;
+      document.body.classList.add('has-bg');
+    } else {
+      document.body.style.backgroundImage = '';
+      document.body.classList.remove('has-bg');
+    }
+  } catch(e){ console.error(e); }
+}
+
+async function loadStudents() {
+  try { state.students = await api('getStudents'); } catch(e){}
+}
+
+async function loadEvaluations() {
+  try {
+    const payload = state.user.role === 'admin'
+      ? { adminPassword: ADMIN_PWD() }
+      : { teacherUsername: state.user.username };
+    state.evaluations = await api('getEvaluations', payload);
+  } catch(e){ showMsg(e.message,'error'); }
+}
+
+// simpan password admin sementara di memory (diminta di awal)
+function ADMIN_PWD(){
+  return sessionStorage.getItem('adminPwd') || '';
+}
+
+/* ============================================================
+ *  VIEWS
+ * ============================================================ */
+
+function render() {
+  const root = document.getElementById('root');
+  if (!state.user) root.innerHTML = renderLogin();
+  else root.innerHTML = renderApp();
+  bindEvents();
+}
+
+/* ---------- Login ---------- */
+function renderLogin() {
+  const cfg = state.config;
+  return `
+  <div class="login-wrap" style="${cfg.bgUrl?`background:linear-gradient(135deg,rgba(30,58,138,.85),rgba(37,99,235,.85)),url('${esc(cfg.bgUrl)}') center/cover`:''}">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:18px">
+        ${cfg.logoUrl?`<img src="${esc(cfg.logoUrl)}" style="height:56px;margin-bottom:8px">`:''}
+        <h1>${esc(cfg.schoolName || 'Evaluasi Siswa')}</h1>
+        <div class="sub">Aplikasi Evaluasi Perkembangan Siswa</div>
+      </div>
+
+      <div class="tabs">
+        <button class="${state.loginTab==='login'?'active':''}" data-tab="login">Masuk</button>
+        <button class="${state.loginTab==='register'?'active':''}" data-tab="register">Daftar</button>
+      </div>
+
+      ${state.msg ? `<div class="alert alert-${state.msg.type}">${esc(state.msg.text)}</div>` : ''}
+
+      ${state.loginTab === 'login' ? `
+        <form id="form-login">
+          <div class="field"><label>Username</label>
+            <input name="username" required autocomplete="username"></div>
+          <div class="field"><label>Password</label>
+            <input name="password" type="password" required autocomplete="current-password"></div>
+          <button class="btn btn-primary btn-block" ${state.loading?'disabled':''}>
+            ${state.loading?'Memproses...':'Masuk'}
+          </button>
+        </form>
+      ` : `
+        <form id="form-register">
+          <div class="field"><label>Nama Lengkap</label>
+            <input name="fullName" required></div>
+          <div class="field"><label>Username</label>
+            <input name="username" required autocomplete="username"></div>
+          <div class="field"><label>Password</label>
+            <input name="password" type="password" required minlength="4"></div>
+          <button class="btn btn-primary btn-block" ${state.loading?'disabled':''}>
+            ${state.loading?'Memproses...':'Daftar Akun Guru'}
+          </button>
+        </form>
+      `}
+
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn btn-ghost btn-sm" id="btn-admin">🔐 Masuk Mode Admin</button>
+      </div>
     </div>
+  </div>`;
+}
 
-    <!-- Main Header -->
-    <header class="bg-indigo-700 dark:bg-slate-900 text-white shadow-md sticky top-0 z-40 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center space-x-3">
-                <div id="header-logo-wrap" class="bg-white text-indigo-700 p-2 rounded-xl shadow-inner w-10 h-10 flex items-center justify-center overflow-hidden">
-                    <i id="header-logo-icon" class="fa-solid fa-graduation-cap text-lg"></i>
-                </div>
-                <div>
-                    <h1 id="header-school-name" class="text-lg font-bold tracking-tight">Evaluasi Kognitif & Karakter</h1>
-                    <p id="header-user-info" class="text-xs text-indigo-200 dark:text-slate-400">Guru (Catatan Pribadi): <span id="current-teacher-name" class="font-semibold text-white">Guru</span></p>
-                </div>
-            </div>
+/* ---------- App shell ---------- */
+function renderApp() {
+  const u = state.user;
+  const isAdmin = u.role === 'admin';
+  const cfg = state.config;
 
-            <div class="flex items-center gap-3">
-                <nav class="flex items-center space-x-1 bg-indigo-800/60 dark:bg-slate-800 p-1.5 rounded-xl border border-indigo-600 dark:border-slate-700">
-                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-white text-indigo-700 shadow-sm">
-                        <i class="fa-solid fa-house mr-1.5"></i>Dashboard
-                    </button>
-                    <button onclick="switchTab('evaluasi')" id="nav-evaluasi" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-indigo-100 hover:text-white hover:bg-indigo-700">
-                        <i class="fa-solid fa-clipboard-check mr-1.5"></i>Catatan Saya
-                    </button>
-                    <button onclick="switchTab('laporan')" id="nav-laporan" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-indigo-100 hover:text-white hover:bg-indigo-700">
-                        <i class="fa-solid fa-file-lines mr-1.5"></i>Laporan
-                    </button>
-                </nav>
+  const navTeacher = [
+    { id:'teacher-home',  label:'📋 Evaluasi Saya' },
+    { id:'teacher-new',   label:'➕ Buat Evaluasi' },
+    { id:'teacher-report',label:'🖨️ Cetak & Kirim' }
+  ];
+  const navAdmin = [
+    { id:'admin-config',   label:'⚙️ Konfigurasi' },
+    { id:'admin-students', label:'👥 Data Siswa' },
+    { id:'admin-teachers', label:'👨‍🏫 Akun Guru' },
+    { id:'admin-evals',    label:'📊 Semua Evaluasi' },
+    { id:'admin-report',   label:'🖨️ Rangkuman & Cetak' }
+  ];
+  const nav = isAdmin ? navAdmin : navTeacher;
 
-                <button onclick="openAdminSecurityModal()" class="bg-indigo-800 hover:bg-indigo-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white p-2.5 rounded-xl border border-indigo-600 dark:border-slate-700 transition-all shadow-sm" title="Pusat Admin (PIN)">
-                    <i class="fa-solid fa-gear text-sm"></i>
-                </button>
+  return `
+  <div class="topbar">
+    <div class="brand">
+      ${cfg.logoUrl?`<img src="${esc(cfg.logoUrl)}">`:''}
+      <span>${esc(cfg.schoolName || 'Evaluasi Siswa')}</span>
+    </div>
+    <div class="user-info">
+      <span>${esc(u.fullName)}</span>
+      <span class="badge ${isAdmin?'admin':''}">${isAdmin?'ADMIN':'GURU'}</span>
+      <button class="btn btn-ghost btn-sm" id="btn-logout">Keluar</button>
+    </div>
+  </div>
 
-                <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white p-2.5 rounded-xl transition-all shadow-sm" title="Keluar Akun">
-                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
-        
-        <div id="notification" class="hidden p-4 rounded-xl border text-sm flex items-center justify-between shadow-sm transition-all">
-            <span id="notif-text"></span>
-            <button onclick="hideNotification()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-
-        <!-- ================= TAB DASHBOARD ================= -->
-        <section id="tab-dashboard" class="space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Catatan Saya</p>
-                        <h3 id="stat-total" class="text-3xl font-bold text-slate-800 dark:text-white mt-1">0</h3>
-                        <p class="text-xs text-slate-500 mt-1">Evaluasi kognitif & karakter</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-lg">
-                        <i class="fa-solid fa-folder-open"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Kelas Tersedia</p>
-                        <h3 id="stat-classes" class="text-3xl font-bold text-slate-800 dark:text-white mt-1">0</h3>
-                        <p class="text-xs text-slate-500 mt-1">Daftar dari admin</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 flex items-center justify-center text-lg">
-                        <i class="fa-solid fa-school"></i>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Fokus Utama</p>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mt-1">Kognitif & Karakter</h3>
-                        <p class="text-xs text-slate-500 mt-1">Pengembangan holistik murid</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-lg">
-                        <i class="fa-solid fa-brain"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hero Banner -->
-            <div id="hero-banner" class="bg-gradient-to-r from-indigo-900 to-blue-800 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden bg-cover bg-center">
-                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]"></div>
-                <div class="relative z-10 max-w-2xl">
-                    <span id="hero-badge" class="bg-indigo-700 text-indigo-200 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide border border-indigo-500">Pusat Catatan Pribadi Guru</span>
-                    <h2 id="hero-title" class="text-2xl sm:text-3xl font-bold mt-3">Evaluasi Peningkatan Kognitif & Perkembangan Karakter Murid</h2>
-                    <p id="hero-desc" class="text-indigo-100 text-sm mt-2 leading-relaxed">
-                        Catat kemajuan pemahaman akademik, daya nalar, serta pembentukan karakter positif murid secara pribadi dan terstruktur.
-                    </p>
-                    <div class="mt-6 flex flex-wrap gap-3">
-                        <button onclick="switchTab('evaluasi')" class="bg-white text-indigo-900 font-semibold px-5 py-2.5 rounded-xl text-sm shadow-md hover:bg-indigo-50 transition-all flex items-center gap-2">
-                            <i class="fa-solid fa-plus-circle"></i> Catat Evaluasi Baru
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent activity list -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
-                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                    <i class="fa-solid fa-clock-rotate-left text-indigo-600"></i> Catatan Terbaru Anda
-                </h3>
-                <div id="recent-eval-list" class="divide-y divide-slate-100 dark:divide-slate-700">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= TAB EVALUASI / CATATAN ================= -->
-        <section id="tab-evaluasi" class="hidden space-y-6">
-            <div class="flex flex-col lg:flex-row gap-6 items-start">
-                
-                <!-- Form Input Card -->
-                <div class="w-full lg:w-1/3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 sticky top-24">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-pen-to-square text-indigo-600"></i> Buat Catatan Kognitif / Karakter
-                    </h3>
-                    
-                    <form id="eval-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Cakupan Evaluasi *</label>
-                            <select id="scope" onchange="toggleScopeInputs()" required class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="Kelas">Kelas Keseluruhan</option>
-                                <option value="Murid">Murid Tertentu</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Pilih Kelas (Dari Admin) *</label>
-                            <select id="className" required class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <!-- Populated from master data classes -->
-                            </select>
-                        </div>
-
-                        <div id="student-container" class="hidden">
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Nama Murid (Ketik Manual) *</label>
-                            <input type="text" id="student" placeholder="Contoh: Ahmad Fauzi" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Fokus Penilaian *</label>
-                            <select id="category" required class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="Perkembangan Kognitif">Peningkatan Kognitif / Akademik</option>
-                                <option value="Pembentukan Karakter">Pembentukan Karakter / Akhlak</option>
-                                <option value="Kreativitas & Nalar Kritis">Kreativitas & Nalar Kritis</option>
-                                <option value="Kedisiplinan & Tanggung Jawab">Kedisiplinan & Tanggung Jawab</option>
-                                <option value="Kolaborasi & Sosial">Kolaborasi & Sosial</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Judul / Topik Evaluasi *</label>
-                            <input type="text" id="title" required placeholder="Contoh: Pemahaman konsep pecahan meningkat pesat" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Catatan Detail Perkembangan *</label>
-                            <textarea id="description" rows="4" required placeholder="Uraikan kemajuan kognitif atau catatan karakter murid..." class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                        </div>
-
-                        <button type="submit" id="btn-submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl text-sm shadow-md transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up"></i> Simpan Catatan Saya
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Data Table Section -->
-                <div class="w-full lg:w-2/3 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-4">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Daftar Catatan Pribadi Anda</h3>
-                        <div class="flex items-center gap-2 w-full sm:w-auto">
-                            <input type="text" id="search-input" oninput="renderTable()" placeholder="Cari topik atau murid..." class="px-4 py-2 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-64">
-                            <button onclick="syncDataFromCloud()" class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-3 py-2 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition-all" title="Sinkronkan Data">
-                                <i class="fa-solid fa-rotate"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 uppercase text-xs tracking-wider border-b border-slate-200 dark:border-slate-700">
-                                <tr>
-                                    <th class="px-4 py-3 font-semibold">Waktu</th>
-                                    <th class="px-4 py-3 font-semibold">Target (Kelas/Murid)</th>
-                                    <th class="px-4 py-3 font-semibold">Fokus & Judul</th>
-                                    <th class="px-4 py-3 font-semibold">Catatan Kognitif / Karakter</th>
-                                </tr>
-                            </thead>
-                            <tbody id="eval-table-body" class="divide-y divide-slate-100 dark:divide-slate-700">
-                                <!-- Populated dynamically -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- ================= TAB LAPORAN ================= -->
-        <section id="tab-laporan" class="hidden space-y-6">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm p-6 space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Laporan Rekapitulasi & Rentang Waktu</h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Atur rentang waktu (maksimal 1 tahun) untuk cetak atau unduh rangkuman catatan Anda.</p>
-                    </div>
-                </div>
-
-                <!-- Date Range Filter -->
-                <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Dari Tanggal</label>
-                        <input type="date" id="filter-start-date" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase mb-1">Sampai Tanggal</label>
-                        <input type="date" id="filter-end-date" class="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white">
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="exportTeacherReportCSV()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5" title="Unduh CSV Terfilter">
-                            <i class="fa-solid fa-file-excel"></i> Unduh CSV
-                        </button>
-                        <button onclick="printTeacherReport()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5" title="Cetak Rangkuman">
-                            <i class="fa-solid fa-print"></i> Cetak Arsip
-                        </button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
-                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <span class="text-xs font-semibold uppercase text-slate-400">Total Catatan Anda</span>
-                        <h4 id="report-total" class="text-2xl font-bold text-slate-800 dark:text-white mt-2">0</h4>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <span class="text-xs font-semibold uppercase text-slate-400">Fokus Terbanyak</span>
-                        <h4 id="report-top-cat" class="text-xl font-bold text-slate-800 dark:text-white mt-2">-</h4>
-                    </div>
-                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <span class="text-xs font-semibold uppercase text-slate-400">Kelas Paling Sering</span>
-                        <h4 id="report-top-class" class="text-xl font-bold text-slate-800 dark:text-white mt-2">-</h4>
-                    </div>
-                </div>
-
-                <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
-                    <h4 class="font-bold text-slate-800 dark:text-white mb-3">Distribusi Fokus Penilaian</h4>
-                    <div id="category-breakdown" class="space-y-3">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="nav-title">Menu</div>
+      ${nav.map(n=>`<div class="nav-item ${state.view===n.id?'active':''}" data-nav="${n.id}">${n.label}</div>`).join('')}
+    </aside>
+    <main class="content">
+      ${state.msg?`<div class="alert alert-${state.msg.type}">${esc(state.msg.text)}</div>`:''}
+      ${renderView()}
     </main>
+  </div>`;
+}
 
-    <!-- Admin PIN Modal -->
-    <div id="admin-security-modal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-4">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-lock text-indigo-600"></i> Autentikasi Admin
-                </h3>
-                <button onclick="closeAdminSecurityModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan PIN khusus administrator (22341) untuk membuka panel pengaturan.</p>
-            <form onsubmit="verifyAdminPIN(event)" class="space-y-3">
-                <input type="password" id="admin-pin-input" required placeholder="Masukkan PIN Admin" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm shadow-md transition-all">
-                    Verifikasi PIN
-                </button>
-            </form>
+function renderView() {
+  switch(state.view){
+    case 'teacher-home':   return viewTeacherHome();
+    case 'teacher-new':    return viewTeacherNew();
+    case 'teacher-report': return viewTeacherReport();
+    case 'admin-config':   return viewAdminConfig();
+    case 'admin-students': return viewAdminStudents();
+    case 'admin-teachers': return viewAdminTeachers();
+    case 'admin-evals':    return viewAdminEvals();
+    case 'admin-report':   return viewAdminReport();
+    default: return '<div class="card">Halaman tidak ditemukan</div>';
+  }
+}
+
+/* ---------- Teacher: daftar evaluasi ---------- */
+function viewTeacherHome() {
+  const list = state.evaluations;
+  if (!list.length) return `
+    <h2>Evaluasi Saya</h2>
+    <div class="subtitle">Daftar evaluasi yang pernah Anda buat.</div>
+    <div class="card" style="text-align:center;padding:40px">
+      <p style="color:var(--muted);margin-bottom:16px">Belum ada evaluasi.</p>
+      <button class="btn btn-primary" data-nav="teacher-new">➕ Buat Evaluasi Pertama</button>
+    </div>`;
+
+  return `
+    <h2>Evaluasi Saya</h2>
+    <div class="subtitle">Total ${list.length} evaluasi.</div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Siswa</th><th>Kelas</th><th>Periode</th>
+        <th>Akademik</th><th>Karakter</th><th>Tanggal</th><th>Aksi</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(e=>`
+          <tr>
+            <td><strong>${esc(e.studentName)}</strong></td>
+            <td>${esc(e.studentClass)}</td>
+            <td>${esc(e.period)}</td>
+            <td><span class="score-badge" style="font-size:14px;padding:3px 8px">${esc(e.acadScore)}</span></td>
+            <td><span class="score-badge" style="font-size:14px;padding:3px 8px">${esc(e.karScore)}</span></td>
+            <td>${fmtDate(e.createdAt)}</td>
+            <td>
+              <button class="btn btn-ghost btn-sm" data-detail="${esc(e.id)}">Detail</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+/* ---------- Teacher: form evaluasi baru ---------- */
+function viewTeacherNew() {
+  const classes = (state.config.classes||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const periods = currentPeriods();
+  return `
+  <h2>Buat Evaluasi Baru</h2>
+  <div class="subtitle">Isi penilaian perkembangan kognitif/akademik dan karakter/akhlaq siswa.</div>
+
+  <form id="form-eval">
+    <div class="card">
+      <h3>Identitas Siswa</h3>
+      <div class="row">
+        <div class="field">
+          <label>Kelas</label>
+          <select name="studentClass" id="sel-class" required>
+            <option value="">— Pilih Kelas —</option>
+            ${classes.map(c=>`<option>${esc(c)}</option>`).join('')}
+          </select>
         </div>
+        <div class="field">
+          <label>Nama Siswa</label>
+          <input name="studentName" id="inp-student" list="student-list" required
+                 placeholder="Ketik atau pilih nama siswa">
+          <datalist id="student-list">
+            ${state.students.map(s=>`<option data-kelas="${esc(s.className)}" value="${esc(s.name)}">${esc(s.className)}</option>`).join('')}
+          </datalist>
+        </div>
+      </div>
+      <div class="field">
+        <label>Periode Penilaian</label>
+        <select name="period" required>
+          ${periods.map(p=>`<option>${esc(p)}</option>`).join('')}
+        </select>
+      </div>
     </div>
 
-    <!-- Admin Sidebar Panel -->
-    <div id="admin-sidebar" class="fixed inset-0 z-50 overflow-hidden hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeAdminSidebar()"></div>
-        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
-            <div class="w-screen max-w-md bg-white dark:bg-slate-800 shadow-2xl flex flex-col transition-transform duration-300">
-                <div class="p-6 bg-indigo-700 dark:bg-slate-900 text-white flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-gear text-xl"></i>
-                        <h3 class="font-bold text-lg">Pusat Pengaturan Admin</h3>
-                    </div>
-                    <button onclick="closeAdminSidebar()" class="text-white/80 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-                </div>
-
-                <div class="flex-grow overflow-y-auto p-6 space-y-6 text-sm">
-                    <!-- School Info Settings -->
-                    <div class="space-y-3">
-                        <h4 class="font-bold text-slate-800 dark:text-white uppercase text-xs tracking-wider border-b pb-1 dark:border-slate-700">Identitas Sekolah</h4>
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-1">Nama Sekolah</label>
-                            <input type="text" id="setting-school-name" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-1">Link Logo Sekolah (URL Gambar)</label>
-                            <input type="url" id="setting-logo-url" placeholder="https://..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-1">Link Background Banner (URL Gambar)</label>
-                            <input type="url" id="setting-bg-url" placeholder="https://..." class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-1">Tema Tampilan</label>
-                            <select id="setting-theme" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                                <option value="light">Terang (Light)</option>
-                                <option value="dark">Gelap (Dark)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Teacher Management -->
-                    <div class="space-y-3 pt-3 border-t dark:border-slate-700">
-                        <div class="flex justify-between items-center">
-                            <h4 class="font-bold text-slate-800 dark:text-white uppercase text-xs tracking-wider">Manajemen Akun Guru</h4>
-                            <button onclick="openAddTeacherModal()" class="text-xs bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400 px-2.5 py-1 rounded-lg font-semibold">+ Tambah Guru</button>
-                        </div>
-                        <div id="admin-teacher-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
-
-                    <!-- Master Data Classes -->
-                    <div class="space-y-3 pt-3 border-t dark:border-slate-700">
-                        <h4 class="font-bold text-slate-800 dark:text-white uppercase text-xs tracking-wider">Master Data Kelas</h4>
-                        <p class="text-xs text-slate-400">Daftar kelas ini akan muncul sebagai pilihan bagi guru saat memasukkan laporan evaluasi.</p>
-                        <div>
-                            <label class="block text-xs text-slate-500 mb-1">Daftar Kelas (Pisahkan dengan koma)</label>
-                            <input type="text" id="setting-classes" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                        </div>
-                    </div>
-
-                    <!-- Admin Master Report Export & Print -->
-                    <div class="space-y-3 pt-3 border-t dark:border-slate-700">
-                        <h4 class="font-bold text-slate-800 dark:text-white uppercase text-xs tracking-wider">Laporan & Arsip Seluruh Guru</h4>
-                        <p class="text-xs text-slate-400">Unduh atau cetak rekapitulasi catatan kognitif dan karakter dari seluruh guru di sekolah.</p>
-                        <div class="flex gap-2 pt-1">
-                            <button onclick="adminExportAllCSV()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-3 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-file-excel"></i> Unduh Semua (CSV)
-                            </button>
-                            <button onclick="adminPrintAllNotes()" class="flex-1 bg-slate-800 hover:bg-slate-900 text-white py-2 px-3 rounded-lg text-xs font-semibold shadow-sm transition-all flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-print"></i> Cetak Arsip
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-4 bg-slate-50 dark:bg-slate-900 border-t dark:border-slate-700 flex justify-end gap-2">
-                    <button onclick="closeAdminSidebar()" class="px-4 py-2 rounded-xl text-sm border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300">Batal</button>
-                    <button onclick="saveAdminSettings()" class="px-5 py-2 rounded-xl text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-md">Simpan Pengaturan</button>
-                </div>
-            </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>🧠 Perkembangan Kognitif / Akademik</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+          Skala 1 (kurang) – 5 (sangat baik).</p>
+        ${aspectRow('acadPemahaman','Pemahaman Materi')}
+        ${aspectRow('acadPartisipasi','Partisipasi Aktif')}
+        ${aspectRow('acadTugas','Penyelesaian Tugas/PR')}
+        ${aspectRow('acadAnalisis','Kemampuan Analisis')}
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+          <strong>Nilai Akademik:</strong>
+          <span class="score-badge" id="acadScore">60</span>
+          <span style="color:var(--muted);font-size:12px">/100</span>
         </div>
+        <div class="field" style="margin-top:12px">
+          <label>Catatan Akademik</label>
+          <textarea name="acadNotes" placeholder="Catatan perkembangan akademik..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🌟 Perkembangan Karakter / Akhlaq</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+          Skala 1 (kurang) – 5 (sangat baik).</p>
+        ${aspectRow('karKejujuran','Kejujuran')}
+        ${aspectRow('karDisiplin','Kedisiplinan')}
+        ${aspectRow('karSopan','Sopan Santun')}
+        ${aspectRow('karTanggungJawab','Tanggung Jawab')}
+        ${aspectRow('karKerjasama','Kerjasama')}
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+          <strong>Nilai Karakter:</strong>
+          <span class="score-badge" id="karScore">60</span>
+          <span style="color:var(--muted);font-size:12px">/100</span>
+        </div>
+        <div class="field" style="margin-top:12px">
+          <label>Catatan Karakter</label>
+          <textarea name="karNotes" placeholder="Catatan perkembangan karakter/akhlaq..."></textarea>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal Tambah Guru oleh Admin -->
-    <div id="modal-add-teacher" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-3xl shadow-2xl p-6 space-y-4">
-            <h3 class="font-bold text-slate-800 dark:text-white">Tambah Akun Guru Baru</h3>
-            <form onsubmit="handleAdminAddTeacher(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs text-slate-500 mb-1">Nama Guru & Gelar</label>
-                    <input type="text" id="new-t-name" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-500 mb-1">Sandi Guru</label>
-                    <input type="text" id="new-t-pass" required class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white text-sm">
-                </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeAddTeacherModal()" class="px-3 py-1.5 text-xs text-slate-500">Batal</button>
-                    <button type="submit" class="px-4 py-1.5 text-xs bg-indigo-600 text-white rounded-lg font-semibold">Simpan</button>
-                </div>
-            </form>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button type="button" class="btn btn-ghost" data-nav="teacher-home">Batal</button>
+      <button class="btn btn-primary" ${state.loading?'disabled':''}>
+        ${state.loading?'Menyimpan...':'💾 Simpan Evaluasi'}
+      </button>
+    </div>
+  </form>`;
+}
+
+function aspectRow(name, label) {
+  return `<div class="aspect-row">
+    <span>${label}</span>
+    <select name="${name}" class="aspect-score" data-aspect>
+      <option value="1">1 - Kurang</option>
+      <option value="2">2 - Cukup</option>
+      <option value="3" selected>3 - Baik</option>
+      <option value="4">4 - Sangat Baik</option>
+      <option value="5">5 - Istimewa</option>
+    </select>
+  </div>`;
+}
+
+function currentPeriods() {
+  const y = new Date().getFullYear();
+  return [
+    `Semester 1 ${y}/${y+1}`,
+    `Semester 2 ${y-1}/${y}`,
+    `Semester 1 ${y-1}/${y}`,
+    `Semester 2 ${y-2}/${y-1}`
+  ];
+}
+
+/* ---------- Teacher: report / cetak ---------- */
+function viewTeacherReport() {
+  if (!state.evaluations.length)
+    return `<h2>Cetak & Kirim Laporan</h2>
+      <div class="subtitle">Belum ada evaluasi untuk dicetak.</div>`;
+  return `
+    <h2>Cetak & Kirim Laporan</h2>
+    <div class="subtitle">Pilih evaluasi untuk dicetak atau dikirim ke Kepala Sekolah.</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Siswa</th><th>Kelas</th><th>Periode</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+      <tbody>
+        ${state.evaluations.map(e=>`
+          <tr>
+            <td><strong>${esc(e.studentName)}</strong></td>
+            <td>${esc(e.studentClass)}</td>
+            <td>${esc(e.period)}</td>
+            <td>${fmtDate(e.createdAt)}</td>
+            <td style="white-space:nowrap">
+              <button class="btn btn-ghost btn-sm" data-print="${esc(e.id)}">🖨️ Cetak</button>
+              <button class="btn btn-success btn-sm" data-send="${esc(e.id)}">💬 Kirim</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+/* ---------- Admin: Config ---------- */
+function viewAdminConfig() {
+  const c = state.config;
+  return `
+    <h2>Konfigurasi Aplikasi</h2>
+    <div class="subtitle">Pengaturan utama aplikasi (hanya admin).</div>
+    <form id="form-config" class="card">
+      <div class="field">
+        <label>Nama Sekolah</label>
+        <input name="schoolName" value="${esc(c.schoolName||'')}" required>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>URL Logo Sekolah</label>
+          <input name="logoUrl" value="${esc(c.logoUrl||'')}" placeholder="https://...">
         </div>
+        <div class="field">
+          <label>URL Background</label>
+          <input name="bgUrl" value="${esc(c.bgUrl||'')}" placeholder="https://...">
+        </div>
+      </div>
+      <div class="field">
+        <label>Daftar Kelas (pisahkan dengan koma)</label>
+        <input name="classes" value="${esc(c.classes||'')}" placeholder="Kelas 7A, Kelas 7B, Kelas 8A">
+      </div>
+      <div class="field">
+        <label>No. WhatsApp Kepala Sekolah</label>
+        <input name="principalPhone" value="${esc(c.principalPhone||'')}" placeholder="628123456789">
+        <p style="font-size:12px;color:var(--muted);margin-top:4px">
+          Format internasional tanpa tanda +. Contoh: 628123456789</p>
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary">💾 Simpan Konfigurasi</button>
+      </div>
+    </form>`;
+}
+
+/* ---------- Admin: Students ---------- */
+function viewAdminStudents() {
+  const classes = (state.config.classes||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const grouped = {};
+  state.students.forEach(s => {
+    grouped[s.className] = grouped[s.className] || [];
+    grouped[s.className].push(s);
+  });
+  return `
+    <h2>Data Siswa</h2>
+    <div class="subtitle">Master data siswa yang tersedia untuk evaluasi.</div>
+
+    <div class="card">
+      <h3>Tambah Siswa</h3>
+      <form id="form-student" class="row">
+        <div class="field" style="margin:0">
+          <label>Nama Siswa</label>
+          <input name="name" required>
+        </div>
+        <div class="field" style="margin:0">
+          <label>Kelas</label>
+          <select name="className" required>
+            <option value="">— Pilih —</option>
+            ${classes.map(c=>`<option>${esc(c)}</option>`).join('')}
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn btn-primary">➕ Tambah</button>
+        </div>
+      </form>
     </div>
 
-    <script>
-        let appSettings = {
-            schoolName: "Evaluasi Kognitif & Karakter",
-            logoUrl: "",
-            bgUrl: "",
-            theme: "light",
-            classes: ["Kelas 1A", "Kelas 1B", "Kelas 2A", "Kelas 2B", "Kelas 3A", "Kelas 3B"]
-        };
-
-        let teachersDB = [];
-        let currentTeacher = null;
-        let evaluations = [];
-
-        window.addEventListener('DOMContentLoaded', () => {
-            // Perbaikan: Ambil session guru dari localStorage hanya jika benar-benar tersimpan valid
-            const savedTeacher = localStorage.getItem('eval_current_teacher');
-            if (savedTeacher && savedTeacher !== "null" && savedTeacher !== "undefined") {
-                try {
-                    currentTeacher = JSON.parse(savedTeacher);
-                } catch(e) {
-                    currentTeacher = null;
-                }
-            }
-
-            syncDataFromCloud(() => {
-                if (currentTeacher && currentTeacher.name) {
-                    const verified = teachersDB.find(t => t.name.toLowerCase() === currentTeacher.name.toLowerCase());
-                    if (verified) {
-                        currentTeacher = verified;
-                        localStorage.setItem('eval_current_teacher', JSON.stringify(currentTeacher));
-                        document.getElementById('auth-view').classList.add('hidden');
-                        document.getElementById('current-teacher-name').innerText = currentTeacher.name;
-                    } else {
-                        logout();
-                    }
-                } else {
-                    // Pastikan modal login/register tampil jika belum ada sesi login
-                    document.getElementById('auth-view').classList.remove('hidden');
-                }
-            });
-        });
-
-        function switchAuthTab(tab) {
-            if (tab === 'login') {
-                document.getElementById('form-login').classList.remove('hidden');
-                document.getElementById('form-register').classList.add('hidden');
-                document.getElementById('tab-login').className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm";
-                document.getElementById('tab-register').className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400";
-            } else {
-                document.getElementById('form-login').classList.add('hidden');
-                document.getElementById('form-register').classList.remove('hidden');
-                document.getElementById('tab-register').className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm";
-                document.getElementById('tab-login').className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all text-slate-500 dark:text-slate-400";
-            }
-        }
-
-        function showAuthAlert(msg, type='error') {
-            const el = document.getElementById('auth-alert');
-            const txt = document.getElementById('auth-alert-text');
-            txt.innerText = msg;
-            el.className = `p-3 rounded-xl text-xs flex items-center justify-between ${type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`;
-            el.classList.remove('hidden');
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const name = document.getElementById('login-name').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-
-            const found = teachersDB.find(t => t.name.toLowerCase() === name.toLowerCase() && t.pass === pass);
-            if (found) {
-                currentTeacher = found;
-                localStorage.setItem('eval_current_teacher', JSON.stringify(currentTeacher));
-                document.getElementById('auth-view').classList.add('hidden');
-                document.getElementById('current-teacher-name').innerText = currentTeacher.name;
-                syncDataFromCloud();
-                showNotification(`Selamat datang kembali, ${currentTeacher.name}!`);
-            } else {
-                showAuthAlert('Nama guru atau kata sandi salah!');
-            }
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const name = document.getElementById('reg-name').value.trim();
-            const pass = document.getElementById('reg-pass').value.trim();
-            const btn = document.getElementById('btn-reg-submit');
-
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
-
-            const newT = { name, pass };
-
-            const existingIdx = teachersDB.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
-            if (existingIdx >= 0) {
-                teachersDB[existingIdx] = newT;
-            } else {
-                teachersDB.push(newT);
-            }
-            localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) {
-                setTimeout(() => finishRegistration(newT), 500);
-                return;
-            }
-
-            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=registerTeacher&name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}`;
-            
-            fetch(url)
-                .then(res => res.json())
-                .then(res => {
-                    finishRegistration(newT);
-                })
-                .catch(err => {
-                    finishRegistration(newT);
-                });
-        }
-
-        function finishRegistration(newT) {
-            const btn = document.getElementById('btn-reg-submit');
-            if (btn) {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Daftar & Masuk`;
-            }
-
-            currentTeacher = newT;
-            localStorage.setItem('eval_current_teacher', JSON.stringify(currentTeacher));
-            document.getElementById('auth-view').classList.add('hidden');
-            document.getElementById('current-teacher-name').innerText = currentTeacher.name;
-            syncDataFromCloud();
-            showNotification(`Akun berhasil dibuat. Selamat datang, ${currentTeacher.name}!`);
-        }
-
-        function logout() {
-            localStorage.removeItem('eval_current_teacher');
-            currentTeacher = null;
-            location.reload();
-        }
-
-        function switchTab(tabId) {
-            ['dashboard', 'evaluasi', 'laporan'].forEach(id => {
-                document.getElementById(`tab-${id}`).classList.add('hidden');
-                document.getElementById(`nav-${id}`).className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all text-indigo-100 hover:text-white hover:bg-indigo-700 dark:text-slate-300 dark:hover:bg-slate-700";
-            });
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabId}`).className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all bg-white text-indigo-700 shadow-sm dark:bg-slate-800 dark:text-white";
-        }
-
-        function showNotification(message, type = 'success') {
-            const notif = document.getElementById('notification');
-            const notifText = document.getElementById('notif-text');
-            notifText.innerText = message;
-            notif.className = `mb-6 p-4 rounded-xl border text-sm flex items-center justify-between shadow-sm ${type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'}`;
-            notif.classList.remove('hidden');
-            setTimeout(() => { hideNotification(); }, 4000);
-        }
-
-        function hideNotification() {
-            document.getElementById('notification').classList.add('hidden');
-        }
-
-        function toggleScopeInputs() {
-            const scope = document.getElementById('scope').value;
-            const studentContainer = document.getElementById('student-container');
-            const studentInput = document.getElementById('student');
-            if (scope === 'Murid') {
-                studentContainer.classList.remove('hidden');
-                studentInput.required = true;
-            } else {
-                studentContainer.classList.add('hidden');
-                studentInput.required = false;
-                studentInput.value = '';
-            }
-        }
-
-        function updateClassDropdown() {
-            const select = document.getElementById('className');
-            if (select) {
-                select.innerHTML = (appSettings.classes || []).map(c => `<option value="${c}">${c}</option>`).join('');
-            }
-        }
-
-        function syncDataFromCloud(callback) {
-            const localTeachers = localStorage.getItem('eval_teachers_db');
-            if (localTeachers) { try { teachersDB = JSON.parse(localTeachers); } catch(e) {} }
-            
-            const localNotes = localStorage.getItem('eval_notes_fallback');
-            const allNotes = localNotes ? JSON.parse(localNotes) : [];
-            evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : [];
-            
-            const localSettings = localStorage.getItem('eval_app_settings');
-            if (localSettings) { try { appSettings = JSON.parse(localSettings); } catch(e) {} }
-
-            applySettingsToUI();
-            updateAllViews();
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) {
-                if (callback) callback();
-                return;
-            }
-
-            fetch(HARDCODED_APPS_SCRIPT_URL + "?action=getData")
-                .then(res => res.json())
-                .then(res => {
-                    if (res.status === 'success') {
-                        let cloudNotes = res.data || [];
-                        if (cloudNotes.length > 0) {
-                            evaluations = currentTeacher ? cloudNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : [];
-                            localStorage.setItem('eval_notes_fallback', JSON.stringify(cloudNotes));
-                        }
-                        
-                        if (res.teachers && res.teachers.length > 0) {
-                            teachersDB = res.teachers;
-                            localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
-                        }
-                        
-                        if (res.settings) {
-                            appSettings = res.settings;
-                            localStorage.setItem('eval_app_settings', JSON.stringify(appSettings));
-                        }
-
-                        applySettingsToUI();
-                        updateAllViews();
-                    }
-                    if (callback) callback();
-                })
-                .catch(err => {
-                    if (callback) callback();
-                });
-        }
-
-        function handleFormSubmit(event) {
-            event.preventDefault();
-            const scope = document.getElementById('scope').value;
-            const className = document.getElementById('className').value;
-            const student = scope === 'Murid' ? document.getElementById('student').value.trim() : '-';
-            const category = document.getElementById('category').value;
-            const title = document.getElementById('title').value.trim();
-            const description = document.getElementById('description').value.trim();
-
-            const newNote = {
-                id: 'NOTE-' + Date.now(),
-                timestamp: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }),
-                teacher: currentTeacher.name,
-                scope: scope,
-                className: className,
-                student: student,
-                category: category,
-                title: title,
-                description: description
-            };
-
-            const localNotes = localStorage.getItem('eval_notes_fallback');
-            let allNotes = localNotes ? JSON.parse(localNotes) : [];
-            allNotes.unshift(newNote);
-            localStorage.setItem('eval_notes_fallback', JSON.stringify(allNotes));
-            evaluations = allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase());
-
-            showNotification('Catatan berhasil disimpan!', 'success');
-            document.getElementById('eval-form').reset();
-            toggleScopeInputs();
-            updateAllViews();
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
-
-            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=addNote&id=${encodeURIComponent(newNote.id)}&timestamp=${encodeURIComponent(newNote.timestamp)}&teacher=${encodeURIComponent(newNote.teacher)}&scope=${encodeURIComponent(newNote.scope)}&className=${encodeURIComponent(newNote.className)}&student=${encodeURIComponent(newNote.student)}&category=${encodeURIComponent(newNote.category)}&title=${encodeURIComponent(newNote.title)}&description=${encodeURIComponent(newNote.description)}`;
-            
-            fetch(url).catch(err => {});
-        }
-
-        function updateAllViews() {
-            renderDashboardStats();
-            renderTable();
-            renderReportStats();
-        }
-
-        function renderDashboardStats() {
-            document.getElementById('stat-total').innerText = evaluations.length;
-            document.getElementById('stat-classes').innerText = (appSettings.classes || []).length;
-
-            const container = document.getElementById('recent-eval-list');
-            if (evaluations.length === 0) {
-                container.innerHTML = `<div class="text-center py-8 text-slate-400"><p class="text-sm">Belum ada catatan yang Anda buat.</p></div>`;
-                return;
-            }
-
-            container.innerHTML = evaluations.slice(0, 5).map(item => `
-                <div class="py-3 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">${item.className} ${item.student !== '-' ? '• ' + escapeHtml(item.student) : ''}</span>
-                        <h4 class="font-semibold text-slate-800 dark:text-white text-sm mt-0.5">${escapeHtml(item.title)}</h4>
-                        <p class="text-xs text-slate-400">${item.timestamp}</p>
-                    </div>
-                    <span class="px-2.5 py-1 text-xs rounded-full font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${item.category}</span>
-                </div>
-            `).join('');
-        }
-
-        function renderTable() {
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const tbody = document.getElementById('eval-table-body');
-            const filtered = evaluations.filter(item => 
-                item.title.toLowerCase().includes(query) || 
-                item.student.toLowerCase().includes(query) || 
-                item.className.toLowerCase().includes(query) ||
-                item.category.toLowerCase().includes(query)
-            );
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-400"><p class="text-sm">Tidak ada catatan ditemukan.</p></td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filtered.map(item => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td class="px-4 py-3">
-                        <span class="text-xs text-slate-500">${item.timestamp}</span>
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-xs font-semibold">${item.className}</span>
-                        ${item.student !== '-' ? `<span class="block text-xs text-slate-600 dark:text-slate-400 mt-1"><i class="fa-solid fa-user text-[10px] mr-1"></i>${escapeHtml(item.student)}</span>` : ''}
-                    </td>
-                    <td class="px-4 py-3">
-                        <span class="text-xs font-bold text-slate-800 dark:text-white block">${escapeHtml(item.title)}</span>
-                        <span class="inline-block mt-1 px-2 py-0.5 text-[10px] rounded font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${item.category}</span>
-                    </td>
-                    <td class="px-4 py-3 text-slate-600 dark:text-slate-300 text-xs leading-relaxed max-w-xs">
-                        ${escapeHtml(item.description)}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function renderReportStats() {
-            document.getElementById('report-total').innerText = evaluations.length;
-            if (evaluations.length === 0) {
-                document.getElementById('report-top-cat').innerText = '-';
-                document.getElementById('report-top-class').innerText = '-';
-                document.getElementById('category-breakdown').innerHTML = `<p class="text-sm text-slate-400">Belum ada data laporan.</p>`;
-                return;
-            }
-
-            const catCounts = {};
-            const classCounts = {};
-            evaluations.forEach(e => {
-                catCounts[e.category] = (catCounts[e.category] || 0) + 1;
-                classCounts[e.className] = (classCounts[e.className] || 0) + 1;
-            });
-
-            const topCat = Object.keys(catCounts).reduce((a, b) => catCounts[a] > catCounts[b] ? a : b);
-            const topClass = Object.keys(classCounts).reduce((a, b) => classCounts[a] > classCounts[b] ? a : b);
-
-            document.getElementById('report-top-cat').innerText = topCat;
-            document.getElementById('report-top-class').innerText = topClass;
-
-            const breakdown = document.getElementById('category-breakdown');
-            const total = evaluations.length;
-
-            breakdown.innerHTML = Object.keys(catCounts).map(cat => {
-                const count = catCounts[cat];
-                const pct = ((count / total) * 100).toFixed(1);
-                return `
-                    <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <div class="flex justify-between items-center mb-1 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                            <span>${cat}</span>
-                            <span class="text-xs text-slate-500">${count} catatan (${pct}%)</span>
-                        </div>
-                        <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                            <div class="bg-indigo-600 h-2 rounded-full" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function getTeacherFilteredNotes() {
-            const startStr = document.getElementById('filter-start-date').value;
-            const endStr = document.getElementById('filter-end-date').value;
-
-            if (!startStr || !endStr) return evaluations;
-
-            const startDate = new Date(startStr);
-            startDate.setHours(0,0,0,0);
-            
-            const endDate = new Date(endStr);
-            endDate.setHours(23,59,59,999);
-
-            const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays > 366) {
-                showNotification('Rentang waktu maksimal adalah 1 tahun (365 hari)!', 'error');
-                return null;
-            }
-
-            if (startDate > endDate) {
-                showNotification('Tanggal mulai tidak boleh lebih besar dari tanggal selesai.', 'error');
-                return null;
-            }
-
-            return evaluations.filter(item => {
-                const itemDate = parseItemTimestamp(item.timestamp);
-                if (!itemDate) return true;
-                return itemDate >= startDate && itemDate <= endDate;
-            });
-        }
-
-        function parseItemTimestamp(ts) {
-            try {
-                const d = new Date(ts);
-                if (!isNaN(d.getTime())) return d;
-                return new Date();
-            } catch(e) {
-                return new Date();
-            }
-        }
-
-        function exportTeacherReportCSV() {
-            const filtered = getTeacherFilteredNotes();
-            if (!filtered || filtered.length === 0) {
-                showNotification('Tidak ada data catatan dalam rentang waktu tersebut.', 'error');
-                return;
-            }
-
-            let csv = `RANGKUMAN CATATAN GURU: ${currentTeacher.name}\n`;
-            csv += `Dicetak Pada: ${new Date().toLocaleString('id-ID')}\n\n`;
-            csv += "ID,Waktu,Cakupan,Kelas,Murid,Fokus Penilaian,Judul / Topik,Catatan Detail\n";
-            
-            filtered.forEach(e => {
-                csv += `"${e.id}","${e.timestamp}","${e.scope}","${e.className}","${e.student}","${e.category}","${escapeCsv(e.title)}","${escapeCsv(e.description)}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', `rangkuman_catatan_${currentTeacher.name.replace(/[^a-zA-Z0-9]/g, '_')}.csv`);
-            a.click();
-            showNotification('Rangkuman CSV berhasil diunduh.');
-        }
-
-        function printTeacherReport() {
-            const filtered = getTeacherFilteredNotes();
-            if (!filtered || filtered.length === 0) {
-                showNotification('Tidak ada data catatan dalam rentang waktu tersebut untuk dicetak.', 'error');
-                return;
-            }
-
-            const printWindow = window.open('', '_blank');
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html lang="id">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Rangkuman Evaluasi - ${currentTeacher.name}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 25px; color: #1e293b; }
-                        .header { text-align: center; border-bottom: 2px solid #4f46e5; padding-bottom: 15px; margin-bottom: 20px; }
-                        h2 { margin: 0 0 5px 0; color: #312e81; }
-                        p { margin: 3px 0; font-size: 13px; color: #64748b; }
-                        .summary-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                        th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; vertical-align: top; }
-                        th { background-color: #f1f5f9; color: #334155; }
-                        .badge { display: inline-block; padding: 2px 6px; background: #e0e7ff; color: #3730a3; border-radius: 4px; font-size: 10px; font-weight: bold; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h2>${appSettings.schoolName}</h2>
-                        <p><b>Rangkuman Evaluasi Kognitif & Karakter Guru</b></p>
-                    </div>
-                    <div class="summary-box">
-                        <p><b>Nama Guru:</b> ${currentTeacher.name}</p>
-                        <p><b>Total Catatan Dirangkum:</b> ${filtered.length} Catatan</p>
-                        <p><b>Tanggal Cetak:</b> ${new Date().toLocaleString('id-ID')}</p>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 15%;">Waktu</th>
-                                <th style="width: 15%;">Target / Kelas</th>
-                                <th style="width: 20%;">Fokus Penilaian</th>
-                                <th style="width: 50%;">Catatan & Topik Evaluasi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${filtered.map(item => `
-                                <tr>
-                                    <td>${item.timestamp}</td>
-                                    <td>
-                                        <b>${item.className}</b>
-                                        ${item.student !== '-' ? '<br><span style="font-size:11px;">• ' + escapeHtml(item.student) + '</span>' : ''}
-                                    </td>
-                                    <td><span class="badge">${item.category}</span></td>
-                                    <td>
-                                        <b style="font-size:13px; color:#1e293b;">${escapeHtml(item.title)}</b>
-                                        <p style="margin-top:4px; color:#334155; white-space: pre-line;">${escapeHtml(item.description)}</p>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    <script>
-                        window.onload = function() { window.print(); }
-                    <\/script>
-                </body>
-                </html>
-            `;
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-        }
-
-        function escapeCsv(str) {
-            if (!str) return '';
-            return String(str).replace(/"/g, '""');
-        }
-
-        function getAllStoredNotes() {
-            const local = localStorage.getItem('eval_notes_fallback');
-            return local ? JSON.parse(local) : [];
-        }
-
-        function adminExportAllCSV() {
-            let allNotes = getAllStoredNotes();
-            if (allNotes.length === 0) {
-                showNotification('Belum ada data catatan dalam sistem.', 'error');
-                return;
-            }
-
-            let csv = `REKAPITULASI NASIONAL EVALUASI KOGNITIF & KARAKTER - ${appSettings.schoolName}\n`;
-            csv += `Dicetak Pada: ${new Date().toLocaleString('id-ID')}\n\n`;
-            csv += "Guru Pengajar,Waktu,Cakupan,Kelas,Murid,Fokus Penilaian,Topik/Judul,Catatan Detail\n";
-
-            allNotes.forEach(e => {
-                csv += `"${escapeCsv(e.teacher)}","${e.timestamp}","${e.scope}","${e.className}","${escapeCsv(e.student)}","${escapeCsv(e.category)}","${escapeCsv(e.title)}","${escapeCsv(e.description)}"\n`;
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'rekapitulasi_rapi_seluruh_guru.csv');
-            a.click();
-            showNotification('Arsip CSV terstruktur seluruh guru berhasil diunduh.');
-        }
-
-        function adminPrintAllNotes() {
-            let allNotes = getAllStoredNotes();
-            if (allNotes.length === 0) {
-                showNotification('Belum ada data catatan untuk dicetak.', 'error');
-                return;
-            }
-
-            const groupedByTeacher = {};
-            allNotes.forEach(note => {
-                const tName = note.teacher || 'Guru Tanpa Nama';
-                if (!groupedByTeacher[tName]) groupedByTeacher[tName] = [];
-                groupedByTeacher[tName].push(note);
-            });
-
-            const printWindow = window.open('', '_blank');
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html lang="id">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Rekapitulasi Arsip Seluruh Guru</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 25px; color: #1e293b; }
-                        .header { text-align: center; border-bottom: 2px solid #4f46e5; padding-bottom: 15px; margin-bottom: 25px; }
-                        h2 { margin: 0 0 5px 0; color: #312e81; }
-                        p { margin: 3px 0; font-size: 13px; color: #64748b; }
-                        .teacher-section { margin-bottom: 30px; page-break-inside: avoid; }
-                        .teacher-title { background: #e0e7ff; color: #312e81; padding: 8px 12px; font-weight: bold; border-radius: 6px; margin-bottom: 10px; font-size: 14px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 5px; font-size: 12px; }
-                        th, td { border: 1px solid #cbd5e1; padding: 7px 9px; text-align: left; vertical-align: top; }
-                        th { background-color: #f1f5f9; color: #334155; }
-                        .badge { display: inline-block; padding: 2px 6px; background: #e2e8f0; color: #334155; border-radius: 4px; font-size: 10px; font-weight: bold; }
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <h2>${appSettings.schoolName}</h2>
-                        <p><b>Laporan Rekapitulasi Kognitif & Karakter Seluruh Guru</b></p>
-                        <p>Tanggal Cetak: ${new Date().toLocaleString('id-ID')}</p>
-                    </div>
-
-                    ${Object.keys(groupedByTeacher).map(teacherName => {
-                        const notes = groupedByTeacher[teacherName];
-                        return `
-                            <div class="teacher-section">
-                                <div class="teacher-title">Guru Pengajar: ${escapeHtml(teacherName)} (${notes.length} Catatan)</div>
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 15%;">Waktu</th>
-                                            <th style="width: 15%;">Kelas / Murid</th>
-                                            <th style="width: 20%;">Fokus Penilaian</th>
-                                            <th style="width: 50%;">Topik & Catatan Detail</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${notes.map(item => `
-                                            <tr>
-                                                <td>${item.timestamp}</td>
-                                                <td>
-                                                    <b>${item.className}</b>
-                                                    ${item.student !== '-' ? '<br><span style="font-size:11px;">• ' + escapeHtml(item.student) + '</span>' : ''}
-                                                </td>
-                                                <td><span class="badge">${item.category}</span></td>
-                                                <td>
-                                                    <b style="font-size:12px; color:#1e293b;">${escapeHtml(item.title)}</b>
-                                                    <p style="margin-top:3px; color:#334155; white-space: pre-line;">${escapeHtml(item.description)}</p>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        `;
-                    }).join('')}
-
-                    <script>
-                        window.onload = function() { window.print(); }
-                    <\/script>
-                </body>
-                </html>
-            `;
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-        }
-
-        function openAdminSecurityModal() {
-            document.getElementById('admin-security-modal').classList.remove('hidden');
-            document.getElementById('admin-security-modal').classList.add('flex');
-            document.getElementById('admin-pin-input').value = '';
-        }
-
-        function closeAdminSecurityModal() {
-            document.getElementById('admin-security-modal').classList.add('hidden');
-            document.getElementById('admin-security-modal').classList.remove('flex');
-        }
-
-        function verifyAdminPIN(e) {
-            e.preventDefault();
-            const pin = document.getElementById('admin-pin-input').value.trim();
-            if (pin === "22341") {
-                closeAdminSecurityModal();
-                openAdminSidebar();
-            } else {
-                showNotification('PIN Admin salah!', 'error');
-            }
-        }
-
-        function openAdminSidebar() {
-            populateAdminSidebar();
-            document.getElementById('admin-sidebar').classList.remove('hidden');
-        }
-
-        function closeAdminSidebar() {
-            document.getElementById('admin-sidebar').classList.add('hidden');
-        }
-
-        function populateAdminSidebar() {
-            document.getElementById('setting-school-name').value = appSettings.schoolName;
-            document.getElementById('setting-logo-url').value = appSettings.logoUrl || '';
-            document.getElementById('setting-bg-url').value = appSettings.bgUrl || '';
-            document.getElementById('setting-theme').value = appSettings.theme || 'light';
-            document.getElementById('setting-classes').value = (appSettings.classes || []).join(', ');
-
-            renderAdminTeacherList();
-        }
-
-        function renderAdminTeacherList() {
-            const list = document.getElementById('admin-teacher-list');
-            list.innerHTML = teachersDB.map((t, idx) => `
-                <div class="flex justify-between items-center bg-slate-50 dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <div>
-                        <span class="font-semibold text-slate-800 dark:text-white text-xs block">${t.name}</span>
-                        <span class="text-[10px] text-slate-400">Sandi: ${t.pass}</span>
-                    </div>
-                    <button onclick="deleteTeacherAccount('${escapeHtml(t.name)}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 p-1.5 rounded-lg text-xs" title="Hapus Guru & Catatannya">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function deleteTeacherAccount(teacherName) {
-            if (!confirm(`Apakah Anda yakin ingin menghapus akun guru "${teacherName}" beserta seluruh catatan evaluasinya?`)) return;
-
-            teachersDB = teachersDB.filter(t => t.name.toLowerCase() !== teacherName.toLowerCase());
-            localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
-
-            const localNotes = localStorage.getItem('eval_notes_fallback');
-            if (localNotes) {
-                let allNotes = JSON.parse(localNotes);
-                allNotes = allNotes.filter(n => n.teacher.toLowerCase() !== teacherName.toLowerCase());
-                localStorage.setItem('eval_notes_fallback', JSON.stringify(allNotes));
-            }
-
-            renderAdminTeacherList();
-            syncDataFromCloud();
-            showNotification(`Akun guru ${teacherName} berhasil dihapus.`);
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
-
-            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=deleteTeacher&name=${encodeURIComponent(teacherName)}`;
-            fetch(url).catch(err => {});
-        }
-
-        function openAddTeacherModal() {
-            document.getElementById('modal-add-teacher').classList.remove('hidden');
-            document.getElementById('modal-add-teacher').classList.add('flex');
-            document.getElementById('new-t-name').value = '';
-            document.getElementById('new-t-pass').value = '';
-        }
-
-        function closeAddTeacherModal() {
-            document.getElementById('modal-add-teacher').classList.add('hidden');
-            document.getElementById('modal-add-teacher').classList.remove('flex');
-        }
-
-        function handleAdminAddTeacher(e) {
-            e.preventDefault();
-            const name = document.getElementById('new-t-name').value.trim();
-            const pass = document.getElementById('new-t-pass').value.trim();
-
-            if (teachersDB.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-                showNotification('Nama guru sudah ada dalam sistem!', 'error');
-                return;
-            }
-
-            const newT = { name, pass };
-            teachersDB.push(newT);
-            localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
-            renderAdminTeacherList();
-            closeAddTeacherManager(); // safely closed
-            closeAddTeacherModal();
-            showNotification(`Guru ${name} berhasil ditambahkan.`);
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
-
-            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=registerTeacher&name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}`;
-            fetch(url).catch(err => {});
-        }
-
-        function saveAdminSettings() {
-            const schoolName = document.getElementById('setting-school-name').value.trim();
-            const logoUrl = document.getElementById('setting-logo-url').value.trim();
-            const bgUrl = document.getElementById('setting-bg-url').value.trim();
-            const theme = document.getElementById('setting-theme').value;
-            const classesRaw = document.getElementById('setting-classes').value;
-            const classes = classesRaw.split(',').map(c => c.trim()).filter(Boolean);
-
-            appSettings = { schoolName, logoUrl, bgUrl, theme, classes };
-            localStorage.setItem('eval_app_settings', JSON.stringify(appSettings));
-            applySettingsToUI();
-            closeAdminSidebar();
-            showNotification('Pengaturan berhasil disimpan!');
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
-
-            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=saveSettings&schoolName=${encodeURIComponent(schoolName)}&logoUrl=${encodeURIComponent(logoUrl)}&bgUrl=${encodeURIComponent(bgUrl)}&theme=${encodeURIComponent(theme)}&classes=${encodeURIComponent(classes.join(', '))}`;
-            fetch(url).catch(err => {});
-        }
-
-        function applySettingsToUI() {
-            document.getElementById('auth-school-title').innerText = appSettings.schoolName;
-            document.getElementById('header-school-name').innerText = appSettings.schoolName;
-            
-            if (appSettings.logoUrl) {
-                document.getElementById('auth-logo-container').innerHTML = `<img src="${appSettings.logoUrl}" class="w-full h-full object-cover rounded-2xl" alt="Logo">`;
-                document.getElementById('header-logo-wrap').innerHTML = `<img src="${appSettings.logoUrl}" class="w-full h-full object-cover rounded-xl" alt="Logo">`;
-            }
-
-            if (appSettings.bgUrl) {
-                document.getElementById('hero-banner').style.backgroundImage = `url('${appSettings.bgUrl}')`;
-            }
-
-            const body = document.getElementById('app-body');
-            if (appSettings.theme === 'dark') {
-                body.classList.add('dark');
-            } else {
-                body.classList.remove('dark');
-            }
-
-            updateClassDropdown();
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
-    </script>
+    ${Object.keys(grouped).length === 0
+      ? '<div class="card" style="text-align:center;color:var(--muted)">Belum ada data siswa.</div>'
+      : Object.entries(grouped).map(([kelas, arr])=>`
+        <div class="card">
+          <h3>${esc(kelas)} <span style="color:var(--muted);font-weight:400">(${arr.length} siswa)</span></h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${arr.map(s=>`<span style="background:#f1f5f9;padding:6px 12px;border-radius:20px;font-size:13px">${esc(s.name)}</span>`).join('')}
+          </div>
+        </div>`).join('')}`;
+}
+
+/* ---------- Admin: Teachers ---------- */
+function viewAdminTeachers() {
+  if (!state.teachers.length)
+    return `<h2>Akun Guru</h2>
+      <div class="card" style="text-align:center;color:var(--muted)">Belum ada akun guru terdaftar.</div>`;
+  return `
+    <h2>Akun Guru</h2>
+    <div class="subtitle">${state.teachers.length} akun terdaftar.</div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Nama</th><th>Username</th><th>Jumlah Evaluasi</th><th>Terdaftar</th><th>Aksi</th>
+      </tr></thead>
+      <tbody>
+        ${state.teachers.map(t=>`
+          <tr>
+            <td><strong>${esc(t.fullName)}</strong></td>
+            <td>${esc(t.username)}</td>
+            <td>${t.evalCount}</td>
+            <td>${fmtDate(t.createdAt)}</td>
+            <td><button class="btn btn-danger btn-sm" data-del-teacher="${esc(t.username)}">🗑️ Hapus</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+/* ---------- Admin: All Evaluations ---------- */
+function viewAdminEvals() {
+  if (!state.evaluations.length)
+    return `<h2>Semua Evaluasi</h2>
+      <div class="card" style="text-align:center;color:var(--muted)">Belum ada evaluasi.</div>`;
+  return `
+    <h2>Semua Evaluasi</h2>
+    <div class="subtitle">Total ${state.evaluations.length} evaluasi dari seluruh guru.</div>
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Tanggal</th><th>Guru</th><th>Siswa</th><th>Kelas</th>
+        <th>Periode</th><th>Akademik</th><th>Karakter</th><th>Aksi</th>
+      </tr></thead>
+      <tbody>
+        ${state.evaluations.map(e=>`
+          <tr>
+            <td>${fmtDate(e.createdAt)}</td>
+            <td>${esc(e.teacherName)}</td>
+            <td><strong>${esc(e.studentName)}</strong></td>
+            <td>${esc(e.studentClass)}</td>
+            <td>${esc(e.period)}</td>
+            <td><span class="score-badge" style="font-size:13px;padding:3px 8px">${esc(e.acadScore)}</span></td>
+            <td><span class="score-badge" style="font-size:13px;padding:3px 8px">${esc(e.karScore)}</span></td>
+            <td><button class="btn btn-ghost btn-sm" data-detail="${esc(e.id)}">Detail</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+/* ---------- Admin: Report / Rangkuman ---------- */
+function viewAdminReport() {
+  return `
+    <h2>Rangkuman & Cetak</h2>
+    <div class="subtitle">Unduh rangkuman seluruh evaluasi atau cetak laporan.</div>
+    <div class="card">
+      <h3>Unduh Rangkuman (CSV)</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+        File CSV dapat dibuka dengan Excel / Google Sheets.</p>
+      <button class="btn btn-primary" id="btn-csv-all">⬇️ Unduh Semua Evaluasi (CSV)</button>
+    </div>
+    <div class="card">
+      <h3>Cetak Laporan Keseluruhan</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+        Buka di jendela baru lalu cetak/simpan PDF.</p>
+      <button class="btn btn-warn" id="btn-print-all">🖨️ Cetak Semua Evaluasi</button>
+    </div>`;
+}
+
+/* ============================================================
+ *  EVENTS
+ * ============================================================ */
+function bindEvents() {
+  // login tabs
+  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
+    state.loginTab = b.dataset.tab; render();
+  });
+  const fl = document.getElementById('form-login');
+  if (fl) fl.onsubmit = doLogin;
+  const fr = document.getElementById('form-register');
+  if (fr) fr.onsubmit = doRegister;
+  const ba = document.getElementById('btn-admin');
+  if (ba) ba.onclick = () => {
+    const pwd = prompt('Masukkan password admin:');
+    if (!pwd) return;
+    api('adminLogin', { password: pwd }).then(async u => {
+      state.user = u;
+      localStorage.setItem('evalUser', JSON.stringify(u));
+      sessionStorage.setItem('adminPwd', pwd);
+      await loadConfig();
+      await loadEvaluations();
+      await loadTeachers();
+      state.view = 'admin-config';
+      showMsg('Mode admin aktif', 'success');
+    }).catch(err => showMsg(err.message, 'error'));
+  };
+
+  const bl = document.getElementById('btn-logout');
+  if (bl) bl.onclick = logout;
+
+  // sidebar navigation
+  document.querySelectorAll('[data-nav]').forEach(el => el.onclick = async () => {
+    state.view = el.dataset.nav;
+    if (state.view === 'teacher-new') await loadStudents();
+    if (state.view === 'admin-students') { await loadStudents(); await loadConfig(); }
+    if (state.view === 'admin-evals')    await loadEvaluations();
+    if (state.view === 'admin-teachers') await loadTeachers();
+    if (state.view === 'admin-config')   await loadConfig();
+    if (state.view === 'teacher-report' || state.view === 'teacher-home') await loadEvaluations();
+    render();
+  });
+
+  // form evaluation
+  const fe = document.getElementById('form-eval');
+  if (fe) {
+    const updateScores = () => {
+      const acad = ['acadPemahaman','acadPartisipasi','acadTugas','acadAnalisis'];
+      const kar  = ['karKejujuran','karDisiplin','karSopan','karTanggungJawab','karKerjasama'];
+      const avg = (arr) => arr.reduce((s,n)=>s+Number(fe[n].value||0),0) / arr.length;
+      document.getElementById('acadScore').textContent = Math.round(avg(acad)*20);
+      document.getElementById('karScore').textContent  = Math.round(avg(kar)*20);
+    };
+    fe.querySelectorAll('[data-aspect]').forEach(s => s.onchange = updateScores);
+    updateScores();
+
+    fe.onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(fe);
+      const data = Object.fromEntries(fd.entries());
+      const acad = ['acadPemahaman','acadPartisipasi','acadTugas','acadAnalisis'];
+      const kar  = ['karKejujuran','karDisiplin','karSopan','karTanggungJawab','karKerjasama'];
+      const avg = (arr) => Math.round(arr.reduce((s,n)=>s+Number(data[n]||0),0) / arr.length * 20);
+      const evaluation = {
+        teacherUsername: state.user.username,
+        teacherName: state.user.fullName,
+        studentName: data.studentName,
+        studentClass: data.studentClass,
+        period: data.period,
+        acadPemahaman: data.acadPemahaman,
+        acadPartisipasi: data.acadPartisipasi,
+        acadTugas: data.acadTugas,
+        acadAnalisis: data.acadAnalisis,
+        karKejujuran: data.karKejujuran,
+        karDisiplin: data.karDisiplin,
+        karSopan: data.karSopan,
+        karTanggungJawab: data.karTanggungJawab,
+        karKerjasama: data.karKerjasama,
+        acadScore: avg(acad),
+        karScore: avg(kar),
+        acadNotes: data.acadNotes,
+        karNotes: data.karNotes
+      };
+      try {
+        state.loading = true; render();
+        await api('saveEvaluation', { evaluation });
+        await loadEvaluations();
+        await loadStudents();
+        state.loading = false;
+        state.view = 'teacher-home';
+        showMsg('Evaluasi berhasil disimpan', 'success');
+      } catch(err){ state.loading = false; showMsg(err.message, 'error'); }
+    };
+  }
+
+  // form config
+  const fc = document.getElementById('form-config');
+  if (fc) fc.onsubmit = async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(fc).entries());
+    try {
+      state.loading = true; render();
+      state.config = await api('saveConfig', { config: data, adminPassword: ADMIN_PWD() });
+      state.loading = false;
+      await loadConfig();
+      showMsg('Konfigurasi disimpan', 'success');
+    } catch(err){ state.loading = false; showMsg(err.message, 'error'); }
+  };
+
+  // form student
+  const fs = document.getElementById('form-student');
+  if (fs) fs.onsubmit = async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(fs).entries());
+    try {
+      await api('addStudent', data);
+      await loadStudents();
+      showMsg('Siswa ditambahkan', 'success');
+    } catch(err){ showMsg(err.message, 'error'); }
+  };
+
+  // delete teacher
+  document.querySelectorAll('[data-del-teacher]').forEach(b => b.onclick = async () => {
+    const u = b.dataset.delTeacher;
+    if (!confirm(`Hapus akun "${u}" beserta SEMUA evaluasinya?`)) return;
+    try {
+      await api('deleteTeacher', { username: u, adminPassword: ADMIN_PWD() });
+      await loadTeachers();
+      showMsg('Akun guru dihapus', 'success');
+    } catch(err){ showMsg(err.message, 'error'); }
+  });
+
+  // detail
+  document.querySelectorAll('[data-detail]').forEach(b => b.onclick = () => {
+    const ev = state.evaluations.find(x => x.id === b.dataset.detail);
+    if (ev) showDetail(ev);
+  });
+
+  // print one
+  document.querySelectorAll('[data-print]').forEach(b => b.onclick = () => {
+    const ev = state.evaluations.find(x => x.id === b.dataset.print);
+    if (ev) openPrint([ev]);
+  });
+
+  // send WA
+  document.querySelectorAll('[data-send]').forEach(b => b.onclick = () => {
+    const ev = state.evaluations.find(x => x.id === b.dataset.send);
+    if (ev) sendWA(ev);
+  });
+
+  // admin CSV
+  const bc = document.getElementById('btn-csv-all');
+  if (bc) bc.onclick = () => downloadCSV(state.evaluations);
+
+  // admin print all
+  const bp = document.getElementById('btn-print-all');
+  if (bp) bp.onclick = () => openPrint(state.evaluations);
+}
+
+/* ---------- Detail modal ---------- */
+function showDetail(ev) {
+  const html = `
+  <div class="modal-bg" id="modal-bg">
+    <div class="modal" style="max-width:560px;max-height:80vh;overflow-y:auto">
+      <h3>Detail Evaluasi</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
+        ${esc(ev.studentName)} — ${esc(ev.studentClass)} • ${esc(ev.period)}</p>
+      <div class="grid-2">
+        <div class="card" style="margin:0">
+          <h3>🧠 Akademik: ${ev.acadScore}/100</h3>
+          <div style="font-size:13px;line-height:1.9">
+            Pemahaman: <b>${ev.acadPemahaman}</b> ·
+            Partisipasi: <b>${ev.acadPartisipasi}</b> ·
+            Tugas: <b>${ev.acadTugas}</b> ·
+            Analisis: <b>${ev.acadAnalisis}</b>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--muted)">
+            <b>Catatan:</b> ${esc(ev.acadNotes||'-')}</p>
+        </div>
+        <div class="card" style="margin:0">
+          <h3>🌟 Karakter: ${ev.karScore}/100</h3>
+          <div style="font-size:13px;line-height:1.9">
+            Jujur: <b>${ev.karKejujuran}</b> ·
+            Disiplin: <b>${ev.karDisiplin}</b> ·
+            Sopan: <b>${ev.karSopan}</b> ·
+            Tanggung Jawab: <b>${ev.karTanggungJawab}</b> ·
+            Kerjasama: <b>${ev.karKerjasama}</b>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--muted)">
+            <b>Catatan:</b> ${esc(ev.karNotes||'-')}</p>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:12px;color:var(--muted)">
+        Dinilai oleh: ${esc(ev.teacherName)} • ${fmtDate(ev.createdAt)}</p>
+      <div class="actions">
+        <button class="btn btn-ghost" id="modal-close">Tutup</button>
+        <button class="btn btn-warn" id="modal-print">🖨️ Cetak</button>
+        <button class="btn btn-success" id="modal-send">💬 Kirim</button>
+      </div>
+    </div>
+  </div>`;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  document.body.appendChild(wrap.firstElementChild);
+  document.getElementById('modal-close').onclick = () => document.getElementById('modal-bg').remove();
+  document.getElementById('modal-bg').onclick = (e) => { if (e.target.id === 'modal-bg') e.currentTarget.remove(); };
+  document.getElementById('modal-print').onclick = () => openPrint([ev]);
+  document.getElementById('modal-send').onclick = () => sendWA(ev);
+}
+
+/* ---------- Print view ---------- */
+function openPrint(evals) {
+  const cfg = state.config;
+  const body = evals.map(ev => `
+    <div style="page-break-after:always;margin-bottom:30px;border:1px solid #cbd5e1;padding:24px;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #1e40af;padding-bottom:10px;margin-bottom:16px">
+        ${cfg.logoUrl?`<img src="${esc(cfg.logoUrl)}" style="height:56px">`:''}
+        <div>
+          <h1 style="font-size:18px;margin:0">${esc(cfg.schoolName||'Sekolah')}</h1>
+          <div style="font-size:13px;color:#64748b">Laporan Evaluasi Perkembangan Siswa</div>
+        </div>
+      </div>
+      <table style="width:100%;font-size:13px;margin-bottom:14px">
+        <tr><td style="width:150px"><b>Nama Siswa</b></td><td>: ${esc(ev.studentName)}</td></tr>
+        <tr><td><b>Kelas</b></td><td>: ${esc(ev.studentClass)}</td></tr>
+        <tr><td><b>Periode</b></td><td>: ${esc(ev.period)}</td></tr>
+        <tr><td><b>Guru Penilai</b></td><td>: ${esc(ev.teacherName)}</td></tr>
+        <tr><td><b>Tanggal</b></td><td>: ${fmtDate(ev.createdAt)}</td></tr>
+      </table>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">
+          <h3 style="font-size:14px;margin-bottom:8px">🧠 Perkembangan Akademik (${ev.acadScore}/100)</h3>
+          <ul style="font-size:13px;line-height:1.8;padding-left:20px">
+            <li>Pemahaman Materi: <b>${ev.acadPemahaman}</b>/5</li>
+            <li>Partisipasi Aktif: <b>${ev.acadPartisipasi}</b>/5</li>
+            <li>Penyelesaian Tugas: <b>${ev.acadTugas}</b>/5</li>
+            <li>Kemampuan Analisis: <b>${ev.acadAnalisis}</b>/5</li>
+          </ul>
+          <p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ${esc(ev.acadNotes||'-')}</p>
+        </div>
+        <div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">
+          <h3 style="font-size:14px;margin-bottom:8px">🌟 Perkembangan Karakter (${ev.karScore}/100)</h3>
+          <ul style="font-size:13px;line-height:1.8;padding-left:20px">
+            <li>Kejujuran: <b>${ev.karKejujuran}</b>/5</li>
+            <li>Kedisiplinan: <b>${ev.karDisiplin}</b>/5</li>
+            <li>Sopan Santun: <b>${ev.karSopan}</b>/5</li>
+            <li>Tanggung Jawab: <b>${ev.karTanggungJawab}</b>/5</li>
+            <li>Kerjasama: <b>${ev.karKerjasama}</b>/5</li>
+          </ul>
+          <p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ${esc(ev.karNotes||'-')}</p>
+        </div>
+      </div>
+      <div style="margin-top:40px;text-align:right;font-size:13px">
+        <div>Guru Penilai,</div>
+        <div style="height:60px"></div>
+        <div><b>${esc(ev.teacherName)}</b></div>
+      </div>
+    </div>`).join('');
+
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head>
+    <meta charset="utf-8"><title>Laporan Evaluasi</title>
+    <style>
+      body{font-family:-apple-system,sans-serif;padding:20px;color:#0f172a}
+      @media print{body{padding:0}}
+    </style>
+    </head><body onload="setTimeout(()=>window.print(),300)">
+    ${body}
+    </body></html>`);
+  win.document.close();
+}
+
+/* ---------- WhatsApp ---------- */
+function sendWA(ev) {
+  const cfg = state.config;
+  const phone = (cfg.principalPhone||'').replace(/\D/g,'');
+  if (!phone) return showMsg('Nomor WA Kepala Sekolah belum diatur di konfigurasi', 'error');
+  const text = `*LAPORAN EVALUASI SISWA*\n` +
+    `Sekolah: ${cfg.schoolName||'-'}\n` +
+    `Periode: ${ev.period}\n\n` +
+    `*Nama Siswa:* ${ev.studentName}\n` +
+    `*Kelas:* ${ev.studentClass}\n\n` +
+    `*Nilai Akademik:* ${ev.acadScore}/100\n` +
+    `Catatan: ${ev.acadNotes||'-'}\n\n` +
+    `*Nilai Karakter:* ${ev.karScore}/100\n` +
+    `Catatan: ${ev.karNotes||'-'}\n\n` +
+    `Guru Penilai: ${ev.teacherName}\n` +
+    `Tanggal: ${fmtDate(ev.createdAt)}`;
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
+
+/* ---------- CSV ---------- */
+function downloadCSV(evals) {
+  if (!evals.length) return showMsg('Tidak ada data untuk diunduh', 'error');
+  const headers = ['Tanggal','Guru','Siswa','Kelas','Periode',
+    'Akademik','Karakter','Pemahaman','Partisipasi','Tugas','Analisis',
+    'Kejujuran','Disiplin','Sopan','TanggungJawab','Kerjasama',
+    'CatatanAkademik','CatatanKarakter'];
+  const rows = evals.map(e => [
+    fmtDate(e.createdAt), e.teacherName, e.studentName, e.studentClass, e.period,
+    e.acadScore, e.karScore,
+    e.acadPemahaman, e.acadPartisipasi, e.acadTugas, e.acadAnalisis,
+    e.karKejujuran, e.karDisiplin, e.karSopan, e.karTanggungJawab, e.karKerjasama,
+    e.acadNotes, e.karNotes
+  ]);
+  const csv = [headers, ...rows].map(r =>
+    r.map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(',')
+  ).join('\n');
+  const blob = new Blob(['\ufeff'+csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `rangkuman-evaluasi-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Boot ---------- */
+(async function boot() {
+  await loadConfig();
+  if (state.user) {
+    // refresh user (kalau ada perubahan)
+    try {
+      if (state.user.role === 'teacher') {
+        // validasi akun guru
+        const u = await api('login', { username: state.user.username, password: '' }).catch(()=>null);
+      }
+      await loadEvaluations();
+      if (state.user.role === 'admin') {
+        await loadTeachers();
+      }
+    } catch(e){}
+  }
+  render();
+})();
+</script>
 </body>
 </html>
