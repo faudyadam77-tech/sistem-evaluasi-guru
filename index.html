@@ -26,6 +26,7 @@
 <body id="app-body" class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-300">
 
     <script>
+        // Masukkan URL Deployment Google Apps Script Anda di sini
         const HARDCODED_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0EhbgwVyTVO-ctpKFK-_mVPUJGWMOsYJqEw7bahiKNptHvIab5SAelc_eQpRifKil/exec";
     </script>
 
@@ -36,7 +37,7 @@
                     <i class="fa-solid fa-graduation-cap"></i>
                 </div>
                 <h2 id="auth-school-title" class="text-2xl font-bold text-slate-800 dark:text-white">Evaluasi Kognitif & Karakter</h2>
-                <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400">Masuk untuk mengelola catatan peningkatan murid Anda</p>
+                <p id="auth-subtitle" class="text-sm text-slate-500 dark:text-slate-400">Masuk atau daftar untuk mengelola catatan peningkatan murid Anda</p>
             </div>
 
             <!-- Auth Tabs -->
@@ -75,7 +76,7 @@
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Buat Kata Sandi Baru</label>
                     <input type="password" id="reg-pass" required placeholder="••••••••" class="w-full px-4 py-3 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition-all flex items-center justify-center gap-2">
+                <button type="submit" id="btn-reg-submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl text-sm shadow-lg transition-all flex items-center justify-center gap-2">
                     <i class="fa-solid fa-user-plus"></i> Daftar & Masuk
                 </button>
             </form>
@@ -107,12 +108,10 @@
                     </button>
                 </nav>
 
-                <!-- Admin Sidebar Toggle -->
                 <button onclick="openAdminSecurityModal()" class="bg-indigo-800 hover:bg-indigo-900 dark:bg-slate-800 dark:hover:bg-slate-700 text-white p-2.5 rounded-xl border border-indigo-600 dark:border-slate-700 transition-all shadow-sm" title="Pusat Admin (PIN)">
                     <i class="fa-solid fa-gear text-sm"></i>
                 </button>
 
-                <!-- Logout Button -->
                 <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white p-2.5 rounded-xl transition-all shadow-sm" title="Keluar Akun">
                     <i class="fa-solid fa-right-from-bracket text-sm"></i>
                 </button>
@@ -122,7 +121,6 @@
 
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 space-y-6">
         
-        <!-- Global Notification Banner -->
         <div id="notification" class="hidden p-4 rounded-xl border text-sm flex items-center justify-between shadow-sm transition-all">
             <span id="notif-text"></span>
             <button onclick="hideNotification()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
@@ -477,7 +475,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             syncDataFromCloud(() => {
                 if (currentTeacher) {
-                    // Verify if currentTeacher still exists in cloud DB
                     const verified = teachersDB.find(t => t.name.toLowerCase() === currentTeacher.name.toLowerCase());
                     if (verified) {
                         currentTeacher = verified;
@@ -537,36 +534,46 @@
             e.preventDefault();
             const name = document.getElementById('reg-name').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
+            const btn = document.getElementById('btn-reg-submit');
 
-            if (teachersDB.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-                showAuthAlert('Nama guru sudah terdaftar. Silakan gunakan menu Masuk.');
-                return;
-            }
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
 
             const newT = { name, pass };
-            
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) {
+
+            // Selalu simpan ke local fallback agar langsung bisa digunakan
+            const existingIdx = teachersDB.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
+            if (existingIdx >= 0) {
+                teachersDB[existingIdx] = newT;
+            } else {
                 teachersDB.push(newT);
-                finishRegistration(newT);
+            }
+            localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
+
+            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) {
+                setTimeout(() => finishRegistration(newT), 500);
                 return;
             }
 
-            showNotification('Mendaftarkan akun ke server...', 'success');
-            fetch(HARDCODED_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'registerTeacher', name: name, pass: pass })
-            }).then(() => {
-                teachersDB.push(newT);
-                finishRegistration(newT);
-            }).catch(err => {
-                teachersDB.push(newT);
-                finishRegistration(newT);
-            });
+            // Kirim request ke Google Apps Script menggunakan teknik GET query parameter untuk menghindari masalah CORS POST
+            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=registerTeacher&name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}`;
+            
+            fetch(url)
+                .then(res => res.json())
+                .then(res => {
+                    finishRegistration(newT);
+                })
+                .catch(err => {
+                    // Walaupun server terhalang CORS, fallback lokal tetap sukses mendaftarkan akun
+                    finishRegistration(newT);
+                });
         }
 
         function finishRegistration(newT) {
+            const btn = document.getElementById('btn-reg-submit');
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Daftar & Masuk`;
+
             currentTeacher = newT;
             localStorage.setItem('eval_current_teacher', JSON.stringify(currentTeacher));
             document.getElementById('auth-view').classList.add('hidden');
@@ -625,19 +632,20 @@
         }
 
         function syncDataFromCloud(callback) {
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) {
-                const localNotes = localStorage.getItem('eval_notes_fallback');
-                const allNotes = localNotes ? JSON.parse(localNotes) : [];
-                evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : allNotes;
-                
-                const localTeachers = localStorage.getItem('eval_teachers_db');
-                if (localTeachers) { try { teachersDB = JSON.parse(localTeachers); } catch(e) {} }
-                
-                const localSettings = localStorage.getItem('eval_app_settings');
-                if (localSettings) { try { appSettings = JSON.parse(localSettings); } catch(e) {} }
+            const localTeachers = localStorage.getItem('eval_teachers_db');
+            if (localTeachers) { try { teachersDB = JSON.parse(localTeachers); } catch(e) {} }
+            
+            const localNotes = localStorage.getItem('eval_notes_fallback');
+            const allNotes = localNotes ? JSON.parse(localNotes) : [];
+            evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : allNotes;
+            
+            const localSettings = localStorage.getItem('eval_app_settings');
+            if (localSettings) { try { appSettings = JSON.parse(localSettings); } catch(e) {} }
 
-                applySettingsToUI();
-                updateAllViews();
+            applySettingsToUI();
+            updateAllViews();
+
+            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) {
                 if (callback) callback();
                 return;
             }
@@ -646,8 +654,11 @@
                 .then(res => res.json())
                 .then(res => {
                     if (res.status === 'success') {
-                        let allNotes = res.data || [];
-                        evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : allNotes;
+                        let cloudNotes = res.data || [];
+                        if (cloudNotes.length > 0) {
+                            evaluations = currentTeacher ? cloudNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : cloudNotes;
+                            localStorage.setItem('eval_notes_fallback', JSON.stringify(cloudNotes));
+                        }
                         
                         if (res.teachers && res.teachers.length > 0) {
                             teachersDB = res.teachers;
@@ -665,12 +676,6 @@
                     if (callback) callback();
                 })
                 .catch(err => {
-                    console.error('Koneksi Apps Script error:', err);
-                    const localNotes = localStorage.getItem('eval_notes_fallback');
-                    let allNotes = localNotes ? JSON.parse(localNotes) : [];
-                    evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : allNotes;
-                    applySettingsToUI();
-                    updateAllViews();
                     if (callback) callback();
                 });
         }
@@ -696,31 +701,22 @@
                 description: description
             };
 
-            // Save to fallback storage immediately
             const localNotes = localStorage.getItem('eval_notes_fallback');
             let allNotes = localNotes ? JSON.parse(localNotes) : [];
             allNotes.unshift(newNote);
             localStorage.setItem('eval_notes_fallback', JSON.stringify(allNotes));
             evaluations = allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase());
 
-            showNotification('Menyimpan catatan ke Cloud Spreadsheet...', 'success');
+            showNotification('Catatan berhasil disimpan!', 'success');
             document.getElementById('eval-form').reset();
             toggleScopeInputs();
             updateAllViews();
 
             if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
 
-            fetch(HARDCODED_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'addNote', ...newNote })
-            }).then(() => {
-                showNotification('Catatan berhasil tersimpan & tersinkronisasi!');
-                setTimeout(syncDataFromCloud, 1500);
-            }).catch(err => {
-                showNotification('Tersimpan offline (Gagal sinkron server: ' + err + ')', 'error');
-            });
+            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=addNote&id=${encodeURIComponent(newNote.id)}&timestamp=${encodeURIComponent(newNote.timestamp)}&teacher=${encodeURIComponent(newNote.teacher)}&scope=${encodeURIComponent(newNote.scope)}&className=${encodeURIComponent(newNote.className)}&student=${encodeURIComponent(newNote.student)}&category=${encodeURIComponent(newNote.category)}&title=${encodeURIComponent(newNote.title)}&description=${encodeURIComponent(newNote.description)}`;
+            
+            fetch(url).catch(err => {});
         }
 
         function updateAllViews() {
@@ -1144,11 +1140,9 @@
         function deleteTeacherAccount(teacherName) {
             if (!confirm(`Apakah Anda yakin ingin menghapus akun guru "${teacherName}" beserta seluruh catatan evaluasinya?`)) return;
 
-            // Remove from teachersDB
             teachersDB = teachersDB.filter(t => t.name.toLowerCase() !== teacherName.toLowerCase());
             localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
 
-            // Remove teacher's notes from fallback storage
             const localNotes = localStorage.getItem('eval_notes_fallback');
             if (localNotes) {
                 let allNotes = JSON.parse(localNotes);
@@ -1158,18 +1152,12 @@
 
             renderAdminTeacherList();
             syncDataFromCloud();
-            showNotification(`Akun guru ${teacherName} dan seluruh catatannya berhasil dihapus.`);
+            showNotification(`Akun guru ${teacherName} berhasil dihapus.`);
 
             if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
 
-            fetch(HARDCODED_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'deleteTeacher', name: teacherName })
-            }).catch(err => {
-                console.error('Gagal hapus di server:', err);
-            });
+            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=deleteTeacher&name=${encodeURIComponent(teacherName)}`;
+            fetch(url).catch(err => {});
         }
 
         function openAddTeacherModal() {
@@ -1203,12 +1191,28 @@
 
             if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
 
-            fetch(HARDCODED_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'registerTeacher', name: name, pass: pass })
-            }).catch(err => {});
+            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=registerTeacher&name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}`;
+            fetch(url).catch(err => {});
+        }
+
+        function saveAdminSettings() {
+            const schoolName = document.getElementById('setting-school-name').value.trim();
+            const logoUrl = document.getElementById('setting-logo-url').value.trim();
+            const bgUrl = document.getElementById('setting-bg-url').value.trim();
+            const theme = document.getElementById('setting-theme').value;
+            const classesRaw = document.getElementById('setting-classes').value;
+            const classes = classesRaw.split(',').map(c => c.trim()).filter(Boolean);
+
+            appSettings = { schoolName, logoUrl, bgUrl, theme, classes };
+            localStorage.setItem('eval_app_settings', JSON.stringify(appSettings));
+            applySettingsToUI();
+            closeAdminSidebar();
+            showNotification('Pengaturan berhasil disimpan!');
+
+            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
+
+            const url = `${HARDCODED_APPS_SCRIPT_URL}?action=saveSettings&schoolName=${encodeURIComponent(schoolName)}&logoUrl=${encodeURIComponent(logoUrl)}&bgUrl=${encodeURIComponent(bgUrl)}&theme=${encodeURIComponent(theme)}&classes=${encodeURIComponent(classes.join(', '))}`;
+            fetch(url).catch(err => {});
         }
 
         function applySettingsToUI() {
