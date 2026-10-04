@@ -481,6 +481,7 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             applySettingsToUI();
+            syncTeacherAccounts();
             if (currentTeacher) {
                 document.getElementById('auth-view').classList.add('hidden');
                 document.getElementById('current-teacher-name').innerText = currentTeacher.name;
@@ -489,6 +490,14 @@
                 document.getElementById('auth-view').classList.remove('hidden');
             }
         });
+
+        function syncTeacherAccounts() {
+            // Pull any registered teachers from localStorage or fallback storage to ensure cross-device consistency
+            const storedTeachers = localStorage.getItem('eval_teachers_db');
+            if (storedTeachers) {
+                try { teachersDB = JSON.parse(storedTeachers); } catch(e) {}
+            }
+        }
 
         function switchAuthTab(tab) {
             if (tab === 'login') {
@@ -517,6 +526,7 @@
             const name = document.getElementById('login-name').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
 
+            syncTeacherAccounts();
             const found = teachersDB.find(t => t.name.toLowerCase() === name.toLowerCase() && t.pass === pass);
             if (found) {
                 currentTeacher = found;
@@ -535,6 +545,7 @@
             const name = document.getElementById('reg-name').value.trim();
             const pass = document.getElementById('reg-pass').value.trim();
 
+            syncTeacherAccounts();
             if (teachersDB.some(t => t.name.toLowerCase() === name.toLowerCase())) {
                 showAuthAlert('Nama guru sudah terdaftar. Silakan gunakan menu Masuk.');
                 return;
@@ -943,7 +954,8 @@
             if (local) {
                 try { return JSON.parse(local); } catch(e) { return []; }
             }
-            return [];
+            // If fallback is empty, check if current evaluations has items
+            return evaluations.length > 0 ? evaluations : [];
         }
 
         function adminExportAllCSV() {
@@ -953,7 +965,6 @@
                 return;
             }
 
-            // Group by Teacher for structured clean summary CSV
             let csv = `REKAPITULASI NASIONAL EVALUASI KOGNITIF & KARAKTER - ${appSettings.schoolName}\n`;
             csv += `Dicetak Pada: ${new Date().toLocaleString('id-ID')}\n\n`;
             csv += "Guru Pengajar,Waktu,Cakupan,Kelas,Murid,Fokus Penilaian,Topik/Judul,Catatan Detail\n";
@@ -974,11 +985,10 @@
         function adminPrintAllNotes() {
             let allNotes = getAllStoredNotes();
             if (allNotes.length === 0) {
-                showNotification('Belum ada data catatan untuk dicetak.', 'error');
+                showNotification('Belum ada data catatan untuk dicetak. Pastikan catatan telah dimasukkan.', 'error');
                 return;
             }
 
-            // Group notes by teacher
             const groupedByTeacher = {};
             allNotes.forEach(note => {
                 const tName = note.teacher || 'Guru Tanpa Nama';
@@ -994,7 +1004,7 @@
                 <html lang="id">
                 <head>
                     <meta charset="UTF-8">
-                    <title>Rekapitulasi Arsip Rapi Seluruh Guru</title>
+                    <title>Rekapitulasi Arsip Seluruh Guru</title>
                     <style>
                         body { font-family: Arial, sans-serif; padding: 25px; color: #1e293b; }
                         .header { text-align: center; border-bottom: 2px solid #4f46e5; padding-bottom: 15px; margin-bottom: 25px; }
@@ -1011,7 +1021,7 @@
                 <body>
                     <div class="header">
                         <h2>${appSettings.schoolName}</h2>
-                        <p><b>Laporan Rekapitulasi Rangkuman Kognitif & Karakter Seluruh Guru</b></p>
+                        <p><b>Laporan Rekapitulasi Kognitif & Karakter Seluruh Guru</b></p>
                         <p>Tanggal Cetak: ${new Date().toLocaleString('id-ID')}</p>
                     </div>
 
@@ -1167,91 +1177,6 @@
             applySettingsToUI();
             closeAdminSidebar();
             showNotification('Pengaturan admin berhasil disimpan!');
-        }
-
-        function adminExportAllCSV() {
-            let allNotes = [];
-            const local = localStorage.getItem('eval_notes_fallback');
-            if (local) {
-                allNotes = JSON.parse(local);
-            }
-            if (allNotes.length === 0) {
-                showNotification('Belum ada data catatan dalam sistem.', 'error');
-                return;
-            }
-            let csv = "ID,Timestamp,Teacher,Scope,ClassName,Student,Category,Title,Description\n";
-            allNotes.forEach(e => {
-                csv += `"${e.id}","${e.timestamp}","${e.teacher}","${e.scope}","${e.className}","${e.student}","${e.category}","${e.title}","${e.description}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'rekapitulasi_seluruh_guru.csv');
-            a.click();
-            showNotification('Arsip CSV seluruh guru berhasil diunduh.');
-        }
-
-        function adminPrintAllNotes() {
-            let allNotes = [];
-            const local = localStorage.getItem('eval_notes_fallback');
-            if (local) {
-                allNotes = JSON.parse(local);
-            }
-            if (allNotes.length === 0) {
-                showNotification('Belum ada data catatan untuk dicetak.', 'error');
-                return;
-            }
-            
-            const printWindow = window.open('', '_blank');
-            const htmlContent = `
-                <!DOCTYPE html>
-                <html lang="id">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Rekapitulasi Seluruh Catatan Evaluasi Guru</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
-                        h2 { text-align: center; margin-bottom: 5px; }
-                        p.subtitle { text-align: center; color: #666; font-size: 13px; margin-bottom: 20px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
-                        th { background-color: #f4f4f4; }
-                    </style>
-                </head>
-                <body>
-                    <h2>REKAPITULASI EVALUASI KOGNITIF & KARAKTER MURID</h2>
-                    <p class="subtitle">${appSettings.schoolName} — Arsip Seluruh Guru</p>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Waktu</th>
-                                <th>Guru Pengajar</th>
-                                <th>Kelas / Murid</th>
-                                <th>Fokus & Judul</th>
-                                <th>Catatan Detail</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${allNotes.map(item => `
-                                <tr>
-                                    <td>${item.timestamp}</td>
-                                    <td><b>${item.teacher}</b></td>
-                                    <td>${item.className} ${item.student !== '-' ? '<br>• ' + item.student : ''}</td>
-                                    <td><b>${item.category}</b><br>${item.title}</td>
-                                    <td>${item.description}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                    <script>
-                        window.onload = function() { window.print(); }
-                    <\/script>
-                </body>
-                </html>
-            `;
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
         }
 
         function applySettingsToUI() {
