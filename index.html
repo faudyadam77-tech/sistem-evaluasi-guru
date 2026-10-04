@@ -18,7 +18,6 @@
   #root{min-height:100vh}
   .hidden{display:none!important}
 
-  /* Top bar */
   .topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;
     display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
   .brand{display:flex;align-items:center;gap:10px;font-weight:600}
@@ -28,7 +27,6 @@
     font-size:12px;font-weight:600}
   .badge.admin{background:#fee2e2;color:#991b1b}
 
-  /* Login */
   .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
     padding:20px;background:linear-gradient(135deg,#1e3a8a,#2563eb)}
   .login-card{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:400px;
@@ -40,7 +38,6 @@
     border-radius:7px;font-weight:600;color:var(--muted);font-size:14px}
   .tabs button.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.08)}
 
-  /* Form */
   label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#334155}
   input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);
     border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text)}
@@ -49,7 +46,6 @@
   .field{margin-bottom:14px}
   .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-  /* Buttons */
   .btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:600;
     cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
   .btn-primary{background:var(--primary);color:#fff}
@@ -63,7 +59,6 @@
   .btn-sm{padding:6px 10px;font-size:12px}
   .btn:disabled{opacity:.6;cursor:not-allowed}
 
-  /* Layout */
   .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 61px)}
   .sidebar{background:#fff;border-right:1px solid var(--border);padding:16px 0}
   .sidebar .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;
@@ -77,11 +72,11 @@
   .content h2{font-size:20px;margin-bottom:4px}
   .content .subtitle{color:var(--muted);font-size:13px;margin-bottom:20px}
 
-  /* Card */
   .card{background:#fff;border:1px solid var(--border);border-radius:12px;
     padding:20px;margin-bottom:16px}
   .card h3{font-size:15px;margin-bottom:14px;color:#334155}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
   @media(max-width:780px){
     .layout{grid-template-columns:1fr}
     .sidebar{display:flex;overflow-x:auto;padding:8px;border-right:none;
@@ -93,7 +88,6 @@
     .grid-2,.row{grid-template-columns:1fr}
   }
 
-  /* Table */
   table{width:100%;border-collapse:collapse;font-size:13px}
   th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
   th{background:#f8fafc;font-weight:600;color:#334155;font-size:12px;
@@ -101,33 +95,35 @@
   tr:hover td{background:#f8fafc}
   .table-wrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:12px}
 
-  /* Score input */
-  .aspect-row{display:grid;grid-template-columns:1fr 90px;align-items:center;
+  .aspect-row{display:grid;grid-template-columns:1fr 130px;align-items:center;
     gap:10px;padding:8px 0;border-bottom:1px dashed #e2e8f0}
   .aspect-row:last-child{border-bottom:none}
   .aspect-row span{font-size:14px}
   .score-badge{display:inline-block;background:#eff6ff;color:var(--primary-dark);
     padding:6px 12px;border-radius:8px;font-weight:700;font-size:18px}
 
-  /* Alert */
   .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
   .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
   .alert-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
   .alert-info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
 
-  /* Modal */
   .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;
     align-items:center;justify-content:center;z-index:100;padding:16px}
-  .modal{background:#fff;border-radius:12px;padding:24px;max-width:420px;width:100%}
+  .modal{background:#fff;border-radius:12px;padding:24px;max-width:620px;width:100%;
+    max-height:88vh;overflow-y:auto}
   .modal h3{margin-bottom:10px}
   .modal .actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
 
-  /* Print view */
+  .loader{display:inline-block;width:14px;height:14px;border:2px solid #fff;
+    border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner-box{display:flex;align-items:center;gap:10px;color:var(--muted);
+    font-size:14px;padding:12px}
+
   @media print{
     body{background:#fff!important}
     body.has-bg::before{display:none}
   }
-  .print-only{display:none}
 </style>
 </head>
 <body>
@@ -137,14 +133,21 @@
 'use strict';
 
 /* ============================================================
- *  GANTI BARIS DI BAWAH INI DENGAN URL WEB APP APPS SCRIPT ANDA
- *  (Deploy > New deployment > Web app > Execute as: Me,
- *   Who has access: Anyone > Copy URL)
+ *  KONFIGURASI URL APPS SCRIPT
+ *  ------------------------------------------------------------------
+ *  Baris ini dipertahankan sesuai permintaan. Isi dengan URL Web App
+ *  Anda (Deploy > New deployment > Web app > Copy URL).
+ *
+ *  Catatan: aplikasi ini KOMUNIKASI UTAMANYA lewat
+ *  google.script.run (jauh lebih cepat karena berjalan di container
+ *  yang sama), sehingga API_URL ini hanya sebagai referensi/cadangan.
  * ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbx0EhbgwVyTVO-ctpKFK-_mVPUJGWMOsYJqEw7bahiKNptHvIab5SAelc_eQpRifKil/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxJpc7pSjGkrUCdwQUJq_FPXeBK1uBZwk7Tzaw5aGpeWBJqNyJbMKG14W_ibrvLNMU/exec';
 /* ============================================================ */
 
-/* ---------- State ---------- */
+/* ============================================================
+ *  STATE
+ * ============================================================ */
 const state = {
   user: null,
   config: {},
@@ -154,224 +157,309 @@ const state = {
   evaluations: [],
   teachers: [],
   loading: false,
-  msg: null
+  msg: null,
+  _evalStale: true,
+  _teacherStale: true
 };
 
-const saved = localStorage.getItem('evalUser');
-if (saved) { try { state.user = JSON.parse(saved); state.view = state.user.role === 'admin' ? 'admin-config' : 'teacher-home'; } catch(e){} }
+try {
+  const saved = localStorage.getItem('evalUser');
+  if (saved) {
+    state.user = JSON.parse(saved);
+    state.view = state.user.role === 'admin' ? 'admin-config' : 'teacher-home';
+  }
+} catch (e) {}
 
-/* ---------- API ---------- */
-async function api(action, payload = {}) {
+/* ============================================================
+ *  API — pakai google.script.run (CEPAT)
+ * ============================================================ */
+function api(action, payload) {
+  payload = payload || {};
+  return new Promise(function (resolve, reject) {
+    google.script.run
+      .withSuccessHandler(function (r) {
+        if (r && r.ok) resolve(r.data);
+        else reject(new Error((r && r.error) || 'Terjadi kesalahan server'));
+      })
+      .withFailureHandler(function (err) {
+        reject(new Error((err && err.message) || 'Gagal terhubung ke server'));
+      })
+      .apiCall(Object.assign({ action: action }, payload));
+  });
+}
+
+/**
+ * Cadangan: panggilan lewat fetch ke API_URL (misal untuk testing).
+ * Tidak dipakai di alur utama.
+ */
+async function apiFallback(action, payload) {
+  payload = payload || {};
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action, ...payload })
+    body: JSON.stringify(Object.assign({ action: action }, payload))
   });
   const json = await res.json();
   if (!json.ok) throw new Error(json.error || 'Terjadi kesalahan server');
   return json.data;
 }
 
-function showMsg(text, type = 'info') {
-  state.msg = { text, type };
+/* ============================================================
+ *  HELPERS
+ * ============================================================ */
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]);
+  });
+}
+function fmtDate(d) {
+  if (!d) return '-';
+  var x = new Date(d);
+  if (isNaN(x)) return '-';
+  return x.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function showMsg(text, type) {
+  state.msg = { text: text, type: type || 'info' };
   render();
-  setTimeout(() => { state.msg = null; render(); }, 3500);
+  clearTimeout(showMsg._t);
+  showMsg._t = setTimeout(function () { state.msg = null; render(); }, 3500);
+}
+function ADMIN_PWD() {
+  return localStorage.getItem('adminPwd') || '';
 }
 
-function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function fmtDate(d){ if(!d) return '-'; const x=new Date(d); if(isNaN(x)) return '-';
-  return x.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}); }
+/* ============================================================
+ *  DATA LOADERS
+ * ============================================================ */
+async function loadConfig(force) {
+  if (!force && state.config && state.config.schoolName) {
+    applyBg();
+    return;
+  }
+  try {
+    state.config = await api('getConfig');
+    applyBg();
+  } catch (e) { console.error(e); }
+}
+function applyBg() {
+  if (state.config.bgUrl) {
+    document.body.style.backgroundImage = "url('" + state.config.bgUrl + "')";
+    document.body.classList.add('has-bg');
+  } else {
+    document.body.style.backgroundImage = '';
+    document.body.classList.remove('has-bg');
+  }
+}
 
-/* ---------- Auth ---------- */
+async function loadStudents(force) {
+  if (!force && state.students.length) return;
+  try { state.students = await api('getStudents'); } catch (e) {}
+}
+
+async function loadEvaluations(force) {
+  if (!force && state.evaluations.length && !state._evalStale) return;
+  try {
+    var payload = (state.user.role === 'admin')
+      ? { adminPassword: ADMIN_PWD() }
+      : { teacherUsername: state.user.username };
+    state.evaluations = await api('getEvaluations', payload);
+    state._evalStale = false;
+  } catch (e) { showMsg(e.message, 'error'); }
+}
+
+async function loadTeachers(force) {
+  if (!force && state.teachers.length && !state._teacherStale) return;
+  try {
+    state.teachers = await api('getTeachers', { adminPassword: ADMIN_PWD() });
+    state._teacherStale = false;
+  } catch (e) {
+    state.teachers = [];
+    showMsg(e.message, 'error');
+  }
+}
+
+/* ============================================================
+ *  AUTH
+ * ============================================================ */
 async function doLogin(e) {
   e.preventDefault();
-  const f = e.target;
+  var f = e.target;
   try {
     state.loading = true; render();
-    const u = await api('login', { username: f.username.value, password: f.password.value });
+    var u = await api('login', { username: f.username.value, password: f.password.value });
     state.user = u;
     localStorage.setItem('evalUser', JSON.stringify(u));
     state.view = 'teacher-home';
-    await loadConfig();
-    await loadEvaluations();
-    showMsg('Login berhasil. Selamat datang, ' + u.fullName, 'success');
-  } catch(err){ showMsg(err.message, 'error'); }
-  finally { state.loading = false; render(); }
+    state._evalStale = true;
+    await loadConfig(true);
+    await loadEvaluations(true);
+    showMsg('Selamat datang, ' + u.fullName, 'success');
+  } catch (err) {
+    showMsg(err.message, 'error');
+  } finally {
+    state.loading = false; render();
+  }
 }
 
 async function doRegister(e) {
   e.preventDefault();
-  const f = e.target;
+  var f = e.target;
   try {
     state.loading = true; render();
     await api('register', {
-      username: f.username.value, password: f.password.value, fullName: f.fullName.value
+      username: f.username.value,
+      password: f.password.value,
+      fullName: f.fullName.value
     });
     showMsg('Akun berhasil dibuat. Silakan login.', 'success');
     state.loginTab = 'login';
-  } catch(err){ showMsg(err.message, 'error'); }
-  finally { state.loading = false; render(); }
+  } catch (err) {
+    showMsg(err.message, 'error');
+  } finally {
+    state.loading = false; render();
+  }
 }
 
-function askAdmin() {
-  const pwd = prompt('Masukkan password admin:');
+async function askAdmin() {
+  var pwd = prompt('Masukkan password admin:');
   if (!pwd) return;
-  api('adminLogin', { password: pwd }).then(u => {
+  try {
+    state.loading = true; render();
+    var u = await api('adminLogin', { password: pwd });
     state.user = u;
     localStorage.setItem('evalUser', JSON.stringify(u));
+    localStorage.setItem('adminPwd', pwd);
+    state._evalStale = true;
+    state._teacherStale = true;
+    await loadConfig(true);
+    await loadEvaluations(true);
+    await loadTeachers(true);
     state.view = 'admin-config';
-    loadConfig().then(render);
     showMsg('Mode admin aktif', 'success');
-  }).catch(err => showMsg(err.message, 'error'));
+  } catch (err) {
+    showMsg(err.message, 'error');
+  } finally {
+    state.loading = false; render();
+  }
 }
 
 function logout() {
-  state.user = null; state.evaluations = []; state.students = [];
+  state.user = null;
+  state.evaluations = [];
+  state.students = [];
+  state.teachers = [];
+  state._evalStale = true;
+  state._teacherStale = true;
   localStorage.removeItem('evalUser');
+  localStorage.removeItem('adminPwd');
   state.view = 'login';
+  state.loginTab = 'login';
   render();
 }
 
-/* ---------- Data loaders ---------- */
-async function loadConfig() {
-  try {
-    state.config = await api('getConfig');
-    if (state.config.bgUrl) {
-      document.body.style.backgroundImage = `url('${state.config.bgUrl}')`;
-      document.body.classList.add('has-bg');
-    } else {
-      document.body.style.backgroundImage = '';
-      document.body.classList.remove('has-bg');
-    }
-  } catch(e){ console.error(e); }
-}
-
-async function loadStudents() {
-  try { state.students = await api('getStudents'); } catch(e){}
-}
-
-async function loadEvaluations() {
-  try {
-    const payload = state.user.role === 'admin'
-      ? { adminPassword: ADMIN_PWD() }
-      : { teacherUsername: state.user.username };
-    state.evaluations = await api('getEvaluations', payload);
-  } catch(e){ showMsg(e.message,'error'); }
-}
-
-// simpan password admin sementara di memory (diminta di awal)
-function ADMIN_PWD(){
-  return sessionStorage.getItem('adminPwd') || '';
-}
-
 /* ============================================================
- *  VIEWS
+ *  RENDER
  * ============================================================ */
-
 function render() {
-  const root = document.getElementById('root');
+  var root = document.getElementById('root');
   if (!state.user) root.innerHTML = renderLogin();
   else root.innerHTML = renderApp();
   bindEvents();
 }
 
-/* ---------- Login ---------- */
 function renderLogin() {
-  const cfg = state.config;
-  return `
-  <div class="login-wrap" style="${cfg.bgUrl?`background:linear-gradient(135deg,rgba(30,58,138,.85),rgba(37,99,235,.85)),url('${esc(cfg.bgUrl)}') center/cover`:''}">
-    <div class="login-card">
-      <div style="text-align:center;margin-bottom:18px">
-        ${cfg.logoUrl?`<img src="${esc(cfg.logoUrl)}" style="height:56px;margin-bottom:8px">`:''}
-        <h1>${esc(cfg.schoolName || 'Evaluasi Siswa')}</h1>
-        <div class="sub">Aplikasi Evaluasi Perkembangan Siswa</div>
-      </div>
-
-      <div class="tabs">
-        <button class="${state.loginTab==='login'?'active':''}" data-tab="login">Masuk</button>
-        <button class="${state.loginTab==='register'?'active':''}" data-tab="register">Daftar</button>
-      </div>
-
-      ${state.msg ? `<div class="alert alert-${state.msg.type}">${esc(state.msg.text)}</div>` : ''}
-
-      ${state.loginTab === 'login' ? `
-        <form id="form-login">
-          <div class="field"><label>Username</label>
-            <input name="username" required autocomplete="username"></div>
-          <div class="field"><label>Password</label>
-            <input name="password" type="password" required autocomplete="current-password"></div>
-          <button class="btn btn-primary btn-block" ${state.loading?'disabled':''}>
-            ${state.loading?'Memproses...':'Masuk'}
-          </button>
-        </form>
-      ` : `
-        <form id="form-register">
-          <div class="field"><label>Nama Lengkap</label>
-            <input name="fullName" required></div>
-          <div class="field"><label>Username</label>
-            <input name="username" required autocomplete="username"></div>
-          <div class="field"><label>Password</label>
-            <input name="password" type="password" required minlength="4"></div>
-          <button class="btn btn-primary btn-block" ${state.loading?'disabled':''}>
-            ${state.loading?'Memproses...':'Daftar Akun Guru'}
-          </button>
-        </form>
-      `}
-
-      <div style="text-align:center;margin-top:16px">
-        <button class="btn btn-ghost btn-sm" id="btn-admin">🔐 Masuk Mode Admin</button>
-      </div>
-    </div>
-  </div>`;
+  var cfg = state.config || {};
+  var bgStyle = cfg.bgUrl
+    ? "background:linear-gradient(135deg,rgba(30,58,138,.85),rgba(37,99,235,.85)),url('" + esc(cfg.bgUrl) + "') center/cover"
+    : '';
+  return '' +
+  '<div class="login-wrap" style="' + bgStyle + '">' +
+    '<div class="login-card">' +
+      '<div style="text-align:center;margin-bottom:18px">' +
+        (cfg.logoUrl ? '<img src="' + esc(cfg.logoUrl) + '" style="height:56px;margin-bottom:8px">' : '') +
+        '<h1>' + esc(cfg.schoolName || 'Evaluasi Siswa') + '</h1>' +
+        '<div class="sub">Aplikasi Evaluasi Perkembangan Siswa</div>' +
+      '</div>' +
+      '<div class="tabs">' +
+        '<button class="' + (state.loginTab === 'login' ? 'active' : '') + '" data-tab="login">Masuk</button>' +
+        '<button class="' + (state.loginTab === 'register' ? 'active' : '') + '" data-tab="register">Daftar</button>' +
+      '</div>' +
+      (state.msg ? '<div class="alert alert-' + state.msg.type + '">' + esc(state.msg.text) + '</div>' : '') +
+      (state.loginTab === 'login'
+        ? '<form id="form-login">' +
+            '<div class="field"><label>Username</label>' +
+              '<input name="username" required autocomplete="username"></div>' +
+            '<div class="field"><label>Password</label>' +
+              '<input name="password" type="password" required autocomplete="current-password"></div>' +
+            '<button class="btn btn-primary btn-block" ' + (state.loading ? 'disabled' : '') + '>' +
+              (state.loading ? '<span class="loader"></span> Memproses...' : 'Masuk') +
+            '</button>' +
+          '</form>'
+        : '<form id="form-register">' +
+            '<div class="field"><label>Nama Lengkap</label>' +
+              '<input name="fullName" required></div>' +
+            '<div class="field"><label>Username</label>' +
+              '<input name="username" required autocomplete="username"></div>' +
+            '<div class="field"><label>Password (min 4 karakter)</label>' +
+              '<input name="password" type="password" required minlength="4"></div>' +
+            '<button class="btn btn-primary btn-block" ' + (state.loading ? 'disabled' : '') + '>' +
+              (state.loading ? '<span class="loader"></span> Memproses...' : 'Daftar Akun Guru') +
+            '</button>' +
+          '</form>') +
+      '<div style="text-align:center;margin-top:16px">' +
+        '<button class="btn btn-ghost btn-sm" id="btn-admin">🔐 Masuk Mode Admin</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
-/* ---------- App shell ---------- */
 function renderApp() {
-  const u = state.user;
-  const isAdmin = u.role === 'admin';
-  const cfg = state.config;
+  var u = state.user;
+  var isAdmin = u.role === 'admin';
+  var cfg = state.config || {};
 
-  const navTeacher = [
-    { id:'teacher-home',  label:'📋 Evaluasi Saya' },
-    { id:'teacher-new',   label:'➕ Buat Evaluasi' },
-    { id:'teacher-report',label:'🖨️ Cetak & Kirim' }
+  var navTeacher = [
+    { id: 'teacher-home',   label: '📋 Evaluasi Saya' },
+    { id: 'teacher-new',    label: '➕ Buat Evaluasi' },
+    { id: 'teacher-report', label: '🖨️ Cetak & Kirim' }
   ];
-  const navAdmin = [
-    { id:'admin-config',   label:'⚙️ Konfigurasi' },
-    { id:'admin-students', label:'👥 Data Siswa' },
-    { id:'admin-teachers', label:'👨‍🏫 Akun Guru' },
-    { id:'admin-evals',    label:'📊 Semua Evaluasi' },
-    { id:'admin-report',   label:'🖨️ Rangkuman & Cetak' }
+  var navAdmin = [
+    { id: 'admin-config',   label: '⚙️ Konfigurasi' },
+    { id: 'admin-students', label: '👥 Data Siswa' },
+    { id: 'admin-teachers', label: '👨‍🏫 Akun Guru' },
+    { id: 'admin-evals',    label: '📊 Semua Evaluasi' },
+    { id: 'admin-report',   label: '🖨️ Rangkuman & Cetak' }
   ];
-  const nav = isAdmin ? navAdmin : navTeacher;
+  var nav = isAdmin ? navAdmin : navTeacher;
 
-  return `
-  <div class="topbar">
-    <div class="brand">
-      ${cfg.logoUrl?`<img src="${esc(cfg.logoUrl)}">`:''}
-      <span>${esc(cfg.schoolName || 'Evaluasi Siswa')}</span>
-    </div>
-    <div class="user-info">
-      <span>${esc(u.fullName)}</span>
-      <span class="badge ${isAdmin?'admin':''}">${isAdmin?'ADMIN':'GURU'}</span>
-      <button class="btn btn-ghost btn-sm" id="btn-logout">Keluar</button>
-    </div>
-  </div>
-
-  <div class="layout">
-    <aside class="sidebar">
-      <div class="nav-title">Menu</div>
-      ${nav.map(n=>`<div class="nav-item ${state.view===n.id?'active':''}" data-nav="${n.id}">${n.label}</div>`).join('')}
-    </aside>
-    <main class="content">
-      ${state.msg?`<div class="alert alert-${state.msg.type}">${esc(state.msg.text)}</div>`:''}
-      ${renderView()}
-    </main>
-  </div>`;
+  return '' +
+  '<div class="topbar">' +
+    '<div class="brand">' +
+      (cfg.logoUrl ? '<img src="' + esc(cfg.logoUrl) + '">' : '') +
+      '<span>' + esc(cfg.schoolName || 'Evaluasi Siswa') + '</span>' +
+    '</div>' +
+    '<div class="user-info">' +
+      '<span>' + esc(u.fullName) + '</span>' +
+      '<span class="badge ' + (isAdmin ? 'admin' : '') + '">' + (isAdmin ? 'ADMIN' : 'GURU') + '</span>' +
+      '<button class="btn btn-ghost btn-sm" id="btn-logout">Keluar</button>' +
+    '</div>' +
+  '</div>' +
+  '<div class="layout">' +
+    '<aside class="sidebar">' +
+      '<div class="nav-title">Menu</div>' +
+      nav.map(function (n) {
+        return '<div class="nav-item ' + (state.view === n.id ? 'active' : '') + '" data-nav="' + n.id + '">' + n.label + '</div>';
+      }).join('') +
+    '</aside>' +
+    '<main class="content">' +
+      (state.msg ? '<div class="alert alert-' + state.msg.type + '">' + esc(state.msg.text) + '</div>' : '') +
+      renderView() +
+    '</main>' +
+  '</div>';
 }
 
 function renderView() {
-  switch(state.view){
+  switch (state.view) {
     case 'teacher-home':   return viewTeacherHome();
     case 'teacher-new':    return viewTeacherNew();
     case 'teacher-report': return viewTeacherReport();
@@ -384,394 +472,362 @@ function renderView() {
   }
 }
 
-/* ---------- Teacher: daftar evaluasi ---------- */
+/* ---------- Teacher views ---------- */
 function viewTeacherHome() {
-  const list = state.evaluations;
-  if (!list.length) return `
-    <h2>Evaluasi Saya</h2>
-    <div class="subtitle">Daftar evaluasi yang pernah Anda buat.</div>
-    <div class="card" style="text-align:center;padding:40px">
-      <p style="color:var(--muted);margin-bottom:16px">Belum ada evaluasi.</p>
-      <button class="btn btn-primary" data-nav="teacher-new">➕ Buat Evaluasi Pertama</button>
-    </div>`;
+  if (state.loading) return '<div class="spinner-box"><span class="loader" style="border-color:#2563eb;border-top-color:transparent"></span> Memuat data...</div>';
+  var list = state.evaluations;
+  if (!list.length) return '' +
+    '<h2>Evaluasi Saya</h2>' +
+    '<div class="subtitle">Daftar evaluasi yang pernah Anda buat.</div>' +
+    '<div class="card" style="text-align:center;padding:40px">' +
+      '<p style="color:var(--muted);margin-bottom:16px">Belum ada evaluasi.</p>' +
+      '<button class="btn btn-primary" data-nav="teacher-new">➕ Buat Evaluasi Pertama</button>' +
+    '</div>';
 
-  return `
-    <h2>Evaluasi Saya</h2>
-    <div class="subtitle">Total ${list.length} evaluasi.</div>
-    <div class="table-wrap"><table>
-      <thead><tr>
-        <th>Siswa</th><th>Kelas</th><th>Periode</th>
-        <th>Akademik</th><th>Karakter</th><th>Tanggal</th><th>Aksi</th>
-      </tr></thead>
-      <tbody>
-        ${list.map(e=>`
-          <tr>
-            <td><strong>${esc(e.studentName)}</strong></td>
-            <td>${esc(e.studentClass)}</td>
-            <td>${esc(e.period)}</td>
-            <td><span class="score-badge" style="font-size:14px;padding:3px 8px">${esc(e.acadScore)}</span></td>
-            <td><span class="score-badge" style="font-size:14px;padding:3px 8px">${esc(e.karScore)}</span></td>
-            <td>${fmtDate(e.createdAt)}</td>
-            <td>
-              <button class="btn btn-ghost btn-sm" data-detail="${esc(e.id)}">Detail</button>
-            </td>
-          </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+  return '' +
+    '<h2>Evaluasi Saya</h2>' +
+    '<div class="subtitle">Total ' + list.length + ' evaluasi.</div>' +
+    '<div class="table-wrap"><table>' +
+      '<thead><tr>' +
+        '<th>Siswa</th><th>Kelas</th><th>Periode</th>' +
+        '<th>Akademik</th><th>Karakter</th><th>Tanggal</th><th>Aksi</th>' +
+      '</tr></thead><tbody>' +
+      list.map(function (e) {
+        return '<tr>' +
+          '<td><strong>' + esc(e.studentName) + '</strong></td>' +
+          '<td>' + esc(e.studentClass) + '</td>' +
+          '<td>' + esc(e.period) + '</td>' +
+          '<td><span class="score-badge" style="font-size:14px;padding:3px 8px">' + esc(e.acadScore) + '</span></td>' +
+          '<td><span class="score-badge" style="font-size:14px;padding:3px 8px">' + esc(e.karScore) + '</span></td>' +
+          '<td>' + fmtDate(e.createdAt) + '</td>' +
+          '<td><button class="btn btn-ghost btn-sm" data-detail="' + esc(e.id) + '">Detail</button></td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
 }
 
-/* ---------- Teacher: form evaluasi baru ---------- */
 function viewTeacherNew() {
-  const classes = (state.config.classes||'').split(',').map(s=>s.trim()).filter(Boolean);
-  const periods = currentPeriods();
-  return `
-  <h2>Buat Evaluasi Baru</h2>
-  <div class="subtitle">Isi penilaian perkembangan kognitif/akademik dan karakter/akhlaq siswa.</div>
-
-  <form id="form-eval">
-    <div class="card">
-      <h3>Identitas Siswa</h3>
-      <div class="row">
-        <div class="field">
-          <label>Kelas</label>
-          <select name="studentClass" id="sel-class" required>
-            <option value="">— Pilih Kelas —</option>
-            ${classes.map(c=>`<option>${esc(c)}</option>`).join('')}
-          </select>
-        </div>
-        <div class="field">
-          <label>Nama Siswa</label>
-          <input name="studentName" id="inp-student" list="student-list" required
-                 placeholder="Ketik atau pilih nama siswa">
-          <datalist id="student-list">
-            ${state.students.map(s=>`<option data-kelas="${esc(s.className)}" value="${esc(s.name)}">${esc(s.className)}</option>`).join('')}
-          </datalist>
-        </div>
-      </div>
-      <div class="field">
-        <label>Periode Penilaian</label>
-        <select name="period" required>
-          ${periods.map(p=>`<option>${esc(p)}</option>`).join('')}
-        </select>
-      </div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <h3>🧠 Perkembangan Kognitif / Akademik</h3>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-          Skala 1 (kurang) – 5 (sangat baik).</p>
-        ${aspectRow('acadPemahaman','Pemahaman Materi')}
-        ${aspectRow('acadPartisipasi','Partisipasi Aktif')}
-        ${aspectRow('acadTugas','Penyelesaian Tugas/PR')}
-        ${aspectRow('acadAnalisis','Kemampuan Analisis')}
-        <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
-          <strong>Nilai Akademik:</strong>
-          <span class="score-badge" id="acadScore">60</span>
-          <span style="color:var(--muted);font-size:12px">/100</span>
-        </div>
-        <div class="field" style="margin-top:12px">
-          <label>Catatan Akademik</label>
-          <textarea name="acadNotes" placeholder="Catatan perkembangan akademik..."></textarea>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>🌟 Perkembangan Karakter / Akhlaq</h3>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-          Skala 1 (kurang) – 5 (sangat baik).</p>
-        ${aspectRow('karKejujuran','Kejujuran')}
-        ${aspectRow('karDisiplin','Kedisiplinan')}
-        ${aspectRow('karSopan','Sopan Santun')}
-        ${aspectRow('karTanggungJawab','Tanggung Jawab')}
-        ${aspectRow('karKerjasama','Kerjasama')}
-        <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
-          <strong>Nilai Karakter:</strong>
-          <span class="score-badge" id="karScore">60</span>
-          <span style="color:var(--muted);font-size:12px">/100</span>
-        </div>
-        <div class="field" style="margin-top:12px">
-          <label>Catatan Karakter</label>
-          <textarea name="karNotes" placeholder="Catatan perkembangan karakter/akhlaq..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button type="button" class="btn btn-ghost" data-nav="teacher-home">Batal</button>
-      <button class="btn btn-primary" ${state.loading?'disabled':''}>
-        ${state.loading?'Menyimpan...':'💾 Simpan Evaluasi'}
-      </button>
-    </div>
-  </form>`;
+  var classes = (state.config.classes || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  var periods = currentPeriods();
+  return '' +
+  '<h2>Buat Evaluasi Baru</h2>' +
+  '<div class="subtitle">Isi penilaian perkembangan kognitif/akademik dan karakter/akhlaq siswa.</div>' +
+  '<form id="form-eval">' +
+    '<div class="card">' +
+      '<h3>Identitas Siswa</h3>' +
+      '<div class="row">' +
+        '<div class="field"><label>Kelas</label>' +
+          '<select name="studentClass" required>' +
+            '<option value="">— Pilih Kelas —</option>' +
+            classes.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') +
+          '</select></div>' +
+        '<div class="field"><label>Nama Siswa</label>' +
+          '<input name="studentName" list="student-list" required placeholder="Ketik atau pilih nama siswa">' +
+          '<datalist id="student-list">' +
+            state.students.map(function (s) {
+              return '<option data-kelas="' + esc(s.className) + '" value="' + esc(s.name) + '">' + esc(s.className) + '</option>';
+            }).join('') +
+          '</datalist></div>' +
+      '</div>' +
+      '<div class="field"><label>Periode Penilaian</label>' +
+        '<select name="period" required>' +
+          periods.map(function (p) { return '<option>' + esc(p) + '</option>'; }).join('') +
+        '</select></div>' +
+    '</div>' +
+    '<div class="grid-2">' +
+      '<div class="card">' +
+        '<h3>🧠 Perkembangan Kognitif / Akademik</h3>' +
+        '<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Skala 1 (kurang) – 5 (sangat baik).</p>' +
+        aspectRow('acadPemahaman', 'Pemahaman Materi') +
+        aspectRow('acadPartisipasi', 'Partisipasi Aktif') +
+        aspectRow('acadTugas', 'Penyelesaian Tugas/PR') +
+        aspectRow('acadAnalisis', 'Kemampuan Analisis') +
+        '<div style="margin-top:14px;display:flex;align-items:center;gap:10px">' +
+          '<strong>Nilai Akademik:</strong>' +
+          '<span class="score-badge" id="acadScore">60</span>' +
+          '<span style="color:var(--muted);font-size:12px">/100</span>' +
+        '</div>' +
+        '<div class="field" style="margin-top:12px">' +
+          '<label>Catatan Akademik</label>' +
+          '<textarea name="acadNotes" placeholder="Catatan perkembangan akademik..."></textarea>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card">' +
+        '<h3>🌟 Perkembangan Karakter / Akhlaq</h3>' +
+        '<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Skala 1 (kurang) – 5 (sangat baik).</p>' +
+        aspectRow('karKejujuran', 'Kejujuran') +
+        aspectRow('karDisiplin', 'Kedisiplinan') +
+        aspectRow('karSopan', 'Sopan Santun') +
+        aspectRow('karTanggungJawab', 'Tanggung Jawab') +
+        aspectRow('karKerjasama', 'Kerjasama') +
+        '<div style="margin-top:14px;display:flex;align-items:center;gap:10px">' +
+          '<strong>Nilai Karakter:</strong>' +
+          '<span class="score-badge" id="karScore">60</span>' +
+          '<span style="color:var(--muted);font-size:12px">/100</span>' +
+        '</div>' +
+        '<div class="field" style="margin-top:12px">' +
+          '<label>Catatan Karakter</label>' +
+          '<textarea name="karNotes" placeholder="Catatan perkembangan karakter/akhlaq..."></textarea>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:10px;justify-content:flex-end">' +
+      '<button type="button" class="btn btn-ghost" data-nav="teacher-home">Batal</button>' +
+      '<button class="btn btn-primary" ' + (state.loading ? 'disabled' : '') + '>' +
+        (state.loading ? '<span class="loader"></span> Menyimpan...' : '💾 Simpan Evaluasi') +
+      '</button>' +
+    '</div>' +
+  '</form>';
 }
 
 function aspectRow(name, label) {
-  return `<div class="aspect-row">
-    <span>${label}</span>
-    <select name="${name}" class="aspect-score" data-aspect>
-      <option value="1">1 - Kurang</option>
-      <option value="2">2 - Cukup</option>
-      <option value="3" selected>3 - Baik</option>
-      <option value="4">4 - Sangat Baik</option>
-      <option value="5">5 - Istimewa</option>
-    </select>
-  </div>`;
+  return '<div class="aspect-row">' +
+    '<span>' + label + '</span>' +
+    '<select name="' + name + '" data-aspect>' +
+      '<option value="1">1 - Kurang</option>' +
+      '<option value="2">2 - Cukup</option>' +
+      '<option value="3" selected>3 - Baik</option>' +
+      '<option value="4">4 - Sangat Baik</option>' +
+      '<option value="5">5 - Istimewa</option>' +
+    '</select>' +
+  '</div>';
 }
 
 function currentPeriods() {
-  const y = new Date().getFullYear();
+  var y = new Date().getFullYear();
   return [
-    `Semester 1 ${y}/${y+1}`,
-    `Semester 2 ${y-1}/${y}`,
-    `Semester 1 ${y-1}/${y}`,
-    `Semester 2 ${y-2}/${y-1}`
+    'Semester 1 ' + y + '/' + (y + 1),
+    'Semester 2 ' + (y - 1) + '/' + y,
+    'Semester 1 ' + (y - 1) + '/' + y,
+    'Semester 2 ' + (y - 2) + '/' + (y - 1)
   ];
 }
 
-/* ---------- Teacher: report / cetak ---------- */
 function viewTeacherReport() {
   if (!state.evaluations.length)
-    return `<h2>Cetak & Kirim Laporan</h2>
-      <div class="subtitle">Belum ada evaluasi untuk dicetak.</div>`;
-  return `
-    <h2>Cetak & Kirim Laporan</h2>
-    <div class="subtitle">Pilih evaluasi untuk dicetak atau dikirim ke Kepala Sekolah.</div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Siswa</th><th>Kelas</th><th>Periode</th><th>Tanggal</th><th>Aksi</th></tr></thead>
-      <tbody>
-        ${state.evaluations.map(e=>`
-          <tr>
-            <td><strong>${esc(e.studentName)}</strong></td>
-            <td>${esc(e.studentClass)}</td>
-            <td>${esc(e.period)}</td>
-            <td>${fmtDate(e.createdAt)}</td>
-            <td style="white-space:nowrap">
-              <button class="btn btn-ghost btn-sm" data-print="${esc(e.id)}">🖨️ Cetak</button>
-              <button class="btn btn-success btn-sm" data-send="${esc(e.id)}">💬 Kirim</button>
-            </td>
-          </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+    return '<h2>Cetak & Kirim Laporan</h2>' +
+      '<div class="subtitle">Belum ada evaluasi untuk dicetak.</div>';
+  return '' +
+    '<h2>Cetak & Kirim Laporan</h2>' +
+    '<div class="subtitle">Pilih evaluasi untuk dicetak atau dikirim ke Kepala Sekolah.</div>' +
+    '<div class="table-wrap"><table>' +
+      '<thead><tr><th>Siswa</th><th>Kelas</th><th>Periode</th><th>Tanggal</th><th>Aksi</th></tr></thead>' +
+      '<tbody>' +
+      state.evaluations.map(function (e) {
+        return '<tr>' +
+          '<td><strong>' + esc(e.studentName) + '</strong></td>' +
+          '<td>' + esc(e.studentClass) + '</td>' +
+          '<td>' + esc(e.period) + '</td>' +
+          '<td>' + fmtDate(e.createdAt) + '</td>' +
+          '<td style="white-space:nowrap">' +
+            '<button class="btn btn-ghost btn-sm" data-print="' + esc(e.id) + '">🖨️ Cetak</button> ' +
+            '<button class="btn btn-success btn-sm" data-send="' + esc(e.id) + '">💬 Kirim</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
 }
 
-/* ---------- Admin: Config ---------- */
+/* ---------- Admin views ---------- */
 function viewAdminConfig() {
-  const c = state.config;
-  return `
-    <h2>Konfigurasi Aplikasi</h2>
-    <div class="subtitle">Pengaturan utama aplikasi (hanya admin).</div>
-    <form id="form-config" class="card">
-      <div class="field">
-        <label>Nama Sekolah</label>
-        <input name="schoolName" value="${esc(c.schoolName||'')}" required>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>URL Logo Sekolah</label>
-          <input name="logoUrl" value="${esc(c.logoUrl||'')}" placeholder="https://...">
-        </div>
-        <div class="field">
-          <label>URL Background</label>
-          <input name="bgUrl" value="${esc(c.bgUrl||'')}" placeholder="https://...">
-        </div>
-      </div>
-      <div class="field">
-        <label>Daftar Kelas (pisahkan dengan koma)</label>
-        <input name="classes" value="${esc(c.classes||'')}" placeholder="Kelas 7A, Kelas 7B, Kelas 8A">
-      </div>
-      <div class="field">
-        <label>No. WhatsApp Kepala Sekolah</label>
-        <input name="principalPhone" value="${esc(c.principalPhone||'')}" placeholder="628123456789">
-        <p style="font-size:12px;color:var(--muted);margin-top:4px">
-          Format internasional tanpa tanda +. Contoh: 628123456789</p>
-      </div>
-      <div style="display:flex;justify-content:flex-end">
-        <button class="btn btn-primary">💾 Simpan Konfigurasi</button>
-      </div>
-    </form>`;
+  var c = state.config || {};
+  return '' +
+    '<h2>Konfigurasi Aplikasi</h2>' +
+    '<div class="subtitle">Pengaturan utama aplikasi (hanya admin).</div>' +
+    '<form id="form-config" class="card">' +
+      '<div class="field"><label>Nama Sekolah</label>' +
+        '<input name="schoolName" value="' + esc(c.schoolName || '') + '" required></div>' +
+      '<div class="row">' +
+        '<div class="field"><label>URL Logo Sekolah</label>' +
+          '<input name="logoUrl" value="' + esc(c.logoUrl || '') + '" placeholder="https://..."></div>' +
+        '<div class="field"><label>URL Background</label>' +
+          '<input name="bgUrl" value="' + esc(c.bgUrl || '') + '" placeholder="https://..."></div>' +
+      '</div>' +
+      '<div class="field"><label>Daftar Kelas (pisahkan dengan koma)</label>' +
+        '<input name="classes" value="' + esc(c.classes || '') + '" placeholder="Kelas 7A, Kelas 7B, Kelas 8A"></div>' +
+      '<div class="field"><label>No. WhatsApp Kepala Sekolah</label>' +
+        '<input name="principalPhone" value="' + esc(c.principalPhone || '') + '" placeholder="628123456789">' +
+        '<p style="font-size:12px;color:var(--muted);margin-top:4px">Format internasional tanpa tanda +. Contoh: 628123456789</p></div>' +
+      '<div style="display:flex;justify-content:flex-end">' +
+        '<button class="btn btn-primary" ' + (state.loading ? 'disabled' : '') + '>' +
+          (state.loading ? '<span class="loader"></span> Menyimpan...' : '💾 Simpan Konfigurasi') +
+        '</button>' +
+      '</div>' +
+    '</form>';
 }
 
-/* ---------- Admin: Students ---------- */
 function viewAdminStudents() {
-  const classes = (state.config.classes||'').split(',').map(s=>s.trim()).filter(Boolean);
-  const grouped = {};
-  state.students.forEach(s => {
-    grouped[s.className] = grouped[s.className] || [];
-    grouped[s.className].push(s);
+  var classes = (state.config.classes || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  var grouped = {};
+  state.students.forEach(function (s) {
+    var k = s.className || '(tanpa kelas)';
+    if (!grouped[k]) grouped[k] = [];
+    grouped[k].push(s);
   });
-  return `
-    <h2>Data Siswa</h2>
-    <div class="subtitle">Master data siswa yang tersedia untuk evaluasi.</div>
+  var keys = Object.keys(grouped);
 
-    <div class="card">
-      <h3>Tambah Siswa</h3>
-      <form id="form-student" class="row">
-        <div class="field" style="margin:0">
-          <label>Nama Siswa</label>
-          <input name="name" required>
-        </div>
-        <div class="field" style="margin:0">
-          <label>Kelas</label>
-          <select name="className" required>
-            <option value="">— Pilih —</option>
-            ${classes.map(c=>`<option>${esc(c)}</option>`).join('')}
-          </select>
-        </div>
-        <div style="display:flex;align-items:flex-end">
-          <button class="btn btn-primary">➕ Tambah</button>
-        </div>
-      </form>
-    </div>
-
-    ${Object.keys(grouped).length === 0
+  return '' +
+    '<h2>Data Siswa</h2>' +
+    '<div class="subtitle">Master data siswa yang tersedia untuk evaluasi.</div>' +
+    '<div class="card">' +
+      '<h3>Tambah Siswa</h3>' +
+      '<form id="form-student" class="row">' +
+        '<div class="field" style="margin:0">' +
+          '<label>Nama Siswa</label>' +
+          '<input name="name" required>' +
+        '</div>' +
+        '<div class="field" style="margin:0">' +
+          '<label>Kelas</label>' +
+          '<select name="className" required>' +
+            '<option value="">— Pilih —</option>' +
+            classes.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') +
+          '</select>' +
+        '</div>' +
+        '<div style="display:flex;align-items:flex-end">' +
+          '<button class="btn btn-primary">➕ Tambah</button>' +
+        '</div>' +
+      '</form>' +
+    '</div>' +
+    (keys.length === 0
       ? '<div class="card" style="text-align:center;color:var(--muted)">Belum ada data siswa.</div>'
-      : Object.entries(grouped).map(([kelas, arr])=>`
-        <div class="card">
-          <h3>${esc(kelas)} <span style="color:var(--muted);font-weight:400">(${arr.length} siswa)</span></h3>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            ${arr.map(s=>`<span style="background:#f1f5f9;padding:6px 12px;border-radius:20px;font-size:13px">${esc(s.name)}</span>`).join('')}
-          </div>
-        </div>`).join('')}`;
+      : keys.map(function (kelas) {
+          var arr = grouped[kelas];
+          return '<div class="card">' +
+            '<h3>' + esc(kelas) + ' <span style="color:var(--muted);font-weight:400">(' + arr.length + ' siswa)</span></h3>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
+              arr.map(function (s) {
+                return '<span style="background:#f1f5f9;padding:6px 12px;border-radius:20px;font-size:13px">' + esc(s.name) + '</span>';
+              }).join('') +
+            '</div>' +
+          '</div>';
+        }).join(''));
 }
 
-/* ---------- Admin: Teachers ---------- */
 function viewAdminTeachers() {
+  if (state.loading) return '<div class="spinner-box"><span class="loader" style="border-color:#2563eb;border-top-color:transparent"></span> Memuat data guru...</div>';
   if (!state.teachers.length)
-    return `<h2>Akun Guru</h2>
-      <div class="card" style="text-align:center;color:var(--muted)">Belum ada akun guru terdaftar.</div>`;
-  return `
-    <h2>Akun Guru</h2>
-    <div class="subtitle">${state.teachers.length} akun terdaftar.</div>
-    <div class="table-wrap"><table>
-      <thead><tr>
-        <th>Nama</th><th>Username</th><th>Jumlah Evaluasi</th><th>Terdaftar</th><th>Aksi</th>
-      </tr></thead>
-      <tbody>
-        ${state.teachers.map(t=>`
-          <tr>
-            <td><strong>${esc(t.fullName)}</strong></td>
-            <td>${esc(t.username)}</td>
-            <td>${t.evalCount}</td>
-            <td>${fmtDate(t.createdAt)}</td>
-            <td><button class="btn btn-danger btn-sm" data-del-teacher="${esc(t.username)}">🗑️ Hapus</button></td>
-          </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+    return '<h2>Akun Guru</h2>' +
+      '<div class="card" style="text-align:center;color:var(--muted)">Belum ada akun guru terdaftar.</div>';
+  return '' +
+    '<h2>Akun Guru</h2>' +
+    '<div class="subtitle">' + state.teachers.length + ' akun terdaftar.</div>' +
+    '<div class="table-wrap"><table>' +
+      '<thead><tr><th>Nama</th><th>Username</th><th>Jumlah Evaluasi</th><th>Terdaftar</th><th>Aksi</th></tr></thead>' +
+      '<tbody>' +
+      state.teachers.map(function (t) {
+        return '<tr>' +
+          '<td><strong>' + esc(t.fullName) + '</strong></td>' +
+          '<td>' + esc(t.username) + '</td>' +
+          '<td>' + t.evalCount + '</td>' +
+          '<td>' + fmtDate(t.createdAt) + '</td>' +
+          '<td><button class="btn btn-danger btn-sm" data-del-teacher="' + esc(t.username) + '">🗑️ Hapus</button></td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
 }
 
-/* ---------- Admin: All Evaluations ---------- */
 function viewAdminEvals() {
+  if (state.loading) return '<div class="spinner-box"><span class="loader" style="border-color:#2563eb;border-top-color:transparent"></span> Memuat evaluasi...</div>';
   if (!state.evaluations.length)
-    return `<h2>Semua Evaluasi</h2>
-      <div class="card" style="text-align:center;color:var(--muted)">Belum ada evaluasi.</div>`;
-  return `
-    <h2>Semua Evaluasi</h2>
-    <div class="subtitle">Total ${state.evaluations.length} evaluasi dari seluruh guru.</div>
-    <div class="table-wrap"><table>
-      <thead><tr>
-        <th>Tanggal</th><th>Guru</th><th>Siswa</th><th>Kelas</th>
-        <th>Periode</th><th>Akademik</th><th>Karakter</th><th>Aksi</th>
-      </tr></thead>
-      <tbody>
-        ${state.evaluations.map(e=>`
-          <tr>
-            <td>${fmtDate(e.createdAt)}</td>
-            <td>${esc(e.teacherName)}</td>
-            <td><strong>${esc(e.studentName)}</strong></td>
-            <td>${esc(e.studentClass)}</td>
-            <td>${esc(e.period)}</td>
-            <td><span class="score-badge" style="font-size:13px;padding:3px 8px">${esc(e.acadScore)}</span></td>
-            <td><span class="score-badge" style="font-size:13px;padding:3px 8px">${esc(e.karScore)}</span></td>
-            <td><button class="btn btn-ghost btn-sm" data-detail="${esc(e.id)}">Detail</button></td>
-          </tr>`).join('')}
-      </tbody>
-    </table></div>`;
+    return '<h2>Semua Evaluasi</h2>' +
+      '<div class="card" style="text-align:center;color:var(--muted)">Belum ada evaluasi.</div>';
+  return '' +
+    '<h2>Semua Evaluasi</h2>' +
+    '<div class="subtitle">Total ' + state.evaluations.length + ' evaluasi dari seluruh guru.</div>' +
+    '<div class="table-wrap"><table>' +
+      '<thead><tr>' +
+        '<th>Tanggal</th><th>Guru</th><th>Siswa</th><th>Kelas</th>' +
+        '<th>Periode</th><th>Akademik</th><th>Karakter</th><th>Aksi</th>' +
+      '</tr></thead><tbody>' +
+      state.evaluations.map(function (e) {
+        return '<tr>' +
+          '<td>' + fmtDate(e.createdAt) + '</td>' +
+          '<td>' + esc(e.teacherName) + '</td>' +
+          '<td><strong>' + esc(e.studentName) + '</strong></td>' +
+          '<td>' + esc(e.studentClass) + '</td>' +
+          '<td>' + esc(e.period) + '</td>' +
+          '<td><span class="score-badge" style="font-size:13px;padding:3px 8px">' + esc(e.acadScore) + '</span></td>' +
+          '<td><span class="score-badge" style="font-size:13px;padding:3px 8px">' + esc(e.karScore) + '</span></td>' +
+          '<td><button class="btn btn-ghost btn-sm" data-detail="' + esc(e.id) + '">Detail</button></td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table></div>';
 }
 
-/* ---------- Admin: Report / Rangkuman ---------- */
 function viewAdminReport() {
-  return `
-    <h2>Rangkuman & Cetak</h2>
-    <div class="subtitle">Unduh rangkuman seluruh evaluasi atau cetak laporan.</div>
-    <div class="card">
-      <h3>Unduh Rangkuman (CSV)</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
-        File CSV dapat dibuka dengan Excel / Google Sheets.</p>
-      <button class="btn btn-primary" id="btn-csv-all">⬇️ Unduh Semua Evaluasi (CSV)</button>
-    </div>
-    <div class="card">
-      <h3>Cetak Laporan Keseluruhan</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
-        Buka di jendela baru lalu cetak/simpan PDF.</p>
-      <button class="btn btn-warn" id="btn-print-all">🖨️ Cetak Semua Evaluasi</button>
-    </div>`;
+  return '' +
+    '<h2>Rangkuman & Cetak</h2>' +
+    '<div class="subtitle">Unduh rangkuman seluruh evaluasi atau cetak laporan.</div>' +
+    '<div class="card">' +
+      '<h3>Unduh Rangkuman (CSV)</h3>' +
+      '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">File CSV dapat dibuka dengan Excel / Google Sheets.</p>' +
+      '<button class="btn btn-primary" id="btn-csv-all">⬇️ Unduh Semua Evaluasi (CSV)</button>' +
+    '</div>' +
+    '<div class="card">' +
+      '<h3>Cetak Laporan Keseluruhan</h3>' +
+      '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Buka di jendela baru lalu cetak/simpan PDF.</p>' +
+      '<button class="btn btn-warn" id="btn-print-all">🖨️ Cetak Semua Evaluasi</button>' +
+    '</div>';
 }
 
 /* ============================================================
  *  EVENTS
  * ============================================================ */
 function bindEvents() {
-  // login tabs
-  document.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => {
-    state.loginTab = b.dataset.tab; render();
+  document.querySelectorAll('[data-tab]').forEach(function (b) {
+    b.onclick = function () { state.loginTab = b.dataset.tab; render(); };
   });
-  const fl = document.getElementById('form-login');
-  if (fl) fl.onsubmit = doLogin;
-  const fr = document.getElementById('form-register');
-  if (fr) fr.onsubmit = doRegister;
-  const ba = document.getElementById('btn-admin');
-  if (ba) ba.onclick = () => {
-    const pwd = prompt('Masukkan password admin:');
-    if (!pwd) return;
-    api('adminLogin', { password: pwd }).then(async u => {
-      state.user = u;
-      localStorage.setItem('evalUser', JSON.stringify(u));
-      sessionStorage.setItem('adminPwd', pwd);
-      await loadConfig();
-      await loadEvaluations();
-      await loadTeachers();
-      state.view = 'admin-config';
-      showMsg('Mode admin aktif', 'success');
-    }).catch(err => showMsg(err.message, 'error'));
-  };
 
-  const bl = document.getElementById('btn-logout');
+  var fl = document.getElementById('form-login');
+  if (fl) fl.onsubmit = doLogin;
+  var fr = document.getElementById('form-register');
+  if (fr) fr.onsubmit = doRegister;
+  var ba = document.getElementById('btn-admin');
+  if (ba) ba.onclick = askAdmin;
+  var bl = document.getElementById('btn-logout');
   if (bl) bl.onclick = logout;
 
-  // sidebar navigation
-  document.querySelectorAll('[data-nav]').forEach(el => el.onclick = async () => {
-    state.view = el.dataset.nav;
-    if (state.view === 'teacher-new') await loadStudents();
-    if (state.view === 'admin-students') { await loadStudents(); await loadConfig(); }
-    if (state.view === 'admin-evals')    await loadEvaluations();
-    if (state.view === 'admin-teachers') await loadTeachers();
-    if (state.view === 'admin-config')   await loadConfig();
-    if (state.view === 'teacher-report' || state.view === 'teacher-home') await loadEvaluations();
-    render();
+  document.querySelectorAll('[data-nav]').forEach(function (el) {
+    el.onclick = async function () {
+      state.view = el.dataset.nav;
+      if (state.view === 'teacher-new')    await loadStudents();
+      if (state.view === 'admin-students') await loadStudents();
+      if (state.view === 'admin-evals')    await loadEvaluations();
+      if (state.view === 'admin-teachers') await loadTeachers();
+      if (state.view === 'admin-config')   await loadConfig();
+      if (state.view === 'teacher-report' || state.view === 'teacher-home') await loadEvaluations();
+      render();
+    };
   });
 
-  // form evaluation
-  const fe = document.getElementById('form-eval');
+  var fe = document.getElementById('form-eval');
   if (fe) {
-    const updateScores = () => {
-      const acad = ['acadPemahaman','acadPartisipasi','acadTugas','acadAnalisis'];
-      const kar  = ['karKejujuran','karDisiplin','karSopan','karTanggungJawab','karKerjasama'];
-      const avg = (arr) => arr.reduce((s,n)=>s+Number(fe[n].value||0),0) / arr.length;
-      document.getElementById('acadScore').textContent = Math.round(avg(acad)*20);
-      document.getElementById('karScore').textContent  = Math.round(avg(kar)*20);
+    var updateScores = function () {
+      var acad = ['acadPemahaman', 'acadPartisipasi', 'acadTugas', 'acadAnalisis'];
+      var kar  = ['karKejujuran', 'karDisiplin', 'karSopan', 'karTanggungJawab', 'karKerjasama'];
+      var avg = function (arr) {
+        var s = 0;
+        for (var i = 0; i < arr.length; i++) s += Number(fe[arr[i]].value || 0);
+        return Math.round(s / arr.length * 20);
+      };
+      document.getElementById('acadScore').textContent = avg(acad);
+      document.getElementById('karScore').textContent = avg(kar);
     };
-    fe.querySelectorAll('[data-aspect]').forEach(s => s.onchange = updateScores);
+    fe.querySelectorAll('[data-aspect]').forEach(function (s) { s.onchange = updateScores; });
     updateScores();
 
-    fe.onsubmit = async (e) => {
+    fe.onsubmit = async function (e) {
       e.preventDefault();
-      const fd = new FormData(fe);
-      const data = Object.fromEntries(fd.entries());
-      const acad = ['acadPemahaman','acadPartisipasi','acadTugas','acadAnalisis'];
-      const kar  = ['karKejujuran','karDisiplin','karSopan','karTanggungJawab','karKerjasama'];
-      const avg = (arr) => Math.round(arr.reduce((s,n)=>s+Number(data[n]||0),0) / arr.length * 20);
-      const evaluation = {
+      var data = {};
+      new FormData(fe).forEach(function (v, k) { data[k] = v; });
+      var acad = ['acadPemahaman', 'acadPartisipasi', 'acadTugas', 'acadAnalisis'];
+      var kar  = ['karKejujuran', 'karDisiplin', 'karSopan', 'karTanggungJawab', 'karKerjasama'];
+      var avg = function (arr) {
+        var s = 0;
+        for (var i = 0; i < arr.length; i++) s += Number(data[arr[i]] || 0);
+        return Math.round(s / arr.length * 20);
+      };
+      var evaluation = {
         teacherUsername: state.user.username,
         teacherName: state.user.fullName,
         studentName: data.studentName,
@@ -793,254 +849,258 @@ function bindEvents() {
       };
       try {
         state.loading = true; render();
-        await api('saveEvaluation', { evaluation });
-        await loadEvaluations();
-        await loadStudents();
+        await api('saveEvaluation', { evaluation: evaluation });
+        state._evalStale = true;
+        await loadEvaluations(true);
+        await loadStudents(true);
         state.loading = false;
         state.view = 'teacher-home';
         showMsg('Evaluasi berhasil disimpan', 'success');
-      } catch(err){ state.loading = false; showMsg(err.message, 'error'); }
+      } catch (err) {
+        state.loading = false;
+        showMsg(err.message, 'error');
+      }
     };
   }
 
-  // form config
-  const fc = document.getElementById('form-config');
-  if (fc) fc.onsubmit = async (e) => {
+  var fc = document.getElementById('form-config');
+  if (fc) fc.onsubmit = async function (e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(fc).entries());
+    var data = {};
+    new FormData(fc).forEach(function (v, k) { data[k] = v; });
     try {
       state.loading = true; render();
       state.config = await api('saveConfig', { config: data, adminPassword: ADMIN_PWD() });
       state.loading = false;
-      await loadConfig();
+      await loadConfig(true);
       showMsg('Konfigurasi disimpan', 'success');
-    } catch(err){ state.loading = false; showMsg(err.message, 'error'); }
+    } catch (err) {
+      state.loading = false;
+      showMsg(err.message, 'error');
+    }
   };
 
-  // form student
-  const fs = document.getElementById('form-student');
-  if (fs) fs.onsubmit = async (e) => {
+  var fs = document.getElementById('form-student');
+  if (fs) fs.onsubmit = async function (e) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(fs).entries());
+    var data = {};
+    new FormData(fs).forEach(function (v, k) { data[k] = v; });
     try {
       await api('addStudent', data);
-      await loadStudents();
+      await loadStudents(true);
       showMsg('Siswa ditambahkan', 'success');
-    } catch(err){ showMsg(err.message, 'error'); }
+    } catch (err) {
+      showMsg(err.message, 'error');
+    }
   };
 
-  // delete teacher
-  document.querySelectorAll('[data-del-teacher]').forEach(b => b.onclick = async () => {
-    const u = b.dataset.delTeacher;
-    if (!confirm(`Hapus akun "${u}" beserta SEMUA evaluasinya?`)) return;
-    try {
-      await api('deleteTeacher', { username: u, adminPassword: ADMIN_PWD() });
-      await loadTeachers();
-      showMsg('Akun guru dihapus', 'success');
-    } catch(err){ showMsg(err.message, 'error'); }
+  document.querySelectorAll('[data-del-teacher]').forEach(function (b) {
+    b.onclick = async function () {
+      var u = b.dataset.delTeacher;
+      if (!confirm('Hapus akun "' + u + '" beserta SEMUA evaluasinya?')) return;
+      try {
+        state.loading = true; render();
+        await api('deleteTeacher', { username: u, adminPassword: ADMIN_PWD() });
+        state._teacherStale = true;
+        state._evalStale = true;
+        await loadTeachers(true);
+        state.loading = false;
+        showMsg('Akun guru dihapus', 'success');
+      } catch (err) {
+        state.loading = false;
+        showMsg(err.message, 'error');
+      }
+    };
   });
 
-  // detail
-  document.querySelectorAll('[data-detail]').forEach(b => b.onclick = () => {
-    const ev = state.evaluations.find(x => x.id === b.dataset.detail);
-    if (ev) showDetail(ev);
+  document.querySelectorAll('[data-detail]').forEach(function (b) {
+    b.onclick = function () {
+      var ev = state.evaluations.find(function (x) { return x.id === b.dataset.detail; });
+      if (ev) showDetail(ev);
+    };
   });
 
-  // print one
-  document.querySelectorAll('[data-print]').forEach(b => b.onclick = () => {
-    const ev = state.evaluations.find(x => x.id === b.dataset.print);
-    if (ev) openPrint([ev]);
+  document.querySelectorAll('[data-print]').forEach(function (b) {
+    b.onclick = function () {
+      var ev = state.evaluations.find(function (x) { return x.id === b.dataset.print; });
+      if (ev) openPrint([ev]);
+    };
   });
 
-  // send WA
-  document.querySelectorAll('[data-send]').forEach(b => b.onclick = () => {
-    const ev = state.evaluations.find(x => x.id === b.dataset.send);
-    if (ev) sendWA(ev);
+  document.querySelectorAll('[data-send]').forEach(function (b) {
+    b.onclick = function () {
+      var ev = state.evaluations.find(function (x) { return x.id === b.dataset.send; });
+      if (ev) sendWA(ev);
+    };
   });
 
-  // admin CSV
-  const bc = document.getElementById('btn-csv-all');
-  if (bc) bc.onclick = () => downloadCSV(state.evaluations);
-
-  // admin print all
-  const bp = document.getElementById('btn-print-all');
-  if (bp) bp.onclick = () => openPrint(state.evaluations);
+  var bc = document.getElementById('btn-csv-all');
+  if (bc) bc.onclick = function () { downloadCSV(state.evaluations); };
+  var bp = document.getElementById('btn-print-all');
+  if (bp) bp.onclick = function () { openPrint(state.evaluations); };
 }
 
 /* ---------- Detail modal ---------- */
 function showDetail(ev) {
-  const html = `
-  <div class="modal-bg" id="modal-bg">
-    <div class="modal" style="max-width:560px;max-height:80vh;overflow-y:auto">
-      <h3>Detail Evaluasi</h3>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">
-        ${esc(ev.studentName)} — ${esc(ev.studentClass)} • ${esc(ev.period)}</p>
-      <div class="grid-2">
-        <div class="card" style="margin:0">
-          <h3>🧠 Akademik: ${ev.acadScore}/100</h3>
-          <div style="font-size:13px;line-height:1.9">
-            Pemahaman: <b>${ev.acadPemahaman}</b> ·
-            Partisipasi: <b>${ev.acadPartisipasi}</b> ·
-            Tugas: <b>${ev.acadTugas}</b> ·
-            Analisis: <b>${ev.acadAnalisis}</b>
-          </div>
-          <p style="margin-top:8px;font-size:13px;color:var(--muted)">
-            <b>Catatan:</b> ${esc(ev.acadNotes||'-')}</p>
-        </div>
-        <div class="card" style="margin:0">
-          <h3>🌟 Karakter: ${ev.karScore}/100</h3>
-          <div style="font-size:13px;line-height:1.9">
-            Jujur: <b>${ev.karKejujuran}</b> ·
-            Disiplin: <b>${ev.karDisiplin}</b> ·
-            Sopan: <b>${ev.karSopan}</b> ·
-            Tanggung Jawab: <b>${ev.karTanggungJawab}</b> ·
-            Kerjasama: <b>${ev.karKerjasama}</b>
-          </div>
-          <p style="margin-top:8px;font-size:13px;color:var(--muted)">
-            <b>Catatan:</b> ${esc(ev.karNotes||'-')}</p>
-        </div>
-      </div>
-      <p style="margin-top:10px;font-size:12px;color:var(--muted)">
-        Dinilai oleh: ${esc(ev.teacherName)} • ${fmtDate(ev.createdAt)}</p>
-      <div class="actions">
-        <button class="btn btn-ghost" id="modal-close">Tutup</button>
-        <button class="btn btn-warn" id="modal-print">🖨️ Cetak</button>
-        <button class="btn btn-success" id="modal-send">💬 Kirim</button>
-      </div>
-    </div>
-  </div>`;
-  const wrap = document.createElement('div');
+  var html = '' +
+  '<div class="modal-bg" id="modal-bg">' +
+    '<div class="modal">' +
+      '<h3>Detail Evaluasi</h3>' +
+      '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">' +
+        esc(ev.studentName) + ' — ' + esc(ev.studentClass) + ' • ' + esc(ev.period) + '</p>' +
+      '<div class="grid-2">' +
+        '<div class="card" style="margin:0">' +
+          '<h3>🧠 Akademik: ' + esc(ev.acadScore) + '/100</h3>' +
+          '<div style="font-size:13px;line-height:1.9">' +
+            'Pemahaman: <b>' + esc(ev.acadPemahaman) + '</b> · ' +
+            'Partisipasi: <b>' + esc(ev.acadPartisipasi) + '</b><br>' +
+            'Tugas: <b>' + esc(ev.acadTugas) + '</b> · ' +
+            'Analisis: <b>' + esc(ev.acadAnalisis) + '</b>' +
+          '</div>' +
+          '<p style="margin-top:8px;font-size:13px;color:var(--muted)"><b>Catatan:</b> ' + esc(ev.acadNotes || '-') + '</p>' +
+        '</div>' +
+        '<div class="card" style="margin:0">' +
+          '<h3>🌟 Karakter: ' + esc(ev.karScore) + '/100</h3>' +
+          '<div style="font-size:13px;line-height:1.9">' +
+            'Jujur: <b>' + esc(ev.karKejujuran) + '</b> · Disiplin: <b>' + esc(ev.karDisiplin) + '</b><br>' +
+            'Sopan: <b>' + esc(ev.karSopan) + '</b> · Tanggung Jawab: <b>' + esc(ev.karTanggungJawab) + '</b><br>' +
+            'Kerjasama: <b>' + esc(ev.karKerjasama) + '</b>' +
+          '</div>' +
+          '<p style="margin-top:8px;font-size:13px;color:var(--muted)"><b>Catatan:</b> ' + esc(ev.karNotes || '-') + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<p style="margin-top:10px;font-size:12px;color:var(--muted)">Dinilai oleh: ' + esc(ev.teacherName) + ' • ' + fmtDate(ev.createdAt) + '</p>' +
+      '<div class="actions">' +
+        '<button class="btn btn-ghost" id="modal-close">Tutup</button>' +
+        '<button class="btn btn-warn" id="modal-print">🖨️ Cetak</button>' +
+        '<button class="btn btn-success" id="modal-send">💬 Kirim</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  var wrap = document.createElement('div');
   wrap.innerHTML = html;
   document.body.appendChild(wrap.firstElementChild);
-  document.getElementById('modal-close').onclick = () => document.getElementById('modal-bg').remove();
-  document.getElementById('modal-bg').onclick = (e) => { if (e.target.id === 'modal-bg') e.currentTarget.remove(); };
-  document.getElementById('modal-print').onclick = () => openPrint([ev]);
-  document.getElementById('modal-send').onclick = () => sendWA(ev);
+  document.getElementById('modal-close').onclick = function () { document.getElementById('modal-bg').remove(); };
+  document.getElementById('modal-bg').onclick = function (e) { if (e.target.id === 'modal-bg') e.currentTarget.remove(); };
+  document.getElementById('modal-print').onclick = function () { openPrint([ev]); };
+  document.getElementById('modal-send').onclick = function () { sendWA(ev); };
 }
 
-/* ---------- Print view ---------- */
+/* ---------- Print ---------- */
 function openPrint(evals) {
-  const cfg = state.config;
-  const body = evals.map(ev => `
-    <div style="page-break-after:always;margin-bottom:30px;border:1px solid #cbd5e1;padding:24px;border-radius:8px">
-      <div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #1e40af;padding-bottom:10px;margin-bottom:16px">
-        ${cfg.logoUrl?`<img src="${esc(cfg.logoUrl)}" style="height:56px">`:''}
-        <div>
-          <h1 style="font-size:18px;margin:0">${esc(cfg.schoolName||'Sekolah')}</h1>
-          <div style="font-size:13px;color:#64748b">Laporan Evaluasi Perkembangan Siswa</div>
-        </div>
-      </div>
-      <table style="width:100%;font-size:13px;margin-bottom:14px">
-        <tr><td style="width:150px"><b>Nama Siswa</b></td><td>: ${esc(ev.studentName)}</td></tr>
-        <tr><td><b>Kelas</b></td><td>: ${esc(ev.studentClass)}</td></tr>
-        <tr><td><b>Periode</b></td><td>: ${esc(ev.period)}</td></tr>
-        <tr><td><b>Guru Penilai</b></td><td>: ${esc(ev.teacherName)}</td></tr>
-        <tr><td><b>Tanggal</b></td><td>: ${fmtDate(ev.createdAt)}</td></tr>
-      </table>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">
-          <h3 style="font-size:14px;margin-bottom:8px">🧠 Perkembangan Akademik (${ev.acadScore}/100)</h3>
-          <ul style="font-size:13px;line-height:1.8;padding-left:20px">
-            <li>Pemahaman Materi: <b>${ev.acadPemahaman}</b>/5</li>
-            <li>Partisipasi Aktif: <b>${ev.acadPartisipasi}</b>/5</li>
-            <li>Penyelesaian Tugas: <b>${ev.acadTugas}</b>/5</li>
-            <li>Kemampuan Analisis: <b>${ev.acadAnalisis}</b>/5</li>
-          </ul>
-          <p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ${esc(ev.acadNotes||'-')}</p>
-        </div>
-        <div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">
-          <h3 style="font-size:14px;margin-bottom:8px">🌟 Perkembangan Karakter (${ev.karScore}/100)</h3>
-          <ul style="font-size:13px;line-height:1.8;padding-left:20px">
-            <li>Kejujuran: <b>${ev.karKejujuran}</b>/5</li>
-            <li>Kedisiplinan: <b>${ev.karDisiplin}</b>/5</li>
-            <li>Sopan Santun: <b>${ev.karSopan}</b>/5</li>
-            <li>Tanggung Jawab: <b>${ev.karTanggungJawab}</b>/5</li>
-            <li>Kerjasama: <b>${ev.karKerjasama}</b>/5</li>
-          </ul>
-          <p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ${esc(ev.karNotes||'-')}</p>
-        </div>
-      </div>
-      <div style="margin-top:40px;text-align:right;font-size:13px">
-        <div>Guru Penilai,</div>
-        <div style="height:60px"></div>
-        <div><b>${esc(ev.teacherName)}</b></div>
-      </div>
-    </div>`).join('');
+  var cfg = state.config || {};
+  if (!evals.length) { showMsg('Tidak ada data untuk dicetak', 'error'); return; }
+  var body = evals.map(function (ev) {
+    return '<div style="page-break-after:always;margin-bottom:30px;border:1px solid #cbd5e1;padding:24px;border-radius:8px">' +
+      '<div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #1e40af;padding-bottom:10px;margin-bottom:16px">' +
+        (cfg.logoUrl ? '<img src="' + esc(cfg.logoUrl) + '" style="height:56px">' : '') +
+        '<div>' +
+          '<h1 style="font-size:18px;margin:0">' + esc(cfg.schoolName || 'Sekolah') + '</h1>' +
+          '<div style="font-size:13px;color:#64748b">Laporan Evaluasi Perkembangan Siswa</div>' +
+        '</div>' +
+      '</div>' +
+      '<table style="width:100%;font-size:13px;margin-bottom:14px">' +
+        '<tr><td style="width:150px"><b>Nama Siswa</b></td><td>: ' + esc(ev.studentName) + '</td></tr>' +
+        '<tr><td><b>Kelas</b></td><td>: ' + esc(ev.studentClass) + '</td></tr>' +
+        '<tr><td><b>Periode</b></td><td>: ' + esc(ev.period) + '</td></tr>' +
+        '<tr><td><b>Guru Penilai</b></td><td>: ' + esc(ev.teacherName) + '</td></tr>' +
+        '<tr><td><b>Tanggal</b></td><td>: ' + fmtDate(ev.createdAt) + '</td></tr>' +
+      '</table>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
+        '<div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">' +
+          '<h3 style="font-size:14px;margin-bottom:8px">🧠 Perkembangan Akademik (' + esc(ev.acadScore) + '/100)</h3>' +
+          '<ul style="font-size:13px;line-height:1.8;padding-left:20px">' +
+            '<li>Pemahaman Materi: <b>' + esc(ev.acadPemahaman) + '</b>/5</li>' +
+            '<li>Partisipasi Aktif: <b>' + esc(ev.acadPartisipasi) + '</b>/5</li>' +
+            '<li>Penyelesaian Tugas: <b>' + esc(ev.acadTugas) + '</b>/5</li>' +
+            '<li>Kemampuan Analisis: <b>' + esc(ev.acadAnalisis) + '</b>/5</li>' +
+          '</ul>' +
+          '<p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ' + esc(ev.acadNotes || '-') + '</p>' +
+        '</div>' +
+        '<div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">' +
+          '<h3 style="font-size:14px;margin-bottom:8px">🌟 Perkembangan Karakter (' + esc(ev.karScore) + '/100)</h3>' +
+          '<ul style="font-size:13px;line-height:1.8;padding-left:20px">' +
+            '<li>Kejujuran: <b>' + esc(ev.karKejujuran) + '</b>/5</li>' +
+            '<li>Kedisiplinan: <b>' + esc(ev.karDisiplin) + '</b>/5</li>' +
+            '<li>Sopan Santun: <b>' + esc(ev.karSopan) + '</b>/5</li>' +
+            '<li>Tanggung Jawab: <b>' + esc(ev.karTanggungJawab) + '</b>/5</li>' +
+            '<li>Kerjasama: <b>' + esc(ev.karKerjasama) + '</b>/5</li>' +
+          '</ul>' +
+          '<p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ' + esc(ev.karNotes || '-') + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top:40px;text-align:right;font-size:13px">' +
+        '<div>Guru Penilai,</div>' +
+        '<div style="height:60px"></div>' +
+        '<div><b>' + esc(ev.teacherName) + '</b></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
 
-  const win = window.open('', '_blank');
-  win.document.write(`<!DOCTYPE html><html><head>
-    <meta charset="utf-8"><title>Laporan Evaluasi</title>
-    <style>
-      body{font-family:-apple-system,sans-serif;padding:20px;color:#0f172a}
-      @media print{body{padding:0}}
-    </style>
-    </head><body onload="setTimeout(()=>window.print(),300)">
-    ${body}
-    </body></html>`);
+  var win = window.open('', '_blank');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Evaluasi</title>' +
+    '<style>body{font-family:-apple-system,sans-serif;padding:20px;color:#0f172a}@media print{body{padding:0}}</style>' +
+    '</head><body onload="setTimeout(function(){window.print()},300)">' + body + '</body></html>');
   win.document.close();
 }
 
 /* ---------- WhatsApp ---------- */
 function sendWA(ev) {
-  const cfg = state.config;
-  const phone = (cfg.principalPhone||'').replace(/\D/g,'');
+  var cfg = state.config || {};
+  var phone = String(cfg.principalPhone || '').replace(/\D/g, '');
   if (!phone) return showMsg('Nomor WA Kepala Sekolah belum diatur di konfigurasi', 'error');
-  const text = `*LAPORAN EVALUASI SISWA*\n` +
-    `Sekolah: ${cfg.schoolName||'-'}\n` +
-    `Periode: ${ev.period}\n\n` +
-    `*Nama Siswa:* ${ev.studentName}\n` +
-    `*Kelas:* ${ev.studentClass}\n\n` +
-    `*Nilai Akademik:* ${ev.acadScore}/100\n` +
-    `Catatan: ${ev.acadNotes||'-'}\n\n` +
-    `*Nilai Karakter:* ${ev.karScore}/100\n` +
-    `Catatan: ${ev.karNotes||'-'}\n\n` +
-    `Guru Penilai: ${ev.teacherName}\n` +
-    `Tanggal: ${fmtDate(ev.createdAt)}`;
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-  window.open(url, '_blank');
+  var text = '*LAPORAN EVALUASI SISWA*\n' +
+    'Sekolah: ' + (cfg.schoolName || '-') + '\n' +
+    'Periode: ' + ev.period + '\n\n' +
+    '*Nama Siswa:* ' + ev.studentName + '\n' +
+    '*Kelas:* ' + ev.studentClass + '\n\n' +
+    '*Nilai Akademik:* ' + ev.acadScore + '/100\n' +
+    'Catatan: ' + (ev.acadNotes || '-') + '\n\n' +
+    '*Nilai Karakter:* ' + ev.karScore + '/100\n' +
+    'Catatan: ' + (ev.karNotes || '-') + '\n\n' +
+    'Guru Penilai: ' + ev.teacherName + '\n' +
+    'Tanggal: ' + fmtDate(ev.createdAt);
+  window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
 }
 
 /* ---------- CSV ---------- */
 function downloadCSV(evals) {
   if (!evals.length) return showMsg('Tidak ada data untuk diunduh', 'error');
-  const headers = ['Tanggal','Guru','Siswa','Kelas','Periode',
-    'Akademik','Karakter','Pemahaman','Partisipasi','Tugas','Analisis',
-    'Kejujuran','Disiplin','Sopan','TanggungJawab','Kerjasama',
-    'CatatanAkademik','CatatanKarakter'];
-  const rows = evals.map(e => [
-    fmtDate(e.createdAt), e.teacherName, e.studentName, e.studentClass, e.period,
-    e.acadScore, e.karScore,
-    e.acadPemahaman, e.acadPartisipasi, e.acadTugas, e.acadAnalisis,
-    e.karKejujuran, e.karDisiplin, e.karSopan, e.karTanggungJawab, e.karKerjasama,
-    e.acadNotes, e.karNotes
-  ]);
-  const csv = [headers, ...rows].map(r =>
-    r.map(c => `"${String(c ?? '').replace(/"/g,'""')}"`).join(',')
-  ).join('\n');
-  const blob = new Blob(['\ufeff'+csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  var headers = ['Tanggal', 'Guru', 'Siswa', 'Kelas', 'Periode',
+    'Akademik', 'Karakter', 'Pemahaman', 'Partisipasi', 'Tugas', 'Analisis',
+    'Kejujuran', 'Disiplin', 'Sopan', 'TanggungJawab', 'Kerjasama',
+    'CatatanAkademik', 'CatatanKarakter'];
+  var rows = evals.map(function (e) {
+    return [fmtDate(e.createdAt), e.teacherName, e.studentName, e.studentClass, e.period,
+      e.acadScore, e.karScore,
+      e.acadPemahaman, e.acadPartisipasi, e.acadTugas, e.acadAnalisis,
+      e.karKejujuran, e.karDisiplin, e.karSopan, e.karTanggungJawab, e.karKerjasama,
+      e.acadNotes, e.karNotes];
+  });
+  var csv = [headers].concat(rows).map(function (r) {
+    return r.map(function (c) {
+      return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"';
+    }).join(',');
+  }).join('\n');
+  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
   a.href = url;
-  a.download = `rangkuman-evaluasi-${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = 'rangkuman-evaluasi-' + new Date().toISOString().slice(0, 10) + '.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
 
-/* ---------- Boot ---------- */
+/* ============================================================
+ *  BOOT
+ * ============================================================ */
 (async function boot() {
   await loadConfig();
   if (state.user) {
-    // refresh user (kalau ada perubahan)
     try {
-      if (state.user.role === 'teacher') {
-        // validasi akun guru
-        const u = await api('login', { username: state.user.username, password: '' }).catch(()=>null);
-      }
-      await loadEvaluations();
-      if (state.user.role === 'admin') {
-        await loadTeachers();
-      }
-    } catch(e){}
+      await loadEvaluations(true);
+      if (state.user.role === 'admin') await loadTeachers(true);
+    } catch (e) { console.error(e); }
   }
   render();
 })();
