@@ -1,1109 +1,435 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Evaluasi Siswa</title>
-<style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --primary:#2563eb;--primary-dark:#1d4ed8;--bg:#f1f5f9;--card:#fff;
-    --text:#0f172a;--muted:#64748b;--border:#e2e8f0;
-    --success:#16a34a;--danger:#dc2626;--warn:#f59e0b;
-  }
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    background:var(--bg);color:var(--text);min-height:100vh;background-size:cover;
-    background-attachment:fixed;background-position:center}
-  body.has-bg::before{content:'';position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:-1}
-  #root{min-height:100vh}
-  .hidden{display:none!important}
-
-  .topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 20px;
-    display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:600}
-  .brand img{height:36px;width:36px;object-fit:contain;border-radius:6px}
-  .user-info{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--muted)}
-  .badge{background:#dbeafe;color:var(--primary-dark);padding:3px 8px;border-radius:20px;
-    font-size:12px;font-weight:600}
-  .badge.admin{background:#fee2e2;color:#991b1b}
-
-  .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
-    padding:20px;background:linear-gradient(135deg,#1e3a8a,#2563eb)}
-  .login-card{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:400px;
-    box-shadow:0 20px 40px rgba(0,0,0,.2)}
-  .login-card h1{font-size:22px;margin-bottom:6px}
-  .login-card .sub{color:var(--muted);font-size:14px;margin-bottom:20px}
-  .tabs{display:flex;gap:6px;margin-bottom:18px;background:#f1f5f9;padding:4px;border-radius:10px}
-  .tabs button{flex:1;padding:8px;border:none;background:transparent;cursor:pointer;
-    border-radius:7px;font-weight:600;color:var(--muted);font-size:14px}
-  .tabs button.active{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.08)}
-
-  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#334155}
-  input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);
-    border-radius:8px;font-size:14px;font-family:inherit;background:#fff;color:var(--text)}
-  input:focus,select:focus,textarea:focus{outline:2px solid var(--primary);border-color:transparent}
-  textarea{resize:vertical;min-height:80px}
-  .field{margin-bottom:14px}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
-  .btn{padding:10px 16px;border:none;border-radius:8px;font-size:14px;font-weight:600;
-    cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:6px}
-  .btn-primary{background:var(--primary);color:#fff}
-  .btn-primary:hover{background:var(--primary-dark)}
-  .btn-success{background:var(--success);color:#fff}
-  .btn-danger{background:var(--danger);color:#fff}
-  .btn-warn{background:var(--warn);color:#fff}
-  .btn-ghost{background:#f1f5f9;color:var(--text)}
-  .btn-ghost:hover{background:#e2e8f0}
-  .btn-block{width:100%;justify-content:center}
-  .btn-sm{padding:6px 10px;font-size:12px}
-  .btn:disabled{opacity:.6;cursor:not-allowed}
-
-  .layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 61px)}
-  .sidebar{background:#fff;border-right:1px solid var(--border);padding:16px 0}
-  .sidebar .nav-item{display:flex;align-items:center;gap:10px;padding:11px 20px;
-    cursor:pointer;font-size:14px;color:#334155;border-left:3px solid transparent}
-  .sidebar .nav-item:hover{background:#f8fafc}
-  .sidebar .nav-item.active{background:#eff6ff;color:var(--primary);
-    border-left-color:var(--primary);font-weight:600}
-  .sidebar .nav-title{font-size:11px;text-transform:uppercase;letter-spacing:.5px;
-    color:var(--muted);padding:14px 20px 6px;font-weight:700}
-  .content{padding:24px;overflow-x:auto}
-  .content h2{font-size:20px;margin-bottom:4px}
-  .content .subtitle{color:var(--muted);font-size:13px;margin-bottom:20px}
-
-  .card{background:#fff;border:1px solid var(--border);border-radius:12px;
-    padding:20px;margin-bottom:16px}
-  .card h3{font-size:15px;margin-bottom:14px;color:#334155}
-  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-
-  @media(max-width:780px){
-    .layout{grid-template-columns:1fr}
-    .sidebar{display:flex;overflow-x:auto;padding:8px;border-right:none;
-      border-bottom:1px solid var(--border)}
-    .sidebar .nav-item{padding:8px 12px;border-left:none;border-bottom:2px solid transparent;
-      white-space:nowrap}
-    .sidebar .nav-item.active{border-left:none;border-bottom-color:var(--primary)}
-    .sidebar .nav-title{display:none}
-    .grid-2,.row{grid-template-columns:1fr}
-  }
-
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border)}
-  th{background:#f8fafc;font-weight:600;color:#334155;font-size:12px;
-    text-transform:uppercase;letter-spacing:.4px}
-  tr:hover td{background:#f8fafc}
-  .table-wrap{overflow-x:auto;background:#fff;border:1px solid var(--border);border-radius:12px}
-
-  .aspect-row{display:grid;grid-template-columns:1fr 130px;align-items:center;
-    gap:10px;padding:8px 0;border-bottom:1px dashed #e2e8f0}
-  .aspect-row:last-child{border-bottom:none}
-  .aspect-row span{font-size:14px}
-  .score-badge{display:inline-block;background:#eff6ff;color:var(--primary-dark);
-    padding:6px 12px;border-radius:8px;font-weight:700;font-size:18px}
-
-  .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px}
-  .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
-  .alert-success{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0}
-  .alert-info{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
-
-  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;
-    align-items:center;justify-content:center;z-index:100;padding:16px}
-  .modal{background:#fff;border-radius:12px;padding:24px;max-width:620px;width:100%;
-    max-height:88vh;overflow-y:auto}
-  .modal h3{margin-bottom:10px}
-  .modal .actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
-
-  .loader{display:inline-block;width:14px;height:14px;border:2px solid #fff;
-    border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .spinner-box{display:flex;align-items:center;gap:10px;color:var(--muted);
-    font-size:14px;padding:12px}
-
-  @media print{
-    body{background:#fff!important}
-    body.has-bg::before{display:none}
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evaluasi Guru</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .hidden { display: none !important; }
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @media print { .no-print { display: none !important; } }
+  </style>
 </head>
-<body>
-<div id="root"></div>
+<body class="bg-gray-100" id="appBody">
 
-<script>
-'use strict';
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sistem Evaluasi Guru</h2>
+      <div class="flex border-b mb-4">
+        <button onclick="switchLoginTab('teacher')" id="tabTeacher" class="flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600">Guru</button>
+        <button onclick="switchLoginTab('admin')" id="tabAdmin" class="flex-1 py-2 text-center font-semibold text-gray-500">Admin</button>
+      </div>
+      
+      <!-- Teacher Login/Register -->
+      <div id="teacherAuth">
+        <div id="loginForm">
+          <input type="text" id="loginUser" placeholder="Username" class="w-full p-2 mb-3 border rounded">
+          <input type="password" id="loginPass" placeholder="Password" class="w-full p-2 mb-3 border rounded">
+          <button onclick="doLoginTeacher()" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Masuk</button>
+          <p class="text-center mt-3 text-sm text-gray-600">Belum punya akun? <button onclick="toggleRegister(true)" class="text-blue-600 font-semibold">Daftar di sini</button></p>
+        </div>
+        <div id="registerForm" class="hidden">
+          <input type="text" id="regName" placeholder="Nama Lengkap" class="w-full p-2 mb-3 border rounded">
+          <input type="text" id="regUser" placeholder="Username" class="w-full p-2 mb-3 border rounded">
+          <input type="password" id="regPass" placeholder="Password" class="w-full p-2 mb-3 border rounded">
+          <button onclick="doRegister()" class="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700">Daftar</button>
+          <p class="text-center mt-3 text-sm text-gray-600">Sudah punya akun? <button onclick="toggleRegister(false)" class="text-blue-600 font-semibold">Login di sini</button></p>
+        </div>
+      </div>
 
-/* ============================================================
- *  KONFIGURASI URL APPS SCRIPT
- *  ------------------------------------------------------------------
- *  Baris ini dipertahankan sesuai permintaan. Isi dengan URL Web App
- *  Anda (Deploy > New deployment > Web app > Copy URL).
- *
- *  Catatan: aplikasi ini KOMUNIKASI UTAMANYA lewat
- *  google.script.run (jauh lebih cepat karena berjalan di container
- *  yang sama), sehingga API_URL ini hanya sebagai referensi/cadangan.
- * ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxJpc7pSjGkrUCdwQUJq_FPXeBK1uBZwk7Tzaw5aGpeWBJqNyJbMKG14W_ibrvLNMU/exec';
-/* ============================================================ */
+      <!-- Admin Login -->
+      <div id="adminAuth" class="hidden">
+        <input type="password" id="adminPass" placeholder="Password Admin" class="w-full p-2 mb-3 border rounded">
+        <button onclick="doLoginAdmin()" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700">Masuk Admin</button>
+      </div>
+      <div id="msgBox" class="mt-4 text-center text-sm font-semibold"></div>
+    </div>
+  </div>
 
-/* ============================================================
- *  STATE
- * ============================================================ */
-const state = {
-  user: null,
-  config: {},
-  view: 'login',
-  loginTab: 'login',
-  students: [],
-  evaluations: [],
-  teachers: [],
-  loading: false,
-  msg: null,
-  _evalStale: true,
-  _teacherStale: true
-};
+  <!-- TEACHER DASHBOARD -->
+  <div id="teacherPage" class="hidden min-h-screen p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex justify-between items-center mb-6 no-print">
+        <h1 class="text-2xl font-bold text-gray-800">Dashboard Guru</h1>
+        <div>
+          <span id="teacherGreeting" class="mr-4 text-gray-600"></span>
+          <button onclick="logout()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Logout</button>
+        </div>
+      </div>
 
-try {
-  const saved = localStorage.getItem('evalUser');
-  if (saved) {
-    state.user = JSON.parse(saved);
-    state.view = state.user.role === 'admin' ? 'admin-config' : 'teacher-home';
-  }
-} catch (e) {}
+      <!-- Form Evaluasi -->
+      <div class="bg-white p-6 rounded-lg shadow mb-6 no-print">
+        <h2 class="text-xl font-bold mb-4">Input Evaluasi Siswa</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <input type="text" id="evalStudent" placeholder="Nama Siswa" class="p-2 border rounded">
+          <select id="evalClass" class="p-2 border rounded"></select>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label>
+            <input type="text" id="evalCogScore" placeholder="Skor/Predikat (misal: A, 85)" class="w-full p-2 border rounded mt-1">
+            <textarea id="evalCogNote" placeholder="Catatan perkembangan..." class="w-full p-2 border rounded mt-2" rows="2"></textarea>
+          </div>
+          <div>
+            <label class="font-semibold text-gray-700">Perkembangan Karakter/Akhlaq</label>
+            <input type="text" id="evalCharScore" placeholder="Skor/Predikat (misal: Baik, 90)" class="w-full p-2 border rounded mt-1">
+            <textarea id="evalCharNote" placeholder="Catatan perkembangan..." class="w-full p-2 border rounded mt-2" rows="2"></textarea>
+          </div>
+        </div>
+        <button onclick="saveEval()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan Evaluasi</button>
+      </div>
 
-/* ============================================================
- *  API — pakai google.script.run (CEPAT)
- * ============================================================ */
-function api(action, payload) {
-  payload = payload || {};
-  return new Promise(function (resolve, reject) {
-    google.script.run
-      .withSuccessHandler(function (r) {
-        if (r && r.ok) resolve(r.data);
-        else reject(new Error((r && r.error) || 'Terjadi kesalahan server'));
-      })
-      .withFailureHandler(function (err) {
-        reject(new Error((err && err.message) || 'Gagal terhubung ke server'));
-      })
-      .apiCall(Object.assign({ action: action }, payload));
-  });
-}
+      <!-- Riwayat Evaluasi -->
+      <div class="bg-white p-6 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Riwayat Evaluasi</h2>
+          <div class="no-print">
+            <button onclick="printReport()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"><i class="fas fa-print"></i> Cetak</button>
+            <button onclick="downloadReport()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 mr-2"><i class="fas fa-download"></i> Unduh</button>
+            <button onclick="sendToPrincipal()" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"><i class="fas fa-paper-plane"></i> Kirim ke Kepsek</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-2 border">Tanggal</th>
+                <th class="p-2 border">Siswa</th>
+                <th class="p-2 border">Kelas</th>
+                <th class="p-2 border">Kognitif</th>
+                <th class="p-2 border">Karakter</th>
+              </tr>
+            </thead>
+            <tbody id="teacherEvalTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-/**
- * Cadangan: panggilan lewat fetch ke API_URL (misal untuk testing).
- * Tidak dipakai di alur utama.
- */
-async function apiFallback(action, payload) {
-  payload = payload || {};
-  const res = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(Object.assign({ action: action }, payload))
-  });
-  const json = await res.json();
-  if (!json.ok) throw new Error(json.error || 'Terjadi kesalahan server');
-  return json.data;
-}
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminPage" class="hidden min-h-screen flex">
+    <!-- Sidebar -->
+    <div class="w-64 bg-gray-800 text-white p-4 no-print">
+      <h2 class="text-xl font-bold mb-6">Admin Panel</h2>
+      <ul>
+        <li class="mb-2"><button onclick="showAdminTab('settings')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-cog mr-2"></i> Pengaturan Sekolah</button></li>
+        <li class="mb-2"><button onclick="showAdminTab('teachers')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-users mr-2"></i> Kelola Guru</button></li>
+        <li class="mb-2"><button onclick="showAdminTab('allEvals')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-chart-bar mr-2"></i> Semua Evaluasi</button></li>
+        <li class="mt-8"><button onclick="logout()" class="w-full text-left p-2 bg-red-600 hover:bg-red-700 rounded"><i class="fas fa-sign-out-alt mr-2"></i> Logout</button></li>
+      </ul>
+    </div>
 
-/* ============================================================
- *  HELPERS
- * ============================================================ */
-function esc(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-    return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]);
-  });
-}
-function fmtDate(d) {
-  if (!d) return '-';
-  var x = new Date(d);
-  if (isNaN(x)) return '-';
-  return x.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-}
-function showMsg(text, type) {
-  state.msg = { text: text, type: type || 'info' };
-  render();
-  clearTimeout(showMsg._t);
-  showMsg._t = setTimeout(function () { state.msg = null; render(); }, 3500);
-}
-function ADMIN_PWD() {
-  return localStorage.getItem('adminPwd') || '';
-}
+    <!-- Main Content -->
+    <div class="flex-1 p-8 overflow-auto">
+      <!-- Settings Tab -->
+      <div id="tabSettings" class="admin-tab bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Pengaturan Sekolah</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div><label class="font-semibold">Nama Sekolah</label><input type="text" id="setSchoolName" class="w-full p-2 border rounded mt-1"></div>
+          <div><label class="font-semibold">Link Logo Sekolah</label><input type="text" id="setLogo" class="w-full p-2 border rounded mt-1"></div>
+          <div><label class="font-semibold">Link Background</label><input type="text" id="setBg" class="w-full p-2 border rounded mt-1"></div>
+          <div><label class="font-semibold">Nomer WhatsApp Kepala Sekolah</label><input type="text" id="setPhone" class="w-full p-2 border rounded mt-1" placeholder="628xxx"></div>
+          <div class="md:col-span-2"><label class="font-semibold">Kelas (Pisahkan dengan koma)</label><input type="text" id="setClasses" class="w-full p-2 border rounded mt-1"></div>
+        </div>
+        <button onclick="saveSettings()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan Pengaturan</button>
+      </div>
 
-/* ============================================================
- *  DATA LOADERS
- * ============================================================ */
-async function loadConfig(force) {
-  if (!force && state.config && state.config.schoolName) {
-    applyBg();
-    return;
-  }
-  try {
-    state.config = await api('getConfig');
-    applyBg();
-  } catch (e) { console.error(e); }
-}
-function applyBg() {
-  if (state.config.bgUrl) {
-    document.body.style.backgroundImage = "url('" + state.config.bgUrl + "')";
-    document.body.classList.add('has-bg');
-  } else {
-    document.body.style.backgroundImage = '';
-    document.body.classList.remove('has-bg');
-  }
-}
+      <!-- Teachers Tab -->
+      <div id="tabTeachers" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
+        <h2 class="text-2xl font-bold mb-4">Kelola Akun Guru</h2>
+        <table class="w-full text-left border-collapse">
+          <thead><tr class="bg-gray-100"><th class="p-2 border">Nama</th><th class="p-2 border">Username</th><th class="p-2 border">Aksi</th></tr></thead>
+          <tbody id="adminTeachersTable"></tbody>
+        </table>
+      </div>
 
-async function loadStudents(force) {
-  if (!force && state.students.length) return;
-  try { state.students = await api('getStudents'); } catch (e) {}
-}
+      <!-- All Evaluations Tab -->
+      <div id="tabAllEvals" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">Semua Evaluasi</h2>
+          <button onclick="downloadAllReports()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"><i class="fas fa-download"></i> Unduh Rangkuman</button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead><tr class="bg-gray-100"><th class="p-2 border">Tanggal</th><th class="p-2 border">Guru</th><th class="p-2 border">Siswa</th><th class="p-2 border">Kelas</th><th class="p-2 border">Kognitif</th><th class="p-2 border">Karakter</th></tr></thead>
+            <tbody id="adminEvalsTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-async function loadEvaluations(force) {
-  if (!force && state.evaluations.length && !state._evalStale) return;
-  try {
-    var payload = (state.user.role === 'admin')
-      ? { adminPassword: ADMIN_PWD() }
-      : { teacherUsername: state.user.username };
-    state.evaluations = await api('getEvaluations', payload);
-    state._evalStale = false;
-  } catch (e) { showMsg(e.message, 'error'); }
-}
+  <script>
+    // ==========================================
+    // FRONTEND LOGIC (GITHUB PAGES MODE)
+    // ==========================================
+    
+    // >>>>>> MASUKKAN URL WEB APP APPS SCRIPT ANDA DI SINI <<<<<<
+    const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJpc7pSjGkrUCdwQUJq_FPXeBK1uBZwk7Tzaw5aGpeWBJqNyJbMKG14W_ibrvLNMU/exec'; 
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-async function loadTeachers(force) {
-  if (!force && state.teachers.length && !state._teacherStale) return;
-  try {
-    state.teachers = await api('getTeachers', { adminPassword: ADMIN_PWD() });
-    state._teacherStale = false;
-  } catch (e) {
-    state.teachers = [];
-    showMsg(e.message, 'error');
-  }
-}
+    let currentUser = null;
+    let appSettings = {};
 
-/* ============================================================
- *  AUTH
- * ============================================================ */
-async function doLogin(e) {
-  e.preventDefault();
-  var f = e.target;
-  try {
-    state.loading = true; render();
-    var u = await api('login', { username: f.username.value, password: f.password.value });
-    state.user = u;
-    localStorage.setItem('evalUser', JSON.stringify(u));
-    state.view = 'teacher-home';
-    state._evalStale = true;
-    await loadConfig(true);
-    await loadEvaluations(true);
-    showMsg('Selamat datang, ' + u.fullName, 'success');
-  } catch (err) {
-    showMsg(err.message, 'error');
-  } finally {
-    state.loading = false; render();
-  }
-}
-
-async function doRegister(e) {
-  e.preventDefault();
-  var f = e.target;
-  try {
-    state.loading = true; render();
-    await api('register', {
-      username: f.username.value,
-      password: f.password.value,
-      fullName: f.fullName.value
-    });
-    showMsg('Akun berhasil dibuat. Silakan login.', 'success');
-    state.loginTab = 'login';
-  } catch (err) {
-    showMsg(err.message, 'error');
-  } finally {
-    state.loading = false; render();
-  }
-}
-
-async function askAdmin() {
-  var pwd = prompt('Masukkan password admin:');
-  if (!pwd) return;
-  try {
-    state.loading = true; render();
-    var u = await api('adminLogin', { password: pwd });
-    state.user = u;
-    localStorage.setItem('evalUser', JSON.stringify(u));
-    localStorage.setItem('adminPwd', pwd);
-    state._evalStale = true;
-    state._teacherStale = true;
-    await loadConfig(true);
-    await loadEvaluations(true);
-    await loadTeachers(true);
-    state.view = 'admin-config';
-    showMsg('Mode admin aktif', 'success');
-  } catch (err) {
-    showMsg(err.message, 'error');
-  } finally {
-    state.loading = false; render();
-  }
-}
-
-function logout() {
-  state.user = null;
-  state.evaluations = [];
-  state.students = [];
-  state.teachers = [];
-  state._evalStale = true;
-  state._teacherStale = true;
-  localStorage.removeItem('evalUser');
-  localStorage.removeItem('adminPwd');
-  state.view = 'login';
-  state.loginTab = 'login';
-  render();
-}
-
-/* ============================================================
- *  RENDER
- * ============================================================ */
-function render() {
-  var root = document.getElementById('root');
-  if (!state.user) root.innerHTML = renderLogin();
-  else root.innerHTML = renderApp();
-  bindEvents();
-}
-
-function renderLogin() {
-  var cfg = state.config || {};
-  var bgStyle = cfg.bgUrl
-    ? "background:linear-gradient(135deg,rgba(30,58,138,.85),rgba(37,99,235,.85)),url('" + esc(cfg.bgUrl) + "') center/cover"
-    : '';
-  return '' +
-  '<div class="login-wrap" style="' + bgStyle + '">' +
-    '<div class="login-card">' +
-      '<div style="text-align:center;margin-bottom:18px">' +
-        (cfg.logoUrl ? '<img src="' + esc(cfg.logoUrl) + '" style="height:56px;margin-bottom:8px">' : '') +
-        '<h1>' + esc(cfg.schoolName || 'Evaluasi Siswa') + '</h1>' +
-        '<div class="sub">Aplikasi Evaluasi Perkembangan Siswa</div>' +
-      '</div>' +
-      '<div class="tabs">' +
-        '<button class="' + (state.loginTab === 'login' ? 'active' : '') + '" data-tab="login">Masuk</button>' +
-        '<button class="' + (state.loginTab === 'register' ? 'active' : '') + '" data-tab="register">Daftar</button>' +
-      '</div>' +
-      (state.msg ? '<div class="alert alert-' + state.msg.type + '">' + esc(state.msg.text) + '</div>' : '') +
-      (state.loginTab === 'login'
-        ? '<form id="form-login">' +
-            '<div class="field"><label>Username</label>' +
-              '<input name="username" required autocomplete="username"></div>' +
-            '<div class="field"><label>Password</label>' +
-              '<input name="password" type="password" required autocomplete="current-password"></div>' +
-            '<button class="btn btn-primary btn-block" ' + (state.loading ? 'disabled' : '') + '>' +
-              (state.loading ? '<span class="loader"></span> Memproses...' : 'Masuk') +
-            '</button>' +
-          '</form>'
-        : '<form id="form-register">' +
-            '<div class="field"><label>Nama Lengkap</label>' +
-              '<input name="fullName" required></div>' +
-            '<div class="field"><label>Username</label>' +
-              '<input name="username" required autocomplete="username"></div>' +
-            '<div class="field"><label>Password (min 4 karakter)</label>' +
-              '<input name="password" type="password" required minlength="4"></div>' +
-            '<button class="btn btn-primary btn-block" ' + (state.loading ? 'disabled' : '') + '>' +
-              (state.loading ? '<span class="loader"></span> Memproses...' : 'Daftar Akun Guru') +
-            '</button>' +
-          '</form>') +
-      '<div style="text-align:center;margin-top:16px">' +
-        '<button class="btn btn-ghost btn-sm" id="btn-admin">🔐 Masuk Mode Admin</button>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
-}
-
-function renderApp() {
-  var u = state.user;
-  var isAdmin = u.role === 'admin';
-  var cfg = state.config || {};
-
-  var navTeacher = [
-    { id: 'teacher-home',   label: '📋 Evaluasi Saya' },
-    { id: 'teacher-new',    label: '➕ Buat Evaluasi' },
-    { id: 'teacher-report', label: '🖨️ Cetak & Kirim' }
-  ];
-  var navAdmin = [
-    { id: 'admin-config',   label: '⚙️ Konfigurasi' },
-    { id: 'admin-students', label: '👥 Data Siswa' },
-    { id: 'admin-teachers', label: '👨‍🏫 Akun Guru' },
-    { id: 'admin-evals',    label: '📊 Semua Evaluasi' },
-    { id: 'admin-report',   label: '🖨️ Rangkuman & Cetak' }
-  ];
-  var nav = isAdmin ? navAdmin : navTeacher;
-
-  return '' +
-  '<div class="topbar">' +
-    '<div class="brand">' +
-      (cfg.logoUrl ? '<img src="' + esc(cfg.logoUrl) + '">' : '') +
-      '<span>' + esc(cfg.schoolName || 'Evaluasi Siswa') + '</span>' +
-    '</div>' +
-    '<div class="user-info">' +
-      '<span>' + esc(u.fullName) + '</span>' +
-      '<span class="badge ' + (isAdmin ? 'admin' : '') + '">' + (isAdmin ? 'ADMIN' : 'GURU') + '</span>' +
-      '<button class="btn btn-ghost btn-sm" id="btn-logout">Keluar</button>' +
-    '</div>' +
-  '</div>' +
-  '<div class="layout">' +
-    '<aside class="sidebar">' +
-      '<div class="nav-title">Menu</div>' +
-      nav.map(function (n) {
-        return '<div class="nav-item ' + (state.view === n.id ? 'active' : '') + '" data-nav="' + n.id + '">' + n.label + '</div>';
-      }).join('') +
-    '</aside>' +
-    '<main class="content">' +
-      (state.msg ? '<div class="alert alert-' + state.msg.type + '">' + esc(state.msg.text) + '</div>' : '') +
-      renderView() +
-    '</main>' +
-  '</div>';
-}
-
-function renderView() {
-  switch (state.view) {
-    case 'teacher-home':   return viewTeacherHome();
-    case 'teacher-new':    return viewTeacherNew();
-    case 'teacher-report': return viewTeacherReport();
-    case 'admin-config':   return viewAdminConfig();
-    case 'admin-students': return viewAdminStudents();
-    case 'admin-teachers': return viewAdminTeachers();
-    case 'admin-evals':    return viewAdminEvals();
-    case 'admin-report':   return viewAdminReport();
-    default: return '<div class="card">Halaman tidak ditemukan</div>';
-  }
-}
-
-/* ---------- Teacher views ---------- */
-function viewTeacherHome() {
-  if (state.loading) return '<div class="spinner-box"><span class="loader" style="border-color:#2563eb;border-top-color:transparent"></span> Memuat data...</div>';
-  var list = state.evaluations;
-  if (!list.length) return '' +
-    '<h2>Evaluasi Saya</h2>' +
-    '<div class="subtitle">Daftar evaluasi yang pernah Anda buat.</div>' +
-    '<div class="card" style="text-align:center;padding:40px">' +
-      '<p style="color:var(--muted);margin-bottom:16px">Belum ada evaluasi.</p>' +
-      '<button class="btn btn-primary" data-nav="teacher-new">➕ Buat Evaluasi Pertama</button>' +
-    '</div>';
-
-  return '' +
-    '<h2>Evaluasi Saya</h2>' +
-    '<div class="subtitle">Total ' + list.length + ' evaluasi.</div>' +
-    '<div class="table-wrap"><table>' +
-      '<thead><tr>' +
-        '<th>Siswa</th><th>Kelas</th><th>Periode</th>' +
-        '<th>Akademik</th><th>Karakter</th><th>Tanggal</th><th>Aksi</th>' +
-      '</tr></thead><tbody>' +
-      list.map(function (e) {
-        return '<tr>' +
-          '<td><strong>' + esc(e.studentName) + '</strong></td>' +
-          '<td>' + esc(e.studentClass) + '</td>' +
-          '<td>' + esc(e.period) + '</td>' +
-          '<td><span class="score-badge" style="font-size:14px;padding:3px 8px">' + esc(e.acadScore) + '</span></td>' +
-          '<td><span class="score-badge" style="font-size:14px;padding:3px 8px">' + esc(e.karScore) + '</span></td>' +
-          '<td>' + fmtDate(e.createdAt) + '</td>' +
-          '<td><button class="btn btn-ghost btn-sm" data-detail="' + esc(e.id) + '">Detail</button></td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table></div>';
-}
-
-function viewTeacherNew() {
-  var classes = (state.config.classes || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-  var periods = currentPeriods();
-  return '' +
-  '<h2>Buat Evaluasi Baru</h2>' +
-  '<div class="subtitle">Isi penilaian perkembangan kognitif/akademik dan karakter/akhlaq siswa.</div>' +
-  '<form id="form-eval">' +
-    '<div class="card">' +
-      '<h3>Identitas Siswa</h3>' +
-      '<div class="row">' +
-        '<div class="field"><label>Kelas</label>' +
-          '<select name="studentClass" required>' +
-            '<option value="">— Pilih Kelas —</option>' +
-            classes.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') +
-          '</select></div>' +
-        '<div class="field"><label>Nama Siswa</label>' +
-          '<input name="studentName" list="student-list" required placeholder="Ketik atau pilih nama siswa">' +
-          '<datalist id="student-list">' +
-            state.students.map(function (s) {
-              return '<option data-kelas="' + esc(s.className) + '" value="' + esc(s.name) + '">' + esc(s.className) + '</option>';
-            }).join('') +
-          '</datalist></div>' +
-      '</div>' +
-      '<div class="field"><label>Periode Penilaian</label>' +
-        '<select name="period" required>' +
-          periods.map(function (p) { return '<option>' + esc(p) + '</option>'; }).join('') +
-        '</select></div>' +
-    '</div>' +
-    '<div class="grid-2">' +
-      '<div class="card">' +
-        '<h3>🧠 Perkembangan Kognitif / Akademik</h3>' +
-        '<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Skala 1 (kurang) – 5 (sangat baik).</p>' +
-        aspectRow('acadPemahaman', 'Pemahaman Materi') +
-        aspectRow('acadPartisipasi', 'Partisipasi Aktif') +
-        aspectRow('acadTugas', 'Penyelesaian Tugas/PR') +
-        aspectRow('acadAnalisis', 'Kemampuan Analisis') +
-        '<div style="margin-top:14px;display:flex;align-items:center;gap:10px">' +
-          '<strong>Nilai Akademik:</strong>' +
-          '<span class="score-badge" id="acadScore">60</span>' +
-          '<span style="color:var(--muted);font-size:12px">/100</span>' +
-        '</div>' +
-        '<div class="field" style="margin-top:12px">' +
-          '<label>Catatan Akademik</label>' +
-          '<textarea name="acadNotes" placeholder="Catatan perkembangan akademik..."></textarea>' +
-        '</div>' +
-      '</div>' +
-      '<div class="card">' +
-        '<h3>🌟 Perkembangan Karakter / Akhlaq</h3>' +
-        '<p style="font-size:12px;color:var(--muted);margin-bottom:10px">Skala 1 (kurang) – 5 (sangat baik).</p>' +
-        aspectRow('karKejujuran', 'Kejujuran') +
-        aspectRow('karDisiplin', 'Kedisiplinan') +
-        aspectRow('karSopan', 'Sopan Santun') +
-        aspectRow('karTanggungJawab', 'Tanggung Jawab') +
-        aspectRow('karKerjasama', 'Kerjasama') +
-        '<div style="margin-top:14px;display:flex;align-items:center;gap:10px">' +
-          '<strong>Nilai Karakter:</strong>' +
-          '<span class="score-badge" id="karScore">60</span>' +
-          '<span style="color:var(--muted);font-size:12px">/100</span>' +
-        '</div>' +
-        '<div class="field" style="margin-top:12px">' +
-          '<label>Catatan Karakter</label>' +
-          '<textarea name="karNotes" placeholder="Catatan perkembangan karakter/akhlaq..."></textarea>' +
-        '</div>' +
-      '</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:10px;justify-content:flex-end">' +
-      '<button type="button" class="btn btn-ghost" data-nav="teacher-home">Batal</button>' +
-      '<button class="btn btn-primary" ' + (state.loading ? 'disabled' : '') + '>' +
-        (state.loading ? '<span class="loader"></span> Menyimpan...' : '💾 Simpan Evaluasi') +
-      '</button>' +
-    '</div>' +
-  '</form>';
-}
-
-function aspectRow(name, label) {
-  return '<div class="aspect-row">' +
-    '<span>' + label + '</span>' +
-    '<select name="' + name + '" data-aspect>' +
-      '<option value="1">1 - Kurang</option>' +
-      '<option value="2">2 - Cukup</option>' +
-      '<option value="3" selected>3 - Baik</option>' +
-      '<option value="4">4 - Sangat Baik</option>' +
-      '<option value="5">5 - Istimewa</option>' +
-    '</select>' +
-  '</div>';
-}
-
-function currentPeriods() {
-  var y = new Date().getFullYear();
-  return [
-    'Semester 1 ' + y + '/' + (y + 1),
-    'Semester 2 ' + (y - 1) + '/' + y,
-    'Semester 1 ' + (y - 1) + '/' + y,
-    'Semester 2 ' + (y - 2) + '/' + (y - 1)
-  ];
-}
-
-function viewTeacherReport() {
-  if (!state.evaluations.length)
-    return '<h2>Cetak & Kirim Laporan</h2>' +
-      '<div class="subtitle">Belum ada evaluasi untuk dicetak.</div>';
-  return '' +
-    '<h2>Cetak & Kirim Laporan</h2>' +
-    '<div class="subtitle">Pilih evaluasi untuk dicetak atau dikirim ke Kepala Sekolah.</div>' +
-    '<div class="table-wrap"><table>' +
-      '<thead><tr><th>Siswa</th><th>Kelas</th><th>Periode</th><th>Tanggal</th><th>Aksi</th></tr></thead>' +
-      '<tbody>' +
-      state.evaluations.map(function (e) {
-        return '<tr>' +
-          '<td><strong>' + esc(e.studentName) + '</strong></td>' +
-          '<td>' + esc(e.studentClass) + '</td>' +
-          '<td>' + esc(e.period) + '</td>' +
-          '<td>' + fmtDate(e.createdAt) + '</td>' +
-          '<td style="white-space:nowrap">' +
-            '<button class="btn btn-ghost btn-sm" data-print="' + esc(e.id) + '">🖨️ Cetak</button> ' +
-            '<button class="btn btn-success btn-sm" data-send="' + esc(e.id) + '">💬 Kirim</button>' +
-          '</td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table></div>';
-}
-
-/* ---------- Admin views ---------- */
-function viewAdminConfig() {
-  var c = state.config || {};
-  return '' +
-    '<h2>Konfigurasi Aplikasi</h2>' +
-    '<div class="subtitle">Pengaturan utama aplikasi (hanya admin).</div>' +
-    '<form id="form-config" class="card">' +
-      '<div class="field"><label>Nama Sekolah</label>' +
-        '<input name="schoolName" value="' + esc(c.schoolName || '') + '" required></div>' +
-      '<div class="row">' +
-        '<div class="field"><label>URL Logo Sekolah</label>' +
-          '<input name="logoUrl" value="' + esc(c.logoUrl || '') + '" placeholder="https://..."></div>' +
-        '<div class="field"><label>URL Background</label>' +
-          '<input name="bgUrl" value="' + esc(c.bgUrl || '') + '" placeholder="https://..."></div>' +
-      '</div>' +
-      '<div class="field"><label>Daftar Kelas (pisahkan dengan koma)</label>' +
-        '<input name="classes" value="' + esc(c.classes || '') + '" placeholder="Kelas 7A, Kelas 7B, Kelas 8A"></div>' +
-      '<div class="field"><label>No. WhatsApp Kepala Sekolah</label>' +
-        '<input name="principalPhone" value="' + esc(c.principalPhone || '') + '" placeholder="628123456789">' +
-        '<p style="font-size:12px;color:var(--muted);margin-top:4px">Format internasional tanpa tanda +. Contoh: 628123456789</p></div>' +
-      '<div style="display:flex;justify-content:flex-end">' +
-        '<button class="btn btn-primary" ' + (state.loading ? 'disabled' : '') + '>' +
-          (state.loading ? '<span class="loader"></span> Menyimpan...' : '💾 Simpan Konfigurasi') +
-        '</button>' +
-      '</div>' +
-    '</form>';
-}
-
-function viewAdminStudents() {
-  var classes = (state.config.classes || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-  var grouped = {};
-  state.students.forEach(function (s) {
-    var k = s.className || '(tanpa kelas)';
-    if (!grouped[k]) grouped[k] = [];
-    grouped[k].push(s);
-  });
-  var keys = Object.keys(grouped);
-
-  return '' +
-    '<h2>Data Siswa</h2>' +
-    '<div class="subtitle">Master data siswa yang tersedia untuk evaluasi.</div>' +
-    '<div class="card">' +
-      '<h3>Tambah Siswa</h3>' +
-      '<form id="form-student" class="row">' +
-        '<div class="field" style="margin:0">' +
-          '<label>Nama Siswa</label>' +
-          '<input name="name" required>' +
-        '</div>' +
-        '<div class="field" style="margin:0">' +
-          '<label>Kelas</label>' +
-          '<select name="className" required>' +
-            '<option value="">— Pilih —</option>' +
-            classes.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') +
-          '</select>' +
-        '</div>' +
-        '<div style="display:flex;align-items:flex-end">' +
-          '<button class="btn btn-primary">➕ Tambah</button>' +
-        '</div>' +
-      '</form>' +
-    '</div>' +
-    (keys.length === 0
-      ? '<div class="card" style="text-align:center;color:var(--muted)">Belum ada data siswa.</div>'
-      : keys.map(function (kelas) {
-          var arr = grouped[kelas];
-          return '<div class="card">' +
-            '<h3>' + esc(kelas) + ' <span style="color:var(--muted);font-weight:400">(' + arr.length + ' siswa)</span></h3>' +
-            '<div style="display:flex;flex-wrap:wrap;gap:8px">' +
-              arr.map(function (s) {
-                return '<span style="background:#f1f5f9;padding:6px 12px;border-radius:20px;font-size:13px">' + esc(s.name) + '</span>';
-              }).join('') +
-            '</div>' +
-          '</div>';
-        }).join(''));
-}
-
-function viewAdminTeachers() {
-  if (state.loading) return '<div class="spinner-box"><span class="loader" style="border-color:#2563eb;border-top-color:transparent"></span> Memuat data guru...</div>';
-  if (!state.teachers.length)
-    return '<h2>Akun Guru</h2>' +
-      '<div class="card" style="text-align:center;color:var(--muted)">Belum ada akun guru terdaftar.</div>';
-  return '' +
-    '<h2>Akun Guru</h2>' +
-    '<div class="subtitle">' + state.teachers.length + ' akun terdaftar.</div>' +
-    '<div class="table-wrap"><table>' +
-      '<thead><tr><th>Nama</th><th>Username</th><th>Jumlah Evaluasi</th><th>Terdaftar</th><th>Aksi</th></tr></thead>' +
-      '<tbody>' +
-      state.teachers.map(function (t) {
-        return '<tr>' +
-          '<td><strong>' + esc(t.fullName) + '</strong></td>' +
-          '<td>' + esc(t.username) + '</td>' +
-          '<td>' + t.evalCount + '</td>' +
-          '<td>' + fmtDate(t.createdAt) + '</td>' +
-          '<td><button class="btn btn-danger btn-sm" data-del-teacher="' + esc(t.username) + '">🗑️ Hapus</button></td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table></div>';
-}
-
-function viewAdminEvals() {
-  if (state.loading) return '<div class="spinner-box"><span class="loader" style="border-color:#2563eb;border-top-color:transparent"></span> Memuat evaluasi...</div>';
-  if (!state.evaluations.length)
-    return '<h2>Semua Evaluasi</h2>' +
-      '<div class="card" style="text-align:center;color:var(--muted)">Belum ada evaluasi.</div>';
-  return '' +
-    '<h2>Semua Evaluasi</h2>' +
-    '<div class="subtitle">Total ' + state.evaluations.length + ' evaluasi dari seluruh guru.</div>' +
-    '<div class="table-wrap"><table>' +
-      '<thead><tr>' +
-        '<th>Tanggal</th><th>Guru</th><th>Siswa</th><th>Kelas</th>' +
-        '<th>Periode</th><th>Akademik</th><th>Karakter</th><th>Aksi</th>' +
-      '</tr></thead><tbody>' +
-      state.evaluations.map(function (e) {
-        return '<tr>' +
-          '<td>' + fmtDate(e.createdAt) + '</td>' +
-          '<td>' + esc(e.teacherName) + '</td>' +
-          '<td><strong>' + esc(e.studentName) + '</strong></td>' +
-          '<td>' + esc(e.studentClass) + '</td>' +
-          '<td>' + esc(e.period) + '</td>' +
-          '<td><span class="score-badge" style="font-size:13px;padding:3px 8px">' + esc(e.acadScore) + '</span></td>' +
-          '<td><span class="score-badge" style="font-size:13px;padding:3px 8px">' + esc(e.karScore) + '</span></td>' +
-          '<td><button class="btn btn-ghost btn-sm" data-detail="' + esc(e.id) + '">Detail</button></td>' +
-        '</tr>';
-      }).join('') +
-      '</tbody></table></div>';
-}
-
-function viewAdminReport() {
-  return '' +
-    '<h2>Rangkuman & Cetak</h2>' +
-    '<div class="subtitle">Unduh rangkuman seluruh evaluasi atau cetak laporan.</div>' +
-    '<div class="card">' +
-      '<h3>Unduh Rangkuman (CSV)</h3>' +
-      '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">File CSV dapat dibuka dengan Excel / Google Sheets.</p>' +
-      '<button class="btn btn-primary" id="btn-csv-all">⬇️ Unduh Semua Evaluasi (CSV)</button>' +
-    '</div>' +
-    '<div class="card">' +
-      '<h3>Cetak Laporan Keseluruhan</h3>' +
-      '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">Buka di jendela baru lalu cetak/simpan PDF.</p>' +
-      '<button class="btn btn-warn" id="btn-print-all">🖨️ Cetak Semua Evaluasi</button>' +
-    '</div>';
-}
-
-/* ============================================================
- *  EVENTS
- * ============================================================ */
-function bindEvents() {
-  document.querySelectorAll('[data-tab]').forEach(function (b) {
-    b.onclick = function () { state.loginTab = b.dataset.tab; render(); };
-  });
-
-  var fl = document.getElementById('form-login');
-  if (fl) fl.onsubmit = doLogin;
-  var fr = document.getElementById('form-register');
-  if (fr) fr.onsubmit = doRegister;
-  var ba = document.getElementById('btn-admin');
-  if (ba) ba.onclick = askAdmin;
-  var bl = document.getElementById('btn-logout');
-  if (bl) bl.onclick = logout;
-
-  document.querySelectorAll('[data-nav]').forEach(function (el) {
-    el.onclick = async function () {
-      state.view = el.dataset.nav;
-      if (state.view === 'teacher-new')    await loadStudents();
-      if (state.view === 'admin-students') await loadStudents();
-      if (state.view === 'admin-evals')    await loadEvaluations();
-      if (state.view === 'admin-teachers') await loadTeachers();
-      if (state.view === 'admin-config')   await loadConfig();
-      if (state.view === 'teacher-report' || state.view === 'teacher-home') await loadEvaluations();
-      render();
-    };
-  });
-
-  var fe = document.getElementById('form-eval');
-  if (fe) {
-    var updateScores = function () {
-      var acad = ['acadPemahaman', 'acadPartisipasi', 'acadTugas', 'acadAnalisis'];
-      var kar  = ['karKejujuran', 'karDisiplin', 'karSopan', 'karTanggungJawab', 'karKerjasama'];
-      var avg = function (arr) {
-        var s = 0;
-        for (var i = 0; i < arr.length; i++) s += Number(fe[arr[i]].value || 0);
-        return Math.round(s / arr.length * 20);
-      };
-      document.getElementById('acadScore').textContent = avg(acad);
-      document.getElementById('karScore').textContent = avg(kar);
-    };
-    fe.querySelectorAll('[data-aspect]').forEach(function (s) { s.onchange = updateScores; });
-    updateScores();
-
-    fe.onsubmit = async function (e) {
-      e.preventDefault();
-      var data = {};
-      new FormData(fe).forEach(function (v, k) { data[k] = v; });
-      var acad = ['acadPemahaman', 'acadPartisipasi', 'acadTugas', 'acadAnalisis'];
-      var kar  = ['karKejujuran', 'karDisiplin', 'karSopan', 'karTanggungJawab', 'karKerjasama'];
-      var avg = function (arr) {
-        var s = 0;
-        for (var i = 0; i < arr.length; i++) s += Number(data[arr[i]] || 0);
-        return Math.round(s / arr.length * 20);
-      };
-      var evaluation = {
-        teacherUsername: state.user.username,
-        teacherName: state.user.fullName,
-        studentName: data.studentName,
-        studentClass: data.studentClass,
-        period: data.period,
-        acadPemahaman: data.acadPemahaman,
-        acadPartisipasi: data.acadPartisipasi,
-        acadTugas: data.acadTugas,
-        acadAnalisis: data.acadAnalisis,
-        karKejujuran: data.karKejujuran,
-        karDisiplin: data.karDisiplin,
-        karSopan: data.karSopan,
-        karTanggungJawab: data.karTanggungJawab,
-        karKerjasama: data.karKerjasama,
-        acadScore: avg(acad),
-        karScore: avg(kar),
-        acadNotes: data.acadNotes,
-        karNotes: data.karNotes
-      };
+    // Helper untuk komunikasi API dengan Apps Script
+    async function callAPI(action, payload = {}) {
       try {
-        state.loading = true; render();
-        await api('saveEvaluation', { evaluation: evaluation });
-        state._evalStale = true;
-        await loadEvaluations(true);
-        await loadStudents(true);
-        state.loading = false;
-        state.view = 'teacher-home';
-        showMsg('Evaluasi berhasil disimpan', 'success');
-      } catch (err) {
-        state.loading = false;
-        showMsg(err.message, 'error');
+        const response = await fetch(APP_SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action, ...payload })
+          // CATATAN: JANGAN set header Content-Type ke application/json agar tidak terkena CORS preflight
+        });
+        return await response.json();
+      } catch (error) {
+        console.error(error);
+        return { success: false, message: 'Gagal terhubung ke server.' };
       }
-    };
-  }
-
-  var fc = document.getElementById('form-config');
-  if (fc) fc.onsubmit = async function (e) {
-    e.preventDefault();
-    var data = {};
-    new FormData(fc).forEach(function (v, k) { data[k] = v; });
-    try {
-      state.loading = true; render();
-      state.config = await api('saveConfig', { config: data, adminPassword: ADMIN_PWD() });
-      state.loading = false;
-      await loadConfig(true);
-      showMsg('Konfigurasi disimpan', 'success');
-    } catch (err) {
-      state.loading = false;
-      showMsg(err.message, 'error');
     }
-  };
 
-  var fs = document.getElementById('form-student');
-  if (fs) fs.onsubmit = async function (e) {
-    e.preventDefault();
-    var data = {};
-    new FormData(fs).forEach(function (v, k) { data[k] = v; });
-    try {
-      await api('addStudent', data);
-      await loadStudents(true);
-      showMsg('Siswa ditambahkan', 'success');
-    } catch (err) {
-      showMsg(err.message, 'error');
+    // --- UI HELPERS ---
+    function showMsg(msg, isError = false) {
+      const box = document.getElementById('msgBox');
+      box.innerText = msg;
+      box.className = `mt-4 text-center text-sm font-semibold ${isError ? 'text-red-600' : 'text-green-600'}`;
     }
-  };
 
-  document.querySelectorAll('[data-del-teacher]').forEach(function (b) {
-    b.onclick = async function () {
-      var u = b.dataset.delTeacher;
-      if (!confirm('Hapus akun "' + u + '" beserta SEMUA evaluasinya?')) return;
-      try {
-        state.loading = true; render();
-        await api('deleteTeacher', { username: u, adminPassword: ADMIN_PWD() });
-        state._teacherStale = true;
-        state._evalStale = true;
-        await loadTeachers(true);
-        state.loading = false;
-        showMsg('Akun guru dihapus', 'success');
-      } catch (err) {
-        state.loading = false;
-        showMsg(err.message, 'error');
+    function switchLoginTab(type) {
+      document.getElementById('teacherAuth').classList.toggle('hidden', type !== 'teacher');
+      document.getElementById('adminAuth').classList.toggle('hidden', type !== 'admin');
+      document.getElementById('tabTeacher').className = type === 'teacher' ? 'flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600' : 'flex-1 py-2 text-center font-semibold text-gray-500';
+      document.getElementById('tabAdmin').className = type === 'admin' ? 'flex-1 py-2 text-center font-semibold text-red-600 border-b-2 border-red-600' : 'flex-1 py-2 text-center font-semibold text-gray-500';
+    }
+
+    function toggleRegister(show) {
+      document.getElementById('loginForm').classList.toggle('hidden', show);
+      document.getElementById('registerForm').classList.toggle('hidden', !show);
+    }
+
+    function showAdminTab(tab) {
+      document.querySelectorAll('.admin-tab').forEach(el => el.classList.add('hidden'));
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+    }
+
+    function logout() {
+      currentUser = null;
+      document.getElementById('loginPage').classList.remove('hidden');
+      document.getElementById('teacherPage').classList.add('hidden');
+      document.getElementById('adminPage').classList.add('hidden');
+    }
+
+    // --- AUTH FUNCTIONS ---
+    async function doRegister() {
+      const name = document.getElementById('regName').value;
+      const user = document.getElementById('regUser').value;
+      const pass = document.getElementById('regPass').value;
+      if(!name || !user || !pass) return showMsg('Semua field harus diisi!', true);
+      
+      const res = await callAPI('register', { username: user, password: pass, name: name });
+      showMsg(res.message, !res.success);
+      if(res.success) toggleRegister(false);
+    }
+
+    async function doLoginTeacher() {
+      const user = document.getElementById('loginUser').value;
+      const pass = document.getElementById('loginPass').value;
+      
+      const res = await callAPI('loginTeacher', { username: user, password: pass });
+      if(res.success) {
+        currentUser = res;
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('teacherPage').classList.remove('hidden');
+        document.getElementById('teacherGreeting').innerText = `Halo, ${res.name}`;
+        loadTeacherData();
+      } else {
+        showMsg(res.message, true);
       }
-    };
-  });
+    }
 
-  document.querySelectorAll('[data-detail]').forEach(function (b) {
-    b.onclick = function () {
-      var ev = state.evaluations.find(function (x) { return x.id === b.dataset.detail; });
-      if (ev) showDetail(ev);
-    };
-  });
+    async function doLoginAdmin() {
+      const pass = document.getElementById('adminPass').value;
+      const res = await callAPI('loginAdmin', { password: pass });
+      if(res.success) {
+        currentUser = { role: 'admin' };
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('adminPage').classList.remove('hidden');
+        loadAdminData();
+      } else {
+        showMsg(res.message, true);
+      }
+    }
 
-  document.querySelectorAll('[data-print]').forEach(function (b) {
-    b.onclick = function () {
-      var ev = state.evaluations.find(function (x) { return x.id === b.dataset.print; });
-      if (ev) openPrint([ev]);
-    };
-  });
+    // --- TEACHER FUNCTIONS ---
+    async function loadTeacherData() {
+      const settings = await callAPI('getSettings');
+      appSettings = settings;
+      const sel = document.getElementById('evalClass');
+      sel.innerHTML = '';
+      if(settings.classes) {
+        settings.classes.split(',').forEach(c => {
+          sel.innerHTML += `<option value="${c.trim()}">${c.trim()}</option>`;
+        });
+      }
 
-  document.querySelectorAll('[data-send]').forEach(function (b) {
-    b.onclick = function () {
-      var ev = state.evaluations.find(function (x) { return x.id === b.dataset.send; });
-      if (ev) sendWA(ev);
-    };
-  });
+      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      const tbody = document.getElementById('teacherEvalTable');
+      tbody.innerHTML = '';
+      if(Array.isArray(evals)) {
+        evals.forEach(e => {
+          tbody.innerHTML += `<tr>
+            <td class="p-2 border">${e.date}</td>
+            <td class="p-2 border">${e.student}</td>
+            <td class="p-2 border">${e.class}</td>
+            <td class="p-2 border">${e.cogScore} - ${e.cogNote}</td>
+            <td class="p-2 border">${e.charScore} - ${e.charNote}</td>
+          </tr>`;
+        });
+      }
+    }
 
-  var bc = document.getElementById('btn-csv-all');
-  if (bc) bc.onclick = function () { downloadCSV(state.evaluations); };
-  var bp = document.getElementById('btn-print-all');
-  if (bp) bp.onclick = function () { openPrint(state.evaluations); };
-}
+    async function saveEval() {
+      const data = {
+        username: currentUser.username,
+        teacherName: currentUser.name,
+        studentName: document.getElementById('evalStudent').value,
+        class: document.getElementById('evalClass').value,
+        cogScore: document.getElementById('evalCogScore').value,
+        cogNote: document.getElementById('evalCogNote').value,
+        charScore: document.getElementById('evalCharScore').value,
+        charNote: document.getElementById('evalCharNote').value
+      };
+      if(!data.studentName) return alert('Nama siswa harus diisi!');
 
-/* ---------- Detail modal ---------- */
-function showDetail(ev) {
-  var html = '' +
-  '<div class="modal-bg" id="modal-bg">' +
-    '<div class="modal">' +
-      '<h3>Detail Evaluasi</h3>' +
-      '<p style="color:var(--muted);font-size:13px;margin-bottom:12px">' +
-        esc(ev.studentName) + ' — ' + esc(ev.studentClass) + ' • ' + esc(ev.period) + '</p>' +
-      '<div class="grid-2">' +
-        '<div class="card" style="margin:0">' +
-          '<h3>🧠 Akademik: ' + esc(ev.acadScore) + '/100</h3>' +
-          '<div style="font-size:13px;line-height:1.9">' +
-            'Pemahaman: <b>' + esc(ev.acadPemahaman) + '</b> · ' +
-            'Partisipasi: <b>' + esc(ev.acadPartisipasi) + '</b><br>' +
-            'Tugas: <b>' + esc(ev.acadTugas) + '</b> · ' +
-            'Analisis: <b>' + esc(ev.acadAnalisis) + '</b>' +
-          '</div>' +
-          '<p style="margin-top:8px;font-size:13px;color:var(--muted)"><b>Catatan:</b> ' + esc(ev.acadNotes || '-') + '</p>' +
-        '</div>' +
-        '<div class="card" style="margin:0">' +
-          '<h3>🌟 Karakter: ' + esc(ev.karScore) + '/100</h3>' +
-          '<div style="font-size:13px;line-height:1.9">' +
-            'Jujur: <b>' + esc(ev.karKejujuran) + '</b> · Disiplin: <b>' + esc(ev.karDisiplin) + '</b><br>' +
-            'Sopan: <b>' + esc(ev.karSopan) + '</b> · Tanggung Jawab: <b>' + esc(ev.karTanggungJawab) + '</b><br>' +
-            'Kerjasama: <b>' + esc(ev.karKerjasama) + '</b>' +
-          '</div>' +
-          '<p style="margin-top:8px;font-size:13px;color:var(--muted)"><b>Catatan:</b> ' + esc(ev.karNotes || '-') + '</p>' +
-        '</div>' +
-      '</div>' +
-      '<p style="margin-top:10px;font-size:12px;color:var(--muted)">Dinilai oleh: ' + esc(ev.teacherName) + ' • ' + fmtDate(ev.createdAt) + '</p>' +
-      '<div class="actions">' +
-        '<button class="btn btn-ghost" id="modal-close">Tutup</button>' +
-        '<button class="btn btn-warn" id="modal-print">🖨️ Cetak</button>' +
-        '<button class="btn btn-success" id="modal-send">💬 Kirim</button>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
-  var wrap = document.createElement('div');
-  wrap.innerHTML = html;
-  document.body.appendChild(wrap.firstElementChild);
-  document.getElementById('modal-close').onclick = function () { document.getElementById('modal-bg').remove(); };
-  document.getElementById('modal-bg').onclick = function (e) { if (e.target.id === 'modal-bg') e.currentTarget.remove(); };
-  document.getElementById('modal-print').onclick = function () { openPrint([ev]); };
-  document.getElementById('modal-send').onclick = function () { sendWA(ev); };
-}
+      await callAPI('saveEvaluation', { evalData: data });
+      alert('Evaluasi berhasil disimpan!');
+      loadTeacherData();
+      
+      document.getElementById('evalStudent').value = '';
+      document.getElementById('evalCogScore').value = '';
+      document.getElementById('evalCogNote').value = '';
+      document.getElementById('evalCharScore').value = '';
+      document.getElementById('evalCharNote').value = '';
+    }
 
-/* ---------- Print ---------- */
-function openPrint(evals) {
-  var cfg = state.config || {};
-  if (!evals.length) { showMsg('Tidak ada data untuk dicetak', 'error'); return; }
-  var body = evals.map(function (ev) {
-    return '<div style="page-break-after:always;margin-bottom:30px;border:1px solid #cbd5e1;padding:24px;border-radius:8px">' +
-      '<div style="display:flex;align-items:center;gap:14px;border-bottom:2px solid #1e40af;padding-bottom:10px;margin-bottom:16px">' +
-        (cfg.logoUrl ? '<img src="' + esc(cfg.logoUrl) + '" style="height:56px">' : '') +
-        '<div>' +
-          '<h1 style="font-size:18px;margin:0">' + esc(cfg.schoolName || 'Sekolah') + '</h1>' +
-          '<div style="font-size:13px;color:#64748b">Laporan Evaluasi Perkembangan Siswa</div>' +
-        '</div>' +
-      '</div>' +
-      '<table style="width:100%;font-size:13px;margin-bottom:14px">' +
-        '<tr><td style="width:150px"><b>Nama Siswa</b></td><td>: ' + esc(ev.studentName) + '</td></tr>' +
-        '<tr><td><b>Kelas</b></td><td>: ' + esc(ev.studentClass) + '</td></tr>' +
-        '<tr><td><b>Periode</b></td><td>: ' + esc(ev.period) + '</td></tr>' +
-        '<tr><td><b>Guru Penilai</b></td><td>: ' + esc(ev.teacherName) + '</td></tr>' +
-        '<tr><td><b>Tanggal</b></td><td>: ' + fmtDate(ev.createdAt) + '</td></tr>' +
-      '</table>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">' +
-        '<div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">' +
-          '<h3 style="font-size:14px;margin-bottom:8px">🧠 Perkembangan Akademik (' + esc(ev.acadScore) + '/100)</h3>' +
-          '<ul style="font-size:13px;line-height:1.8;padding-left:20px">' +
-            '<li>Pemahaman Materi: <b>' + esc(ev.acadPemahaman) + '</b>/5</li>' +
-            '<li>Partisipasi Aktif: <b>' + esc(ev.acadPartisipasi) + '</b>/5</li>' +
-            '<li>Penyelesaian Tugas: <b>' + esc(ev.acadTugas) + '</b>/5</li>' +
-            '<li>Kemampuan Analisis: <b>' + esc(ev.acadAnalisis) + '</b>/5</li>' +
-          '</ul>' +
-          '<p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ' + esc(ev.acadNotes || '-') + '</p>' +
-        '</div>' +
-        '<div style="border:1px solid #cbd5e1;padding:14px;border-radius:8px">' +
-          '<h3 style="font-size:14px;margin-bottom:8px">🌟 Perkembangan Karakter (' + esc(ev.karScore) + '/100)</h3>' +
-          '<ul style="font-size:13px;line-height:1.8;padding-left:20px">' +
-            '<li>Kejujuran: <b>' + esc(ev.karKejujuran) + '</b>/5</li>' +
-            '<li>Kedisiplinan: <b>' + esc(ev.karDisiplin) + '</b>/5</li>' +
-            '<li>Sopan Santun: <b>' + esc(ev.karSopan) + '</b>/5</li>' +
-            '<li>Tanggung Jawab: <b>' + esc(ev.karTanggungJawab) + '</b>/5</li>' +
-            '<li>Kerjasama: <b>' + esc(ev.karKerjasama) + '</b>/5</li>' +
-          '</ul>' +
-          '<p style="font-size:12px;margin-top:8px"><b>Catatan:</b> ' + esc(ev.karNotes || '-') + '</p>' +
-        '</div>' +
-      '</div>' +
-      '<div style="margin-top:40px;text-align:right;font-size:13px">' +
-        '<div>Guru Penilai,</div>' +
-        '<div style="height:60px"></div>' +
-        '<div><b>' + esc(ev.teacherName) + '</b></div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+    function printReport() { window.print(); }
 
-  var win = window.open('', '_blank');
-  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan Evaluasi</title>' +
-    '<style>body{font-family:-apple-system,sans-serif;padding:20px;color:#0f172a}@media print{body{padding:0}}</style>' +
-    '</head><body onload="setTimeout(function(){window.print()},300)">' + body + '</body></html>');
-  win.document.close();
-}
+    async function downloadReport() {
+      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter\n';
+      if(Array.isArray(evals)) {
+        evals.forEach(e => {
+          csv += `"${e.date}","${e.student}","${e.class}","${e.cogScore} - ${e.cogNote}","${e.charScore} - ${e.charNote}"\n`;
+        });
+      }
+      downloadCSV(csv, `Evaluasi_${currentUser.name}.csv`);
+    }
 
-/* ---------- WhatsApp ---------- */
-function sendWA(ev) {
-  var cfg = state.config || {};
-  var phone = String(cfg.principalPhone || '').replace(/\D/g, '');
-  if (!phone) return showMsg('Nomor WA Kepala Sekolah belum diatur di konfigurasi', 'error');
-  var text = '*LAPORAN EVALUASI SISWA*\n' +
-    'Sekolah: ' + (cfg.schoolName || '-') + '\n' +
-    'Periode: ' + ev.period + '\n\n' +
-    '*Nama Siswa:* ' + ev.studentName + '\n' +
-    '*Kelas:* ' + ev.studentClass + '\n\n' +
-    '*Nilai Akademik:* ' + ev.acadScore + '/100\n' +
-    'Catatan: ' + (ev.acadNotes || '-') + '\n\n' +
-    '*Nilai Karakter:* ' + ev.karScore + '/100\n' +
-    'Catatan: ' + (ev.karNotes || '-') + '\n\n' +
-    'Guru Penilai: ' + ev.teacherName + '\n' +
-    'Tanggal: ' + fmtDate(ev.createdAt);
-  window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
-}
+    async function sendToPrincipal() {
+      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      let text = `Laporan Evaluasi Guru: ${currentUser.name}\nSekolah: ${appSettings.schoolName}\n\n`;
+      if(Array.isArray(evals)) {
+        evals.forEach(e => {
+          text += `Siswa: ${e.student} (${e.class})\nKognitif: ${e.cogScore} - ${e.cogNote}\nKarakter: ${e.charScore} - ${e.charNote}\n---\n`;
+        });
+      }
+      const url = `https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+    }
 
-/* ---------- CSV ---------- */
-function downloadCSV(evals) {
-  if (!evals.length) return showMsg('Tidak ada data untuk diunduh', 'error');
-  var headers = ['Tanggal', 'Guru', 'Siswa', 'Kelas', 'Periode',
-    'Akademik', 'Karakter', 'Pemahaman', 'Partisipasi', 'Tugas', 'Analisis',
-    'Kejujuran', 'Disiplin', 'Sopan', 'TanggungJawab', 'Kerjasama',
-    'CatatanAkademik', 'CatatanKarakter'];
-  var rows = evals.map(function (e) {
-    return [fmtDate(e.createdAt), e.teacherName, e.studentName, e.studentClass, e.period,
-      e.acadScore, e.karScore,
-      e.acadPemahaman, e.acadPartisipasi, e.acadTugas, e.acadAnalisis,
-      e.karKejujuran, e.karDisiplin, e.karSopan, e.karTanggungJawab, e.karKerjasama,
-      e.acadNotes, e.karNotes];
-  });
-  var csv = [headers].concat(rows).map(function (r) {
-    return r.map(function (c) {
-      return '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"';
-    }).join(',');
-  }).join('\n');
-  var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = 'rangkuman-evaluasi-' + new Date().toISOString().slice(0, 10) + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
+    // --- ADMIN FUNCTIONS ---
+    async function loadAdminData() {
+      const settings = await callAPI('getSettings');
+      appSettings = settings;
+      document.getElementById('setSchoolName').value = settings.schoolName || '';
+      document.getElementById('setLogo').value = settings.logoUrl || '';
+      document.getElementById('setBg').value = settings.bgUrl || '';
+      document.getElementById('setPhone').value = settings.principalPhone || '';
+      document.getElementById('setClasses').value = settings.classes || '';
+      
+      if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
 
-/* ============================================================
- *  BOOT
- * ============================================================ */
-(async function boot() {
-  await loadConfig();
-  if (state.user) {
-    try {
-      await loadEvaluations(true);
-      if (state.user.role === 'admin') await loadTeachers(true);
-    } catch (e) { console.error(e); }
-  }
-  render();
-})();
-</script>
+      loadAdminTeachers();
+      loadAdminEvals();
+    }
+
+    async function saveSettings() {
+      const settings = {
+        schoolName: document.getElementById('setSchoolName').value,
+        logoUrl: document.getElementById('setLogo').value,
+        bgUrl: document.getElementById('setBg').value,
+        principalPhone: document.getElementById('setPhone').value,
+        classes: document.getElementById('setClasses').value
+      };
+      await callAPI('saveSettings', { settings: settings });
+      alert('Pengaturan berhasil disimpan!');
+      loadAdminData();
+    }
+
+    async function loadAdminTeachers() {
+      const teachers = await callAPI('getTeachers');
+      const tbody = document.getElementById('adminTeachersTable');
+      tbody.innerHTML = '';
+      if(Array.isArray(teachers)) {
+        teachers.forEach(t => {
+          tbody.innerHTML += `<tr>
+            <td class="p-2 border">${t.name}</td>
+            <td class="p-2 border">${t.username}</td>
+            <td class="p-2 border"><button onclick="deleteTeacher('${t.username}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">Hapus</button></td>
+          </tr>`;
+        });
+      }
+    }
+
+    async function deleteTeacher(username) {
+      if(confirm('Hapus guru ini beserta semua datanya?')) {
+        await callAPI('deleteTeacher', { username: username });
+        loadAdminTeachers();
+        loadAdminEvals();
+      }
+    }
+
+    async function loadAdminEvals() {
+      const evals = await callAPI('getAllEvaluations');
+      const tbody = document.getElementById('adminEvalsTable');
+      tbody.innerHTML = '';
+      if(Array.isArray(evals)) {
+        evals.forEach(e => {
+          tbody.innerHTML += `<tr>
+            <td class="p-2 border">${e.date}</td>
+            <td class="p-2 border">${e.teacher}</td>
+            <td class="p-2 border">${e.student}</td>
+            <td class="p-2 border">${e.class}</td>
+            <td class="p-2 border">${e.cogScore}</td>
+            <td class="p-2 border">${e.charScore}</td>
+          </tr>`;
+        });
+      }
+    }
+
+    async function downloadAllReports() {
+      const evals = await callAPI('getAllEvaluations');
+      let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif (Skor),Kognitif (Catatan),Karakter (Skor),Karakter (Catatan)\n';
+      if(Array.isArray(evals)) {
+        evals.forEach(e => {
+          csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cogScore}","${e.cogNote}","${e.charScore}","${e.charNote}"\n`;
+        });
+      }
+      downloadCSV(csv, 'Rangkuman_Semua_Evaluasi.csv');
+    }
+
+    // --- UTILITY ---
+    function downloadCSV(csv, filename) {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+  </script>
 </body>
 </html>
