@@ -9,21 +9,81 @@
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .hidden { display: none !important; }
-    @media print { .no-print { display: none !important; } }
+    
+    /* Print Styling */
+    @media screen {
+      #printArea { display: none !important; }
+    }
+    @media print {
+      body * { visibility: hidden; }
+      #printArea, #printArea * { visibility: visible; }
+      #printArea { 
+        display: block !important; 
+        position: absolute; 
+        left: 0; top: 0; 
+        width: 100%; 
+        padding: 20px; 
+        font-family: 'Times New Roman', Times, serif; 
+        color: #000; 
+        background: #fff;
+      }
+      .no-print { display: none !important; }
+      .print-page-break { page-break-after: always; }
+    }
   </style>
 </head>
 <body class="bg-gray-100" id="appBody">
 
-  <!-- LOGIN PAGE -->
-  <div id="loginPage" class="min-h-screen flex items-center justify-center p-4">
+  <!-- ========================================== -->
+  <!-- AREA CETAK FORMAL (HANYA MUNCUL SAAT PRINT) -->
+  <!-- ========================================== -->
+  <div id="printArea">
+    <div class="text-center mb-6 border-b-4 border-double border-gray-800 pb-4">
+      <img id="printLogo" src="" class="h-20 mx-auto mb-2" onerror="this.style.display='none'">
+      <h1 class="text-2xl font-bold uppercase tracking-wide" id="printSchoolName">NAMA SEKOLAH</h1>
+      <p class="text-lg font-semibold mt-1 uppercase">Laporan Evaluasi Perkembangan Siswa</p>
+      <p class="text-sm italic">Tahun Ajaran <span id="printAcademicYear"></span></p>
+    </div>
+    
+    <div class="mb-6 text-sm">
+      <table class="border-none">
+        <tr><td class="pr-4 font-semibold">Nama Guru</td><td>: <span id="printTeacherName"></span></td></tr>
+        <tr><td class="pr-4 font-semibold">Tanggal Cetak</td><td>: <span id="printDate"></span></td></tr>
+      </table>
+    </div>
+
+    <div id="printContent" class="text-sm leading-relaxed">
+      <!-- Konten evaluasi akan di-generate oleh JavaScript -->
+    </div>
+
+    <div class="mt-16 flex justify-between text-sm">
+      <div class="text-center w-1/2">
+        <p>Mengetahui,</p>
+        <p class="font-bold">Kepala Sekolah</p>
+        <br><br><br>
+        <p class="font-bold underline">(...........................................)</p>
+        <p>NIP. ...................................</p>
+      </div>
+      <div class="text-center w-1/2">
+        <p>&nbsp;</p>
+        <p class="font-bold">Guru Kelas / Mata Pelajaran</p>
+        <br><br><br>
+        <p class="font-bold underline" id="printSignName">(...........................................)</p>
+        <p>NIP. ...................................</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- HALAMAN LOGIN -->
+  <!-- ========================================== -->
+  <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 no-print">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
       <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sistem Evaluasi Guru</h2>
       <div class="flex border-b mb-4">
         <button onclick="switchLoginTab('teacher')" id="tabTeacher" class="flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600">Guru</button>
         <button onclick="switchLoginTab('admin')" id="tabAdmin" class="flex-1 py-2 text-center font-semibold text-gray-500">Admin</button>
       </div>
-      
-      <!-- Teacher Login/Register -->
       <div id="teacherAuth">
         <div id="loginForm">
           <input type="text" id="loginUser" placeholder="Username" class="w-full p-2 mb-3 border rounded">
@@ -39,8 +99,6 @@
           <p class="text-center mt-3 text-sm text-gray-600">Sudah punya akun? <button onclick="toggleRegister(false)" class="text-blue-600 font-semibold">Login di sini</button></p>
         </div>
       </div>
-
-      <!-- Admin Login -->
       <div id="adminAuth" class="hidden">
         <input type="password" id="adminPass" placeholder="Password Admin" class="w-full p-2 mb-3 border rounded">
         <button onclick="doLoginAdmin()" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700">Masuk Admin</button>
@@ -49,10 +107,12 @@
     </div>
   </div>
 
-  <!-- TEACHER DASHBOARD -->
-  <div id="teacherPage" class="hidden min-h-screen p-4 md:p-8">
+  <!-- ========================================== -->
+  <!-- DASHBOARD GURU -->
+  <!-- ========================================== -->
+  <div id="teacherPage" class="hidden min-h-screen p-4 md:p-8 no-print">
     <div class="max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-6 no-print">
+      <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Dashboard Guru</h1>
         <div>
           <span id="teacherGreeting" class="mr-4 text-gray-600"></span>
@@ -61,35 +121,53 @@
       </div>
 
       <!-- Form Evaluasi -->
-      <div class="bg-white p-6 rounded-lg shadow mb-6 no-print">
-        <h2 class="text-xl font-bold mb-4">Input Evaluasi Siswa</h2>
+      <div class="bg-white p-6 rounded-lg shadow mb-6">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Input Evaluasi Siswa</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input type="text" id="evalStudent" placeholder="Nama Siswa" class="p-2 border rounded">
           <select id="evalClass" class="p-2 border rounded"></select>
         </div>
+        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label>
-            <input type="text" id="evalCogScore" placeholder="Skor/Predikat (misal: A, 85)" class="w-full p-2 border rounded mt-1">
-            <textarea id="evalCogNote" placeholder="Catatan perkembangan..." class="w-full p-2 border rounded mt-2" rows="2"></textarea>
+            <textarea id="evalCog" placeholder="Catatan perkembangan kognitif/akademik siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
           </div>
           <div>
             <label class="font-semibold text-gray-700">Perkembangan Karakter/Akhlaq</label>
-            <input type="text" id="evalCharScore" placeholder="Skor/Predikat (misal: Baik, 90)" class="w-full p-2 border rounded mt-1">
-            <textarea id="evalCharNote" placeholder="Catatan perkembangan..." class="w-full p-2 border rounded mt-2" rows="2"></textarea>
+            <textarea id="evalChar" placeholder="Catatan perkembangan karakter/akhlaq siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
           </div>
         </div>
-        <button onclick="saveEval()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan Evaluasi</button>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="font-semibold text-gray-700">Upaya yang Sudah Dilakukan</label>
+            <textarea id="evalUpaya" placeholder="Upaya yang telah dilakukan guru untuk siswa ini..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          </div>
+          <div>
+            <label class="font-semibold text-gray-700">Kendala/Masalah yang Dihadapi</label>
+            <textarea id="evalKendala" placeholder="Kendala atau masalah yang dihadapi..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          </div>
+          <div>
+            <label class="font-semibold text-gray-700">Solusi Tindak Lanjut</label>
+            <textarea id="evalSolusi" placeholder="Solusi dan rencana tindak lanjut..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          </div>
+          <div>
+            <label class="font-semibold text-gray-700">Kebutuhan Bantuan</label>
+            <textarea id="evalBantuan" placeholder="Bantuan yang dibutuhkan dari Kepsek/Rekan Guru..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          </div>
+        </div>
+        <button onclick="saveEval()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">Simpan Evaluasi</button>
       </div>
 
       <!-- Riwayat Evaluasi -->
       <div class="bg-white p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold">Riwayat Evaluasi</h2>
-          <div class="no-print">
-            <button onclick="printReport()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"><i class="fas fa-print"></i> Cetak</button>
-            <button onclick="downloadReport()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 mr-2"><i class="fas fa-download"></i> Unduh</button>
-            <button onclick="sendToPrincipal()" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"><i class="fas fa-paper-plane"></i> Kirim ke Kepsek</button>
+          <h2 class="text-xl font-bold text-gray-800">Riwayat Evaluasi</h2>
+          <div>
+            <button onclick="printReport()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"><i class="fas fa-print"></i> Cetak Laporan</button>
+            <button onclick="downloadReport()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 mr-2"><i class="fas fa-download"></i> Unduh CSV</button>
+            <button onclick="sendToPrincipal()" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"><i class="fas fa-paper-plane"></i> Kirim WA</button>
           </div>
         </div>
         <div class="overflow-x-auto">
@@ -110,35 +188,31 @@
     </div>
   </div>
 
-  <!-- ADMIN DASHBOARD -->
-  <div id="adminPage" class="hidden min-h-screen flex">
-    <!-- Sidebar -->
-    <div class="w-64 bg-gray-800 text-white p-4 no-print">
+  <!-- ========================================== -->
+  <!-- DASHBOARD ADMIN -->
+  <!-- ========================================== -->
+  <div id="adminPage" class="hidden min-h-screen flex no-print">
+    <div class="w-64 bg-gray-800 text-white p-4">
       <h2 class="text-xl font-bold mb-6">Admin Panel</h2>
       <ul>
-        <li class="mb-2"><button onclick="showAdminTab('settings')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-cog mr-2"></i> Pengaturan Sekolah</button></li>
+        <li class="mb-2"><button onclick="showAdminTab('settings')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-cog mr-2"></i> Pengaturan</button></li>
         <li class="mb-2"><button onclick="showAdminTab('teachers')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-users mr-2"></i> Kelola Guru</button></li>
         <li class="mb-2"><button onclick="showAdminTab('allEvals')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-chart-bar mr-2"></i> Semua Evaluasi</button></li>
         <li class="mt-8"><button onclick="logout()" class="w-full text-left p-2 bg-red-600 hover:bg-red-700 rounded"><i class="fas fa-sign-out-alt mr-2"></i> Logout</button></li>
       </ul>
     </div>
-
-    <!-- Main Content -->
     <div class="flex-1 p-8 overflow-auto">
-      <!-- Settings Tab -->
       <div id="tabSettings" class="admin-tab bg-white p-6 rounded-lg shadow">
         <h2 class="text-2xl font-bold mb-4">Pengaturan Sekolah</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div><label class="font-semibold">Nama Sekolah</label><input type="text" id="setSchoolName" class="w-full p-2 border rounded mt-1"></div>
           <div><label class="font-semibold">Link Logo Sekolah</label><input type="text" id="setLogo" class="w-full p-2 border rounded mt-1"></div>
           <div><label class="font-semibold">Link Background</label><input type="text" id="setBg" class="w-full p-2 border rounded mt-1"></div>
-          <div><label class="font-semibold">Nomer WhatsApp Kepala Sekolah</label><input type="text" id="setPhone" class="w-full p-2 border rounded mt-1" placeholder="628xxx"></div>
-          <div class="md:col-span-2"><label class="font-semibold">Kelas (Pisahkan dengan koma)</label><input type="text" id="setClasses" class="w-full p-2 border rounded mt-1"></div>
+          <div><label class="font-semibold">Nomer WA Kepala Sekolah</label><input type="text" id="setPhone" class="w-full p-2 border rounded mt-1" placeholder="628xxx"></div>
+          <div class="md:col-span-2"><label class="font-semibold">Kelas (Pisahkan koma)</label><input type="text" id="setClasses" class="w-full p-2 border rounded mt-1"></div>
         </div>
-        <button onclick="saveSettings()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan Pengaturan</button>
+        <button onclick="saveSettings()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan</button>
       </div>
-
-      <!-- Teachers Tab -->
       <div id="tabTeachers" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
         <h2 class="text-2xl font-bold mb-4">Kelola Akun Guru</h2>
         <table class="w-full text-left border-collapse">
@@ -146,8 +220,6 @@
           <tbody id="adminTeachersTable"></tbody>
         </table>
       </div>
-
-      <!-- All Evaluations Tab -->
       <div id="tabAllEvals" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold">Semua Evaluasi</h2>
@@ -164,10 +236,6 @@
   </div>
 
   <script>
-    // ==========================================
-    // FRONTEND LOGIC (GITHUB PAGES MODE)
-    // ==========================================
-    
     // >>>>>> MASUKKAN URL WEB APP APPS SCRIPT ANDA DI SINI <<<<<<
     const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJpc7pSjGkrUCdwQUJq_FPXeBK1uBZwk7Tzaw5aGpeWBJqNyJbMKG14W_ibrvLNMU/exec'; 
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -175,22 +243,15 @@
     let currentUser = null;
     let appSettings = {};
 
-    // Helper untuk komunikasi API dengan Apps Script
     async function callAPI(action, payload = {}) {
       try {
-        const response = await fetch(APP_SCRIPT_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action, ...payload })
-          // CATATAN: JANGAN set header Content-Type agar tidak terkena CORS preflight
-        });
+        const response = await fetch(APP_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) });
         return await response.json();
       } catch (error) {
-        console.error(error);
         return { success: false, message: 'Gagal terhubung ke server.' };
       }
     }
 
-    // --- UI HELPERS ---
     function showMsg(msg, isError = false) {
       const box = document.getElementById('msgBox');
       box.innerText = msg;
@@ -221,28 +282,20 @@
       document.getElementById('adminPage').classList.add('hidden');
     }
 
-    // --- AUTH FUNCTIONS ---
     async function doRegister() {
       const name = document.getElementById('regName').value.trim();
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
-      
       if(!name || !user || !pass) return showMsg('Semua field harus diisi!', true);
-      
       const res = await callAPI('register', { username: user, password: pass, name: name });
       showMsg(res.message, !res.success);
-      if(res.success) {
-        toggleRegister(false);
-        showMsg('Registrasi berhasil! Silakan login.', false);
-      }
+      if(res.success) { toggleRegister(false); showMsg('Registrasi berhasil! Silakan login.', false); }
     }
 
     async function doLoginTeacher() {
       const user = document.getElementById('loginUser').value.trim();
       const pass = document.getElementById('loginPass').value.trim();
-      
       if(!user || !pass) return showMsg('Username dan password harus diisi!', true);
-
       const res = await callAPI('loginTeacher', { username: user, password: pass });
       if(res.success) {
         currentUser = res;
@@ -250,9 +303,7 @@
         document.getElementById('teacherPage').classList.remove('hidden');
         document.getElementById('teacherGreeting').innerText = `Halo, ${res.name}`;
         loadTeacherData();
-      } else {
-        showMsg(res.message, true);
-      }
+      } else showMsg(res.message, true);
     }
 
     async function doLoginAdmin() {
@@ -263,22 +314,15 @@
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('adminPage').classList.remove('hidden');
         loadAdminData();
-      } else {
-        showMsg(res.message, true);
-      }
+      } else showMsg(res.message, true);
     }
 
-    // --- TEACHER FUNCTIONS ---
     async function loadTeacherData() {
       const settings = await callAPI('getSettings');
       appSettings = settings;
       const sel = document.getElementById('evalClass');
       sel.innerHTML = '';
-      if(settings.classes) {
-        settings.classes.split(',').forEach(c => {
-          sel.innerHTML += `<option value="${c.trim()}">${c.trim()}</option>`;
-        });
-      }
+      if(settings.classes) settings.classes.split(',').forEach(c => sel.innerHTML += `<option value="${c.trim()}">${c.trim()}</option>`);
 
       const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
       const tbody = document.getElementById('teacherEvalTable');
@@ -286,11 +330,11 @@
       if(Array.isArray(evals)) {
         evals.forEach(e => {
           tbody.innerHTML += `<tr>
-            <td class="p-2 border">${e.date}</td>
-            <td class="p-2 border">${e.student}</td>
+            <td class="p-2 border text-sm">${e.date}</td>
+            <td class="p-2 border font-semibold">${e.student}</td>
             <td class="p-2 border">${e.class}</td>
-            <td class="p-2 border">${e.cogScore} - ${e.cogNote}</td>
-            <td class="p-2 border">${e.charScore} - ${e.charNote}</td>
+            <td class="p-2 border text-sm italic">${e.cog.substring(0, 50)}${e.cog.length > 50 ? '...' : ''}</td>
+            <td class="p-2 border text-sm italic">${e.char.substring(0, 50)}${e.char.length > 50 ? '...' : ''}</td>
           </tr>`;
         });
       }
@@ -298,36 +342,94 @@
 
     async function saveEval() {
       const data = {
-        username: currentUser.username,
-        teacherName: currentUser.name,
+        username: currentUser.username, teacherName: currentUser.name,
         studentName: document.getElementById('evalStudent').value.trim(),
         class: document.getElementById('evalClass').value,
-        cogScore: document.getElementById('evalCogScore').value.trim(),
-        cogNote: document.getElementById('evalCogNote').value.trim(),
-        charScore: document.getElementById('evalCharScore').value.trim(),
-        charNote: document.getElementById('evalCharNote').value.trim()
+        cog: document.getElementById('evalCog').value.trim(),
+        char: document.getElementById('evalChar').value.trim(),
+        upaya: document.getElementById('evalUpaya').value.trim(),
+        kendala: document.getElementById('evalKendala').value.trim(),
+        solusi: document.getElementById('evalSolusi').value.trim(),
+        bantuan: document.getElementById('evalBantuan').value.trim()
       };
       if(!data.studentName) return alert('Nama siswa harus diisi!');
 
       await callAPI('saveEvaluation', { evalData: data });
       alert('Evaluasi berhasil disimpan!');
       loadTeacherData();
-      
-      document.getElementById('evalStudent').value = '';
-      document.getElementById('evalCogScore').value = '';
-      document.getElementById('evalCogNote').value = '';
-      document.getElementById('evalCharScore').value = '';
-      document.getElementById('evalCharNote').value = '';
+      ['evalStudent', 'evalCog', 'evalChar', 'evalUpaya', 'evalKendala', 'evalSolusi', 'evalBantuan'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function printReport() { window.print(); }
+    // --- FITUR CETAK FORMAL ---
+    async function printReport() {
+      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      
+      // Populate Header
+      document.getElementById('printSchoolName').innerText = appSettings.schoolName || 'NAMA SEKOLAH';
+      document.getElementById('printLogo').src = appSettings.logoUrl || '';
+      document.getElementById('printTeacherName').innerText = currentUser.name;
+      document.getElementById('printSignName').innerText = `(${currentUser.name})`;
+      
+      const now = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', options);
+      document.getElementById('printAcademicYear').innerText = `${now.getFullYear()}/${now.getFullYear() + 1}`;
+
+      // Populate Content
+      let contentHtml = '';
+      if(Array.isArray(evals) && evals.length > 0) {
+        evals.forEach((e, index) => {
+          contentHtml += `
+            <div class="mb-8 ${index < evals.length - 1 ? 'print-page-break' : ''}">
+              <div class="bg-gray-50 border-l-4 border-blue-800 p-4 mb-4">
+                <h3 class="text-lg font-bold uppercase">Siswa: ${e.student}</h3>
+                <p class="text-sm text-gray-600">Kelas: ${e.class} | Tanggal Evaluasi: ${e.date}</p>
+              </div>
+              <table class="w-full border-collapse border border-gray-400 text-sm">
+                <tr>
+                  <td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td>
+                  <td class="border border-gray-400 p-2">${e.cog || '-'}</td>
+                </tr>
+                <tr>
+                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td>
+                  <td class="border border-gray-400 p-2">${e.char || '-'}</td>
+                </tr>
+                <tr>
+                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td>
+                  <td class="border border-gray-400 p-2">${e.upaya || '-'}</td>
+                </tr>
+                <tr>
+                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td>
+                  <td class="border border-gray-400 p-2">${e.kendala || '-'}</td>
+                </tr>
+                <tr>
+                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td>
+                  <td class="border border-gray-400 p-2">${e.solusi || '-'}</td>
+                </tr>
+                <tr>
+                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td>
+                  <td class="border border-gray-400 p-2">${e.bantuan || '-'}</td>
+                </tr>
+              </table>
+            </div>
+          `;
+        });
+      } else {
+        contentHtml = '<p class="text-center italic text-gray-500 mt-8">Belum ada data evaluasi yang tercatat.</p>';
+      }
+      
+      document.getElementById('printContent').innerHTML = contentHtml;
+      
+      // Trigger Print
+      setTimeout(() => window.print(), 500);
+    }
 
     async function downloadReport() {
       const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
-      let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter\n';
+      let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan\n';
       if(Array.isArray(evals)) {
         evals.forEach(e => {
-          csv += `"${e.date}","${e.student}","${e.class}","${e.cogScore} - ${e.cogNote}","${e.charScore} - ${e.charNote}"\n`;
+          csv += `"${e.date}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}"\n`;
         });
       }
       downloadCSV(csv, `Evaluasi_${currentUser.name}.csv`);
@@ -335,14 +437,13 @@
 
     async function sendToPrincipal() {
       const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
-      let text = `Laporan Evaluasi Guru: ${currentUser.name}\nSekolah: ${appSettings.schoolName}\n\n`;
+      let text = `*Laporan Evaluasi Guru*\nNama: ${currentUser.name}\nSekolah: ${appSettings.schoolName}\n\n`;
       if(Array.isArray(evals)) {
         evals.forEach(e => {
-          text += `Siswa: ${e.student} (${e.class})\nKognitif: ${e.cogScore} - ${e.cogNote}\nKarakter: ${e.charScore} - ${e.charNote}\n---\n`;
+          text += `*Siswa:* ${e.student} (${e.class})\n_Kognitif:_ ${e.cog}\n_Karakter:_ ${e.char}\n_Upaya:_ ${e.upaya}\n---\n`;
         });
       }
-      const url = `https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
+      window.open(`https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     // --- ADMIN FUNCTIONS ---
@@ -354,11 +455,8 @@
       document.getElementById('setBg').value = settings.bgUrl || '';
       document.getElementById('setPhone').value = settings.principalPhone || '';
       document.getElementById('setClasses').value = settings.classes || '';
-      
       if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
-
-      loadAdminTeachers();
-      loadAdminEvals();
+      loadAdminTeachers(); loadAdminEvals();
     }
 
     async function saveSettings() {
@@ -369,7 +467,7 @@
         principalPhone: document.getElementById('setPhone').value.trim(),
         classes: document.getElementById('setClasses').value.trim()
       };
-      await callAPI('saveSettings', { settings: settings });
+      await callAPI('saveSettings', { settings });
       alert('Pengaturan berhasil disimpan!');
       loadAdminData();
     }
@@ -380,20 +478,15 @@
       tbody.innerHTML = '';
       if(Array.isArray(teachers)) {
         teachers.forEach(t => {
-          tbody.innerHTML += `<tr>
-            <td class="p-2 border">${t.name}</td>
-            <td class="p-2 border">${t.username}</td>
-            <td class="p-2 border"><button onclick="deleteTeacher('${t.username}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">Hapus</button></td>
-          </tr>`;
+          tbody.innerHTML += `<tr><td class="p-2 border">${t.name}</td><td class="p-2 border">${t.username}</td><td class="p-2 border"><button onclick="deleteTeacher('${t.username}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">Hapus</button></td></tr>`;
         });
       }
     }
 
     async function deleteTeacher(username) {
       if(confirm('Hapus guru ini beserta semua datanya?')) {
-        await callAPI('deleteTeacher', { username: username });
-        loadAdminTeachers();
-        loadAdminEvals();
+        await callAPI('deleteTeacher', { username });
+        loadAdminTeachers(); loadAdminEvals();
       }
     }
 
@@ -403,30 +496,22 @@
       tbody.innerHTML = '';
       if(Array.isArray(evals)) {
         evals.forEach(e => {
-          tbody.innerHTML += `<tr>
-            <td class="p-2 border">${e.date}</td>
-            <td class="p-2 border">${e.teacher}</td>
-            <td class="p-2 border">${e.student}</td>
-            <td class="p-2 border">${e.class}</td>
-            <td class="p-2 border">${e.cogScore}</td>
-            <td class="p-2 border">${e.charScore}</td>
-          </tr>`;
+          tbody.innerHTML += `<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border">${e.teacher}</td><td class="p-2 border">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,30)}...</td><td class="p-2 border text-sm italic">${e.char.substring(0,30)}...</td></tr>`;
         });
       }
     }
 
     async function downloadAllReports() {
       const evals = await callAPI('getAllEvaluations');
-      let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif (Skor),Kognitif (Catatan),Karakter (Skor),Karakter (Catatan)\n';
+      let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan\n';
       if(Array.isArray(evals)) {
         evals.forEach(e => {
-          csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cogScore}","${e.cogNote}","${e.charScore}","${e.charNote}"\n`;
+          csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}"\n`;
         });
       }
       downloadCSV(csv, 'Rangkuman_Semua_Evaluasi.csv');
     }
 
-    // --- UTILITY ---
     function downloadCSV(csv, filename) {
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
