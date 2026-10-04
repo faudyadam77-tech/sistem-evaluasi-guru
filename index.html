@@ -1134,102 +1134,32 @@
                         <span class="font-semibold text-slate-800 dark:text-white text-xs block">${t.name}</span>
                         <span class="text-[10px] text-slate-400">Sandi: ${t.pass}</span>
                     </div>
+                    <button onclick="deleteTeacherAccount('${escapeHtml(t.name)}')" class="bg-rose-50 hover:bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 p-1.5 rounded-lg text-xs" title="Hapus Guru & Catatannya">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
                 </div>
             `).join('');
         }
 
-        function openAddTeacherModal() {
-            document.getElementById('modal-add-teacher').classList.remove('hidden');
-            document.getElementById('modal-add-teacher').classList.add('flex');
-        }
+        function deleteTeacherAccount(teacherName) {
+            if (!confirm(`Apakah Anda yakin ingin menghapus akun guru "${teacherName}" beserta seluruh catatan evaluasinya?`)) return;
 
-        function closeAddTeacherModal() {
-            document.getElementById('modal-add-teacher').classList.add('hidden');
-            document.getElementById('modal-add-teacher').classList.remove('flex');
-        }
-
-        function handleAdminAddTeacher(e) {
-            e.preventDefault();
-            const name = document.getElementById('new-t-name').value.trim();
-            const pass = document.getElementById('new-t-pass').value.trim();
-            if (teachersDB.some(t => t.name.toLowerCase() === name.toLowerCase())) {
-                showNotification('Nama guru sudah ada.', 'error');
-                return;
-            }
-
-            const newT = { name, pass };
-            teachersDB.push(newT);
+            // Remove from teachersDB
+            teachersDB = teachersDB.filter(t => t.name.toLowerCase() !== teacherName.toLowerCase());
             localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
-            closeAddTeacherModal();
+
+            // Remove teacher's notes from fallback storage
+            const localNotes = localStorage.getItem('eval_notes_fallback');
+            if (localNotes) {
+                let allNotes = JSON.parse(localNotes);
+                allNotes = allNotes.filter(n => n.teacher.toLowerCase() !== teacherName.toLowerCase());
+                localStorage.setItem('eval_notes_fallback', JSON.stringify(allNotes));
+            }
+
             renderAdminTeacherList();
-            showNotification('Akun guru berhasil ditambahkan.');
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
-            fetch(HARDCODED_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'registerTeacher', name: name, pass: pass })
-            });
+            syncDataFromCloud();
+            showNotification(`Akun guru ${teacherName} dan seluruh catatannya berhasil dihapus.`);
         }
 
-        function saveAdminSettings() {
-            appSettings.schoolName = document.getElementById('setting-school-name').value.trim();
-            appSettings.logoUrl = document.getElementById('setting-logo-url').value.trim();
-            appSettings.bgUrl = document.getElementById('setting-bg-url').value.trim();
-            appSettings.theme = document.getElementById('setting-theme').value;
-
-            const classesInput = document.getElementById('setting-classes').value;
-            appSettings.classes = classesInput.split(',').map(c => c.trim()).filter(Boolean);
-
-            localStorage.setItem('eval_app_settings', JSON.stringify(appSettings));
-            applySettingsToUI();
-            closeAdminSidebar();
-            showNotification('Pengaturan admin berhasil disimpan!');
-
-            if (!HARDCODED_APPS_SCRIPT_URL || HARDCODED_APPS_SCRIPT_URL.includes("AKfycnz...") && HARDCODED_APPS_SCRIPT_URL.includes("AKfycbz...")) return;
-            fetch(HARDCODED_APPS_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'saveSettings', settings: appSettings })
-            });
-        }
-
-        function applySettingsToUI() {
-            document.getElementById('header-school-name').innerText = appSettings.schoolName;
-            document.getElementById('auth-school-title').innerText = appSettings.schoolName;
-
-            const logoWrap = document.getElementById('header-logo-wrap');
-            const authLogo = document.getElementById('auth-logo-container');
-            if (appSettings.logoUrl) {
-                logoWrap.innerHTML = `<img src="${appSettings.logoUrl}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/40x40/6366f1/ffffff?text=Logo'">`;
-                authLogo.innerHTML = `<img src="${appSettings.logoUrl}" class="w-full h-full object-cover rounded-2xl" onerror="this.src='https://placehold.co/64x64/6366f1/ffffff?text=Logo'">`;
-            } else {
-                logoWrap.innerHTML = `<i class="fa-solid fa-graduation-cap text-lg"></i>`;
-                authLogo.innerHTML = `<i class="fa-solid fa-graduation-cap text-2xl"></i>`;
-            }
-
-            const banner = document.getElementById('hero-banner');
-            if (appSettings.bgUrl) {
-                banner.style.backgroundImage = `url('${appSettings.bgUrl}')`;
-            } else {
-                banner.style.backgroundImage = 'none';
-            }
-
-            const body = document.getElementById('app-body');
-            if (appSettings.theme === 'dark') {
-                body.classList.add('dark');
-            } else {
-                body.classList.remove('dark');
-            }
-
-            updateClassDropdown();
-        }
-
-        function escapeHtml(str) {
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-    </script>
-</body>
-</html>
+        function openAddTeacherModal() {
+// ... existing code ... -->
