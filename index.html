@@ -10,6 +10,12 @@
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .hidden { display: none !important; }
     
+    /* Modal Overlay */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    
     /* Print Styling */
     @media screen {
       #printArea { display: none !important; }
@@ -28,11 +34,34 @@
         background: #fff;
       }
       .no-print { display: none !important; }
-      .print-page-break { page-break-after: always; }
+      .student-card { page-break-inside: avoid; }
+      .class-header { page-break-after: avoid; }
     }
   </style>
 </head>
 <body class="bg-gray-100" id="appBody">
+
+  <!-- ========================================== -->
+  <!-- MODAL FILTER BULAN (UNTUK CETAK) -->
+  <!-- ========================================== -->
+  <div id="monthModal" class="modal-overlay hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+      <h3 class="text-xl font-bold text-gray-800 mb-1"><i class="fas fa-calendar-alt mr-2 text-blue-600"></i>Pilih Periode Cetak</h3>
+      <p class="text-sm text-gray-500 mb-4">Pilih bulan dan tahun untuk memfilter data evaluasi yang akan dicetak.</p>
+      
+      <label class="font-semibold text-gray-700 text-sm">Periode Evaluasi</label>
+      <select id="monthFilter" class="w-full p-3 border-2 border-gray-300 rounded-lg mt-1 mb-4 text-gray-700 focus:border-blue-500 focus:outline-none">
+        <option value="all">📋 Semua Periode</option>
+      </select>
+      
+      <div id="monthFilterInfo" class="text-xs text-gray-400 mb-4 italic"></div>
+      
+      <div class="flex gap-3">
+        <button onclick="closeMonthModal()" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg hover:bg-gray-300 font-semibold">Batal</button>
+        <button onclick="executePrint()" class="flex-1 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-semibold"><i class="fas fa-print mr-1"></i> Cetak</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ========================================== -->
   <!-- AREA CETAK FORMAL (HANYA MUNCUL SAAT PRINT) -->
@@ -41,20 +70,20 @@
     <div class="text-center mb-6 border-b-4 border-double border-gray-800 pb-4">
       <img id="printLogo" src="" class="h-20 mx-auto mb-2" onerror="this.style.display='none'">
       <h1 class="text-2xl font-bold uppercase tracking-wide" id="printSchoolName">NAMA SEKOLAH</h1>
-      <p class="text-lg font-semibold mt-1 uppercase">Laporan Evaluasi Perkembangan Siswa</p>
+      <p class="text-lg font-semibold mt-1 uppercase" id="printTitle">Laporan Evaluasi Perkembangan Siswa</p>
       <p class="text-sm italic">Tahun Ajaran <span id="printAcademicYear"></span></p>
     </div>
     
     <div class="mb-6 text-sm">
       <table class="border-none">
-        <tr><td class="pr-4 font-semibold">Nama Guru</td><td>: <span id="printTeacherName"></span></td></tr>
+        <tr id="printTeacherMeta"><td class="pr-4 font-semibold">Nama Guru</td><td>: <span id="printTeacherName"></span></td></tr>
+        <tr id="printAdminMeta" class="hidden"><td class="pr-4 font-semibold">Dicetak Oleh</td><td>: Administrator Sistem</td></tr>
+        <tr id="printPeriodMeta"><td class="pr-4 font-semibold">Periode</td><td>: <span id="printPeriod"></span></td></tr>
         <tr><td class="pr-4 font-semibold">Tanggal Cetak</td><td>: <span id="printDate"></span></td></tr>
       </table>
     </div>
 
-    <div id="printContent" class="text-sm leading-relaxed">
-      <!-- Konten evaluasi akan di-generate oleh JavaScript -->
-    </div>
+    <div id="printContent" class="text-sm leading-relaxed"></div>
 
     <div class="mt-16 flex justify-between text-sm">
       <div class="text-center w-1/2">
@@ -66,10 +95,10 @@
       </div>
       <div class="text-center w-1/2">
         <p>&nbsp;</p>
-        <p class="font-bold">Guru Kelas / Mata Pelajaran</p>
+        <p class="font-bold" id="printSignRole">Guru Kelas / Mata Pelajaran</p>
         <br><br><br>
         <p class="font-bold underline" id="printSignName">(...........................................)</p>
-        <p>NIP. ...................................</p>
+        <p id="printSignNip">NIP. ...................................</p>
       </div>
     </div>
   </div>
@@ -79,7 +108,10 @@
   <!-- ========================================== -->
   <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 no-print">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Sistem Evaluasi Guru</h2>
+      <div class="text-center mb-4">
+        <img id="loginLogo" src="" class="h-16 mx-auto mb-2" onerror="this.style.display='none'">
+        <h2 class="text-2xl font-bold text-gray-800" id="loginSchoolName">Sistem Evaluasi Guru</h2>
+      </div>
       <div class="flex border-b mb-4">
         <button onclick="switchLoginTab('teacher')" id="tabTeacher" class="flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600">Guru</button>
         <button onclick="switchLoginTab('admin')" id="tabAdmin" class="flex-1 py-2 text-center font-semibold text-gray-500">Admin</button>
@@ -112,12 +144,15 @@
   <!-- ========================================== -->
   <div id="teacherPage" class="hidden min-h-screen p-4 md:p-8 no-print">
     <div class="max-w-6xl mx-auto">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Dashboard Guru</h1>
+      
+      <!-- Header Sekolah -->
+      <div class="bg-white rounded-lg shadow mb-6 p-4 flex items-center gap-4">
+        <img id="teacherLogo" src="" class="h-14" onerror="this.style.display='none'">
         <div>
-          <span id="teacherGreeting" class="mr-4 text-gray-600"></span>
-          <button onclick="logout()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Logout</button>
+          <h1 class="text-xl font-bold text-gray-800" id="teacherSchoolName">Nama Sekolah</h1>
+          <p class="text-sm text-gray-500">Dashboard Evaluasi Guru — <span id="teacherGreeting"></span></p>
         </div>
+        <button onclick="logout()" class="ml-auto bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 text-sm">Logout</button>
       </div>
 
       <!-- Form Evaluasi -->
@@ -127,7 +162,6 @@
           <input type="text" id="evalStudent" placeholder="Nama Siswa" class="p-2 border rounded">
           <select id="evalClass" class="p-2 border rounded"></select>
         </div>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label>
@@ -138,7 +172,6 @@
             <textarea id="evalChar" placeholder="Catatan perkembangan karakter/akhlaq siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
           </div>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div>
             <label class="font-semibold text-gray-700">Upaya yang Sudah Dilakukan</label>
@@ -165,8 +198,8 @@
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-bold text-gray-800">Riwayat Evaluasi</h2>
           <div>
-            <button onclick="printReport()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"><i class="fas fa-print"></i> Cetak Laporan</button>
-            <button onclick="downloadReport()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 mr-2"><i class="fas fa-download"></i> Unduh CSV</button>
+            <button onclick="openMonthModal('teacher')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"><i class="fas fa-print"></i> Cetak</button>
+            <button onclick="downloadReport()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 mr-2"><i class="fas fa-download"></i> Unduh</button>
             <button onclick="sendToPrincipal()" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700"><i class="fas fa-paper-plane"></i> Kirim WA</button>
           </div>
         </div>
@@ -193,7 +226,12 @@
   <!-- ========================================== -->
   <div id="adminPage" class="hidden min-h-screen flex no-print">
     <div class="w-64 bg-gray-800 text-white p-4">
-      <h2 class="text-xl font-bold mb-6">Admin Panel</h2>
+      <!-- Header Sekolah di Sidebar -->
+      <div class="text-center mb-6 pb-4 border-b border-gray-700">
+        <img id="adminLogo" src="" class="h-14 mx-auto mb-2" onerror="this.style.display='none'">
+        <h2 class="text-lg font-bold" id="adminSchoolName">Nama Sekolah</h2>
+        <p class="text-xs text-gray-400">Admin Panel</p>
+      </div>
       <ul>
         <li class="mb-2"><button onclick="showAdminTab('settings')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-cog mr-2"></i> Pengaturan</button></li>
         <li class="mb-2"><button onclick="showAdminTab('teachers')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-users mr-2"></i> Kelola Guru</button></li>
@@ -223,7 +261,10 @@
       <div id="tabAllEvals" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-2xl font-bold">Semua Evaluasi</h2>
-          <button onclick="downloadAllReports()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"><i class="fas fa-download"></i> Unduh Rangkuman</button>
+          <div>
+            <button onclick="openMonthModal('admin')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2"><i class="fas fa-print"></i> Cetak Rangkuman</button>
+            <button onclick="downloadAllReports()" class="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"><i class="fas fa-download"></i> Unduh CSV</button>
+          </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
@@ -242,6 +283,11 @@
 
     let currentUser = null;
     let appSettings = {};
+    let printMode = 'teacher'; // 'teacher' atau 'admin'
+    let cachedTeacherEvals = [];
+    let cachedAdminEvals = [];
+
+    const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
     async function callAPI(action, payload = {}) {
       try {
@@ -252,6 +298,51 @@
       }
     }
 
+    // --- PARSE TANGGAL DARI FORMAT ID ---
+    function parseDateId(dateStr) {
+      // Format toLocaleString('id-ID'): "15/1/2025, 10.30.00" atau "15/01/2025, 10.30.00"
+      const match = String(dateStr).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (match) return { day: parseInt(match[1]), month: parseInt(match[2]), year: parseInt(match[3]) };
+      return null;
+    }
+
+    function getMonthKey(dateStr) {
+      const d = parseDateId(dateStr);
+      if (!d) return 'unknown';
+      return `${d.year}-${String(d.month).padStart(2, '0')}`;
+    }
+
+    function getMonthLabel(monthKey) {
+      if (monthKey === 'unknown') return 'Tanggal Tidak Diketahui';
+      const [y, m] = monthKey.split('-');
+      return `${BULAN_NAMES[parseInt(m)]} ${y}`;
+    }
+
+    // --- UPDATE HEADER SEKOLAH DI SEMUA HALAMAN ---
+    function updateSchoolHeaders() {
+      const name = appSettings.schoolName || 'Sistem Evaluasi Guru';
+      const logo = appSettings.logoUrl || '';
+
+      // Login Page
+      document.getElementById('loginSchoolName').innerText = name;
+      const loginLogo = document.getElementById('loginLogo');
+      loginLogo.src = logo;
+      loginLogo.style.display = logo ? 'block' : 'none';
+
+      // Teacher Dashboard
+      document.getElementById('teacherSchoolName').innerText = name;
+      const teacherLogo = document.getElementById('teacherLogo');
+      teacherLogo.src = logo;
+      teacherLogo.style.display = logo ? 'block' : 'none';
+
+      // Admin Sidebar
+      document.getElementById('adminSchoolName').innerText = name;
+      const adminLogo = document.getElementById('adminLogo');
+      adminLogo.src = logo;
+      adminLogo.style.display = logo ? 'block' : 'none';
+    }
+
+    // --- UI HELPERS ---
     function showMsg(msg, isError = false) {
       const box = document.getElementById('msgBox');
       box.innerText = msg;
@@ -282,6 +373,7 @@
       document.getElementById('adminPage').classList.add('hidden');
     }
 
+    // --- AUTH ---
     async function doRegister() {
       const name = document.getElementById('regName').value.trim();
       const user = document.getElementById('regUser').value.trim();
@@ -301,7 +393,7 @@
         currentUser = res;
         document.getElementById('loginPage').classList.add('hidden');
         document.getElementById('teacherPage').classList.remove('hidden');
-        document.getElementById('teacherGreeting').innerText = `Halo, ${res.name}`;
+        document.getElementById('teacherGreeting').innerText = res.name;
         loadTeacherData();
       } else showMsg(res.message, true);
     }
@@ -317,14 +409,22 @@
       } else showMsg(res.message, true);
     }
 
+    // --- TEACHER FUNCTIONS ---
     async function loadTeacherData() {
       const settings = await callAPI('getSettings');
       appSettings = settings;
+      updateSchoolHeaders();
+      if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
+
       const sel = document.getElementById('evalClass');
       sel.innerHTML = '';
       if(settings.classes) settings.classes.split(',').forEach(c => sel.innerHTML += `<option value="${c.trim()}">${c.trim()}</option>`);
 
-      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      cachedTeacherEvals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      renderTeacherTable(cachedTeacherEvals);
+    }
+
+    function renderTeacherTable(evals) {
       const tbody = document.getElementById('teacherEvalTable');
       tbody.innerHTML = '';
       if(Array.isArray(evals)) {
@@ -353,82 +453,180 @@
         bantuan: document.getElementById('evalBantuan').value.trim()
       };
       if(!data.studentName) return alert('Nama siswa harus diisi!');
-
       await callAPI('saveEvaluation', { evalData: data });
       alert('Evaluasi berhasil disimpan!');
       loadTeacherData();
-      ['evalStudent', 'evalCog', 'evalChar', 'evalUpaya', 'evalKendala', 'evalSolusi', 'evalBantuan'].forEach(id => document.getElementById(id).value = '');
+      ['evalStudent','evalCog','evalChar','evalUpaya','evalKendala','evalSolusi','evalBantuan'].forEach(id => document.getElementById(id).value = '');
     }
 
-    // --- FITUR CETAK FORMAL ---
-    async function printReport() {
-      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
-      
-      // Populate Header
-      document.getElementById('printSchoolName').innerText = appSettings.schoolName || 'NAMA SEKOLAH';
-      document.getElementById('printLogo').src = appSettings.logoUrl || '';
-      document.getElementById('printTeacherName').innerText = currentUser.name;
-      document.getElementById('printSignName').innerText = `(${currentUser.name})`;
-      
-      const now = new Date();
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', options);
-      document.getElementById('printAcademicYear').innerText = `${now.getFullYear()}/${now.getFullYear() + 1}`;
+    // --- MODAL FILTER BULAN ---
+    function openMonthModal(mode) {
+      printMode = mode;
+      const evals = mode === 'teacher' ? cachedTeacherEvals : cachedAdminEvals;
+      const select = document.getElementById('monthFilter');
+      select.innerHTML = '<option value="all">📋 Semua Periode</option>';
 
-      // Populate Content
-      let contentHtml = '';
-      if(Array.isArray(evals) && evals.length > 0) {
-        evals.forEach((e, index) => {
-          contentHtml += `
-            <div class="mb-8 ${index < evals.length - 1 ? 'print-page-break' : ''}">
+      // Kumpulkan bulan-tahun unik
+      const monthSet = new Set();
+      if (Array.isArray(evals)) {
+        evals.forEach(e => {
+          const key = getMonthKey(e.date);
+          if (key !== 'unknown') monthSet.add(key);
+        });
+      }
+
+      // Urutkan dari terbaru ke terlama
+      const sorted = Array.from(monthSet).sort().reverse();
+      sorted.forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = `📅 ${getMonthLabel(key)}`;
+        select.appendChild(opt);
+      });
+
+      const info = document.getElementById('monthFilterInfo');
+      info.innerText = sorted.length > 0 
+        ? `Ditemukan ${sorted.length} periode dari ${Array.isArray(evals) ? evals.length : 0} data evaluasi.` 
+        : 'Belum ada data evaluasi.';
+
+      document.getElementById('monthModal').classList.remove('hidden');
+    }
+
+    function closeMonthModal() {
+      document.getElementById('monthModal').classList.add('hidden');
+    }
+
+    function filterEvalsByMonth(evals, monthKey) {
+      if (!Array.isArray(evals)) return [];
+      if (monthKey === 'all') return evals;
+      return evals.filter(e => getMonthKey(e.date) === monthKey);
+    }
+
+    function executePrint() {
+      closeMonthModal();
+      if (printMode === 'teacher') printReport();
+      else adminPrintReport();
+    }
+
+    // --- CETAK GURU ---
+    async function printReport() {
+      const monthKey = document.getElementById('monthFilter').value;
+      const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
+      const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
+
+      document.getElementById('printSchoolName').innerText = appSettings.schoolName || 'NAMA SEKOLAH';
+      const pLogo = document.getElementById('printLogo');
+      pLogo.src = appSettings.logoUrl || '';
+      pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
+      document.getElementById('printTitle').innerText = 'Laporan Evaluasi Perkembangan Siswa';
+      document.getElementById('printPeriod').innerText = periodLabel;
+      document.getElementById('printTeacherMeta').classList.remove('hidden');
+      document.getElementById('printAdminMeta').classList.add('hidden');
+      document.getElementById('printTeacherName').innerText = currentUser.name;
+      document.getElementById('printSignRole').innerText = 'Guru Kelas / Mata Pelajaran';
+      document.getElementById('printSignName').innerText = `(${currentUser.name})`;
+      document.getElementById('printSignNip').innerText = 'NIP. ...................................';
+
+      const now = new Date();
+      document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
+      document.getElementById('printAcademicYear').innerText = `${now.getFullYear()}/${now.getFullYear()+1}`;
+
+      let html = '';
+      if(evals.length > 0) {
+        evals.forEach((e, i) => {
+          html += `
+            <div class="mb-8 ${i < evals.length-1 ? 'print-page-break' : ''}">
               <div class="bg-gray-50 border-l-4 border-blue-800 p-4 mb-4">
                 <h3 class="text-lg font-bold uppercase">Siswa: ${e.student}</h3>
-                <p class="text-sm text-gray-600">Kelas: ${e.class} | Tanggal Evaluasi: ${e.date}</p>
+                <p class="text-sm text-gray-600">Kelas: ${e.class} | Tanggal: ${e.date}</p>
               </div>
               <table class="w-full border-collapse border border-gray-400 text-sm">
-                <tr>
-                  <td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td>
-                  <td class="border border-gray-400 p-2">${e.cog || '-'}</td>
-                </tr>
-                <tr>
-                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td>
-                  <td class="border border-gray-400 p-2">${e.char || '-'}</td>
-                </tr>
-                <tr>
-                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td>
-                  <td class="border border-gray-400 p-2">${e.upaya || '-'}</td>
-                </tr>
-                <tr>
-                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td>
-                  <td class="border border-gray-400 p-2">${e.kendala || '-'}</td>
-                </tr>
-                <tr>
-                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td>
-                  <td class="border border-gray-400 p-2">${e.solusi || '-'}</td>
-                </tr>
-                <tr>
-                  <td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td>
-                  <td class="border border-gray-400 p-2">${e.bantuan || '-'}</td>
-                </tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td><td class="border border-gray-400 p-2">${e.cog||'-'}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td><td class="border border-gray-400 p-2">${e.char||'-'}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td><td class="border border-gray-400 p-2">${e.upaya||'-'}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td><td class="border border-gray-400 p-2">${e.kendala||'-'}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td><td class="border border-gray-400 p-2">${e.solusi||'-'}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td><td class="border border-gray-400 p-2">${e.bantuan||'-'}</td></tr>
               </table>
-            </div>
-          `;
+            </div>`;
         });
       } else {
-        contentHtml = '<p class="text-center italic text-gray-500 mt-8">Belum ada data evaluasi yang tercatat.</p>';
+        html = '<p class="text-center italic text-gray-500 mt-8">Tidak ada data evaluasi pada periode ini.</p>';
       }
-      
-      document.getElementById('printContent').innerHTML = contentHtml;
-      
-      // Trigger Print
+      document.getElementById('printContent').innerHTML = html;
       setTimeout(() => window.print(), 500);
     }
 
+    // --- CETAK ADMIN ---
+    async function adminPrintReport() {
+      const monthKey = document.getElementById('monthFilter').value;
+      const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
+      const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
+
+      document.getElementById('printSchoolName').innerText = appSettings.schoolName || 'NAMA SEKOLAH';
+      const pLogo = document.getElementById('printLogo');
+      pLogo.src = appSettings.logoUrl || '';
+      pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
+      document.getElementById('printTitle').innerText = 'Laporan Rangkuman Evaluasi Keseluruhan';
+      document.getElementById('printPeriod').innerText = periodLabel;
+      document.getElementById('printTeacherMeta').classList.add('hidden');
+      document.getElementById('printAdminMeta').classList.remove('hidden');
+      document.getElementById('printSignRole').innerText = 'Admin / Operator Sekolah';
+      document.getElementById('printSignName').innerText = '(........................................... )';
+      document.getElementById('printSignNip').innerText = 'NIP. ...................................';
+
+      const now = new Date();
+      document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
+      document.getElementById('printAcademicYear').innerText = `${now.getFullYear()}/${now.getFullYear()+1}`;
+
+      // Grouping: Kelas -> Guru -> Siswa
+      const grouped = {};
+      evals.forEach(e => {
+        const cls = e.class || 'Tanpa Kelas';
+        const teacher = e.teacher || 'Guru Tidak Diketahui';
+        if (!grouped[cls]) grouped[cls] = {};
+        if (!grouped[cls][teacher]) grouped[cls][teacher] = [];
+        grouped[cls][teacher].push(e);
+      });
+
+      let html = '';
+      const sortedClasses = Object.keys(grouped).sort((a,b) => a.localeCompare(b, 'id', { numeric: true }));
+      if (sortedClasses.length === 0) {
+        html = '<p class="text-center italic text-gray-500 mt-8">Tidak ada data evaluasi pada periode ini.</p>';
+      } else {
+        sortedClasses.forEach(cls => {
+          html += `<h2 class="text-xl font-bold mt-8 mb-3 border-b-2 border-gray-800 pb-1 uppercase class-header">Kelas: ${cls}</h2>`;
+          Object.keys(grouped[cls]).sort().forEach(teacher => {
+            html += `<h3 class="text-lg font-semibold mt-4 mb-2 text-gray-700 class-header">Guru: ${teacher}</h3>`;
+            grouped[cls][teacher].forEach(e => {
+              html += `
+                <div class="mb-4 border border-gray-300 rounded p-3 text-xs student-card">
+                  <div class="flex justify-between items-center mb-1">
+                    <div class="font-bold text-sm">${e.student}</div>
+                    <div class="text-gray-500">${e.date}</div>
+                  </div>
+                  <table class="w-full border-collapse border border-gray-200">
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50 w-1/5">Kognitif</td><td class="border border-gray-200 p-1">${e.cog||'-'}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Karakter</td><td class="border border-gray-200 p-1">${e.char||'-'}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Upaya</td><td class="border border-gray-200 p-1">${e.upaya||'-'}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Kendala</td><td class="border border-gray-200 p-1">${e.kendala||'-'}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Solusi</td><td class="border border-gray-200 p-1">${e.solusi||'-'}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Bantuan</td><td class="border border-gray-200 p-1">${e.bantuan||'-'}</td></tr>
+                  </table>
+                </div>`;
+            });
+          });
+        });
+      }
+      document.getElementById('printContent').innerHTML = html;
+      setTimeout(() => window.print(), 500);
+    }
+
+    // --- DOWNLOAD & SEND ---
     async function downloadReport() {
-      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
       let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan\n';
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
+      if(Array.isArray(cachedTeacherEvals)) {
+        cachedTeacherEvals.forEach(e => {
           csv += `"${e.date}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}"\n`;
         });
       }
@@ -436,10 +634,9 @@
     }
 
     async function sendToPrincipal() {
-      const evals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
       let text = `*Laporan Evaluasi Guru*\nNama: ${currentUser.name}\nSekolah: ${appSettings.schoolName}\n\n`;
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
+      if(Array.isArray(cachedTeacherEvals)) {
+        cachedTeacherEvals.forEach(e => {
           text += `*Siswa:* ${e.student} (${e.class})\n_Kognitif:_ ${e.cog}\n_Karakter:_ ${e.char}\n_Upaya:_ ${e.upaya}\n---\n`;
         });
       }
@@ -450,13 +647,15 @@
     async function loadAdminData() {
       const settings = await callAPI('getSettings');
       appSettings = settings;
+      updateSchoolHeaders();
       document.getElementById('setSchoolName').value = settings.schoolName || '';
       document.getElementById('setLogo').value = settings.logoUrl || '';
       document.getElementById('setBg').value = settings.bgUrl || '';
       document.getElementById('setPhone').value = settings.principalPhone || '';
       document.getElementById('setClasses').value = settings.classes || '';
       if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
-      loadAdminTeachers(); loadAdminEvals();
+      loadAdminTeachers();
+      loadAdminEvals();
     }
 
     async function saveSettings() {
@@ -491,21 +690,20 @@
     }
 
     async function loadAdminEvals() {
-      const evals = await callAPI('getAllEvaluations');
+      cachedAdminEvals = await callAPI('getAllEvaluations');
       const tbody = document.getElementById('adminEvalsTable');
       tbody.innerHTML = '';
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
+      if(Array.isArray(cachedAdminEvals)) {
+        cachedAdminEvals.forEach(e => {
           tbody.innerHTML += `<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border">${e.teacher}</td><td class="p-2 border">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,30)}...</td><td class="p-2 border text-sm italic">${e.char.substring(0,30)}...</td></tr>`;
         });
       }
     }
 
     async function downloadAllReports() {
-      const evals = await callAPI('getAllEvaluations');
       let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan\n';
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
+      if(Array.isArray(cachedAdminEvals)) {
+        cachedAdminEvals.forEach(e => {
           csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}"\n`;
         });
       }
