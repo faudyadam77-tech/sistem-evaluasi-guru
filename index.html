@@ -30,6 +30,7 @@
         const HARDCODED_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0EhbgwVyTVO-ctpKFK-_mVPUJGWMOsYJqEw7bahiKNptHvIab5SAelc_eQpRifKil/exec";
     </script>
 
+    <!-- Authentication View (Modal Login / Register) -->
     <div id="auth-view" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 p-8 space-y-6">
             <div class="text-center space-y-2">
@@ -83,6 +84,7 @@
         </div>
     </div>
 
+    <!-- Main Header -->
     <header class="bg-indigo-700 dark:bg-slate-900 text-white shadow-md sticky top-0 z-40 transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-4 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center space-x-3">
@@ -346,7 +348,7 @@
                 </h3>
                 <button onclick="closeAdminSecurityModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan PIN khusus administrator untuk mengatur daftar kelas dan identitas sekolah.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan PIN khusus administrator (22341) untuk membuka panel pengaturan.</p>
             <form onsubmit="verifyAdminPIN(event)" class="space-y-3">
                 <input type="password" id="admin-pin-input" required placeholder="Masukkan PIN Admin" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm shadow-md transition-all">
@@ -469,12 +471,22 @@
         };
 
         let teachersDB = [];
-        let currentTeacher = JSON.parse(localStorage.getItem('eval_current_teacher')) || null;
+        let currentTeacher = null;
         let evaluations = [];
 
         window.addEventListener('DOMContentLoaded', () => {
+            // Perbaikan: Ambil session guru dari localStorage hanya jika benar-benar tersimpan valid
+            const savedTeacher = localStorage.getItem('eval_current_teacher');
+            if (savedTeacher && savedTeacher !== "null" && savedTeacher !== "undefined") {
+                try {
+                    currentTeacher = JSON.parse(savedTeacher);
+                } catch(e) {
+                    currentTeacher = null;
+                }
+            }
+
             syncDataFromCloud(() => {
-                if (currentTeacher) {
+                if (currentTeacher && currentTeacher.name) {
                     const verified = teachersDB.find(t => t.name.toLowerCase() === currentTeacher.name.toLowerCase());
                     if (verified) {
                         currentTeacher = verified;
@@ -485,6 +497,7 @@
                         logout();
                     }
                 } else {
+                    // Pastikan modal login/register tampil jika belum ada sesi login
                     document.getElementById('auth-view').classList.remove('hidden');
                 }
             });
@@ -541,7 +554,6 @@
 
             const newT = { name, pass };
 
-            // Selalu simpan ke local fallback agar langsung bisa digunakan
             const existingIdx = teachersDB.findIndex(t => t.name.toLowerCase() === name.toLowerCase());
             if (existingIdx >= 0) {
                 teachersDB[existingIdx] = newT;
@@ -555,7 +567,6 @@
                 return;
             }
 
-            // Kirim request ke Google Apps Script menggunakan teknik GET query parameter untuk menghindari masalah CORS POST
             const url = `${HARDCODED_APPS_SCRIPT_URL}?action=registerTeacher&name=${encodeURIComponent(name)}&pass=${encodeURIComponent(pass)}`;
             
             fetch(url)
@@ -564,15 +575,16 @@
                     finishRegistration(newT);
                 })
                 .catch(err => {
-                    // Walaupun server terhalang CORS, fallback lokal tetap sukses mendaftarkan akun
                     finishRegistration(newT);
                 });
         }
 
         function finishRegistration(newT) {
             const btn = document.getElementById('btn-reg-submit');
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Daftar & Masuk`;
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-user-plus"></i> Daftar & Masuk`;
+            }
 
             currentTeacher = newT;
             localStorage.setItem('eval_current_teacher', JSON.stringify(currentTeacher));
@@ -637,7 +649,7 @@
             
             const localNotes = localStorage.getItem('eval_notes_fallback');
             const allNotes = localNotes ? JSON.parse(localNotes) : [];
-            evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : allNotes;
+            evaluations = currentTeacher ? allNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : [];
             
             const localSettings = localStorage.getItem('eval_app_settings');
             if (localSettings) { try { appSettings = JSON.parse(localSettings); } catch(e) {} }
@@ -656,7 +668,7 @@
                     if (res.status === 'success') {
                         let cloudNotes = res.data || [];
                         if (cloudNotes.length > 0) {
-                            evaluations = currentTeacher ? cloudNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : cloudNotes;
+                            evaluations = currentTeacher ? cloudNotes.filter(n => n.teacher.toLowerCase() === currentTeacher.name.toLowerCase()) : [];
                             localStorage.setItem('eval_notes_fallback', JSON.stringify(cloudNotes));
                         }
                         
@@ -968,7 +980,7 @@
 
         function getAllStoredNotes() {
             const local = localStorage.getItem('eval_notes_fallback');
-            return local ? JSON.parse(local) : evaluations;
+            return local ? JSON.parse(local) : [];
         }
 
         function adminExportAllCSV() {
@@ -1186,6 +1198,7 @@
             teachersDB.push(newT);
             localStorage.setItem('eval_teachers_db', JSON.stringify(teachersDB));
             renderAdminTeacherList();
+            closeAddTeacherManager(); // safely closed
             closeAddTeacherModal();
             showNotification(`Guru ${name} berhasil ditambahkan.`);
 
