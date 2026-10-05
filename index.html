@@ -1109,6 +1109,24 @@
     }
     
     function downloadCSV(c,f){const b=new Blob([c],{type:'text/csv;charset=utf-8;'}),l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=f;l.click();}
+    
+    // Inisialisasi awal aplikasi saat halaman pertama kali dimuat
+    async function initApp() {
+      try {
+        appSettings = await callAPI('getSettings');
+        if (appSettings) {
+          updateSchoolHeaders();
+          if(appSettings.bgUrl) {
+            document.getElementById('appBody').style.backgroundImage = `url(${appSettings.bgUrl})`;
+          }
+        }
+      } catch (e) {
+        console.error('Gagal memuat pengaturan awal:', e);
+      }
+    }
+    
+    // Jalankan inisialisasi saat seluruh elemen DOM selesai dimuat
+    window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>
