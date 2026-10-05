@@ -292,21 +292,15 @@
       }
     }
 
-    // --- HELPER: TAHUN AJARAN ---
     function getAcademicYear() {
-      // Ambil dari settings, jika kosong gunakan fallback otomatis
       if (appSettings.academicYear && appSettings.academicYear.trim() !== '') {
         return appSettings.academicYear.trim();
       }
-      // Fallback: hitung otomatis berdasarkan bulan saat ini
       const now = new Date();
-      const month = now.getMonth() + 1; // 0-11
+      const month = now.getMonth() + 1;
       const year = now.getFullYear();
-      if (month >= 7) { // Juli-Desember
-        return `${year}/${year + 1}`;
-      } else { // Januari-Juni
-        return `${year - 1}/${year}`;
-      }
+      if (month >= 7) return `${year}/${year + 1}`;
+      else return `${year - 1}/${year}`;
     }
 
     function parseDateId(dateStr) {
@@ -461,7 +455,6 @@
       ['evalStudent','evalCog','evalChar','evalUpaya','evalKendala','evalSolusi','evalBantuan'].forEach(id => document.getElementById(id).value = '');
     }
 
-    // --- MODAL FILTER ---
     function openMonthModal(mode) {
       printMode = mode;
       const evals = mode === 'teacher' ? cachedTeacherEvals : cachedAdminEvals;
@@ -522,7 +515,6 @@
       }
     }
 
-    // --- CETAK GURU ---
     function printReport(monthKey) {
       const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
@@ -532,7 +524,7 @@
       pLogo.src = appSettings.logoUrl || '';
       pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
       document.getElementById('printTitle').innerText = 'Laporan Evaluasi Perkembangan Siswa';
-      document.getElementById('printAcademicYear').innerText = getAcademicYear(); // GUNAKAN FUNGSI HELPER
+      document.getElementById('printAcademicYear').innerText = getAcademicYear();
       document.getElementById('printPeriod').innerText = periodLabel;
       document.getElementById('printTeacherMeta').classList.remove('hidden');
       document.getElementById('printAdminMeta').classList.add('hidden');
@@ -570,7 +562,6 @@
       setTimeout(() => window.print(), 500);
     }
 
-    // --- CETAK ADMIN ---
     function adminPrintReport(monthKey) {
       const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
@@ -580,7 +571,7 @@
       pLogo.src = appSettings.logoUrl || '';
       pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
       document.getElementById('printTitle').innerText = 'Laporan Rangkuman Evaluasi Keseluruhan';
-      document.getElementById('printAcademicYear').innerText = getAcademicYear(); // GUNAKAN FUNGSI HELPER
+      document.getElementById('printAcademicYear').innerText = getAcademicYear();
       document.getElementById('printPeriod').innerText = periodLabel;
       document.getElementById('printTeacherMeta').classList.add('hidden');
       document.getElementById('printAdminMeta').classList.remove('hidden');
@@ -633,7 +624,6 @@
       setTimeout(() => window.print(), 500);
     }
 
-    // --- DOWNLOAD CSV ---
     function downloadReport(monthKey) {
       const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua_Periode' : getMonthLabel(monthKey).replace(' ', '_');
@@ -695,7 +685,7 @@
       window.open(url, '_blank');
     }
 
-    // --- KIRIM VIA WHATSAPP (MODE ADMIN) ---
+    // --- KIRIM VIA WHATSAPP (MODE ADMIN) - LENGKAP TANPA POTONGAN ---
     function sendWAAdminReport(monthKey) {
       const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
@@ -728,9 +718,13 @@
           Object.keys(grouped[cls]).sort().forEach(teacher => {
             text += `👨‍🏫 _Guru: ${teacher}_\n`;
             grouped[cls][teacher].forEach(e => {
-              text += `  • *${e.student}* (${e.date})\n`;
-              if (e.cog) text += `    📚 ${e.cog.substring(0, 100)}${e.cog.length > 100 ? '...' : ''}\n`;
-              if (e.char) text += `    🌱 ${e.char.substring(0, 100)}${e.char.length > 100 ? '...' : ''}\n`;
+              text += `\n  • *${e.student}* (${e.date})\n`;
+              if (e.cog) text += `    📚 _Kognitif:_ ${e.cog}\n`;
+              if (e.char) text += `    🌱 _Karakter:_ ${e.char}\n`;
+              if (e.upaya) text += `    💪 _Upaya:_ ${e.upaya}\n`;
+              if (e.kendala) text += `    ⚠️ _Kendala:_ ${e.kendala}\n`;
+              if (e.solusi) text += `    ✅ _Solusi:_ ${e.solusi}\n`;
+              if (e.bantuan) text += `    🤝 _Bantuan:_ ${e.bantuan}\n`;
             });
             text += `\n`;
           });
@@ -755,7 +749,7 @@
       document.getElementById('setBg').value = settings.bgUrl || '';
       document.getElementById('setPhone').value = settings.principalPhone || '';
       document.getElementById('setClasses').value = settings.classes || '';
-      document.getElementById('setAcademicYear').value = settings.academicYear || ''; // BARU
+      document.getElementById('setAcademicYear').value = settings.academicYear || '';
       if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
       loadAdminTeachers();
       loadAdminEvals();
@@ -768,7 +762,7 @@
         bgUrl: document.getElementById('setBg').value.trim(),
         principalPhone: document.getElementById('setPhone').value.trim(),
         classes: document.getElementById('setClasses').value.trim(),
-        academicYear: document.getElementById('setAcademicYear').value.trim() // BARU
+        academicYear: document.getElementById('setAcademicYear').value.trim()
       };
       await callAPI('saveSettings', { settings });
       alert('Pengaturan berhasil disimpan!');
