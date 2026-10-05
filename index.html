@@ -15,6 +15,40 @@
       display: flex; align-items: center; justify-content: center; z-index: 9999;
     }
     
+    .file-upload-area {
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background: #f8fafc;
+    }
+    .file-upload-area:hover { border-color: #3b82f6; background: #eff6ff; }
+    .file-upload-area.has-file { border-color: #10b981; background: #f0fdf4; }
+    
+    .file-preview {
+      max-width: 200px;
+      max-height: 150px;
+      margin: 8px auto;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .upload-progress {
+      width: 100%;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .upload-progress-bar {
+      height: 100%;
+      background: #3b82f6;
+      transition: width 0.3s;
+    }
+    
     @media screen {
       #printArea { display: none !important; }
     }
@@ -34,6 +68,8 @@
       .no-print { display: none !important; }
       .student-card { page-break-inside: avoid; }
       .class-header { page-break-after: avoid; }
+      .print-image { max-width: 100%; height: auto; margin: 8px 0; border: 1px solid #ddd; }
+      .print-file-link { color: #2563eb; text-decoration: underline; }
     }
   </style>
 </head>
@@ -160,35 +196,80 @@
           <input type="text" id="evalStudent" placeholder="Nama Siswa" class="p-2 border rounded">
           <select id="evalClass" class="p-2 border rounded"></select>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label>
-            <textarea id="evalCog" placeholder="Catatan perkembangan kognitif/akademik siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
-          </div>
-          <div>
-            <label class="font-semibold text-gray-700">Perkembangan Karakter/Akhlaq</label>
-            <textarea id="evalChar" placeholder="Catatan perkembangan karakter/akhlaq siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label class="font-semibold text-gray-700">Upaya yang Sudah Dilakukan</label>
-            <textarea id="evalUpaya" placeholder="Upaya yang telah dilakukan guru untuk siswa ini..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          </div>
-          <div>
-            <label class="font-semibold text-gray-700">Kendala/Masalah yang Dihadapi</label>
-            <textarea id="evalKendala" placeholder="Kendala atau masalah yang dihadapi..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          </div>
-          <div>
-            <label class="font-semibold text-gray-700">Solusi Tindak Lanjut</label>
-            <textarea id="evalSolusi" placeholder="Solusi dan rencana tindak lanjut..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          </div>
-          <div>
-            <label class="font-semibold text-gray-700">Kebutuhan Bantuan</label>
-            <textarea id="evalBantuan" placeholder="Bantuan yang dibutuhkan dari Kepsek/Rekan Guru..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+        
+        <!-- KOGNITIF -->
+        <div class="mb-4">
+          <label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label>
+          <textarea id="evalCog" placeholder="Catatan perkembangan kognitif/akademik siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
+          <div id="uploadCog" class="file-upload-area mt-2" onclick="document.getElementById('fileCog').click()">
+            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
+            <input type="file" id="fileCog" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'cog')">
+            <div id="previewCog"></div>
           </div>
         </div>
-        <button onclick="saveEval()" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">Simpan Evaluasi</button>
+        
+        <!-- KARAKTER -->
+        <div class="mb-4">
+          <label class="font-semibold text-gray-700">Perkembangan Karakter/Akhlaq</label>
+          <textarea id="evalChar" placeholder="Catatan perkembangan karakter/akhlaq siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
+          <div id="uploadChar" class="file-upload-area mt-2" onclick="document.getElementById('fileChar').click()">
+            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
+            <input type="file" id="fileChar" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'char')">
+            <div id="previewChar"></div>
+          </div>
+        </div>
+        
+        <!-- UPAYA -->
+        <div class="mb-4">
+          <label class="font-semibold text-gray-700">Upaya yang Sudah Dilakukan</label>
+          <textarea id="evalUpaya" placeholder="Upaya yang telah dilakukan guru untuk siswa ini..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          <div id="uploadUpaya" class="file-upload-area mt-2" onclick="document.getElementById('fileUpaya').click()">
+            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
+            <input type="file" id="fileUpaya" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'upaya')">
+            <div id="previewUpaya"></div>
+          </div>
+        </div>
+        
+        <!-- KENDALA -->
+        <div class="mb-4">
+          <label class="font-semibold text-gray-700">Kendala/Masalah yang Dihadapi</label>
+          <textarea id="evalKendala" placeholder="Kendala atau masalah yang dihadapi..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          <div id="uploadKendala" class="file-upload-area mt-2" onclick="document.getElementById('fileKendala').click()">
+            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
+            <input type="file" id="fileKendala" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'kendala')">
+            <div id="previewKendala"></div>
+          </div>
+        </div>
+        
+        <!-- SOLUSI -->
+        <div class="mb-4">
+          <label class="font-semibold text-gray-700">Solusi Tindak Lanjut</label>
+          <textarea id="evalSolusi" placeholder="Solusi dan rencana tindak lanjut..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          <div id="uploadSolusi" class="file-upload-area mt-2" onclick="document.getElementById('fileSolusi').click()">
+            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
+            <input type="file" id="fileSolusi" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'solusi')">
+            <div id="previewSolusi"></div>
+          </div>
+        </div>
+        
+        <!-- BANTUAN -->
+        <div class="mb-4">
+          <label class="font-semibold text-gray-700">Kebutuhan Bantuan</label>
+          <textarea id="evalBantuan" placeholder="Bantuan yang dibutuhkan dari Kepsek/Rekan Guru..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
+          <div id="uploadBantuan" class="file-upload-area mt-2" onclick="document.getElementById('fileBantuan').click()">
+            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
+            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
+            <input type="file" id="fileBantuan" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'bantuan')">
+            <div id="previewBantuan"></div>
+          </div>
+        </div>
+        
+        <button onclick="saveEval()" id="btnSaveEval" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">Simpan Evaluasi</button>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow">
@@ -207,6 +288,7 @@
                 <th class="p-2 border">Kelas</th>
                 <th class="p-2 border">Kognitif</th>
                 <th class="p-2 border">Karakter</th>
+                <th class="p-2 border">File</th>
               </tr>
             </thead>
             <tbody id="teacherEvalTable"></tbody>
@@ -280,8 +362,10 @@
     let printMode = 'teacher';
     let cachedTeacherEvals = [];
     let cachedAdminEvals = [];
+    let uploadedFiles = {}; // Store uploaded file URLs
 
     const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     async function callAPI(action, payload = {}) {
       try {
@@ -406,6 +490,84 @@
       } else showMsg(res.message, true);
     }
 
+    // --- FILE UPLOAD HANDLER ---
+    async function handleFileUpload(input, field) {
+      const file = input.files[0];
+      if (!file) return;
+
+      if (file.size > MAX_FILE_SIZE) {
+        alert('Ukuran file maksimal 10MB!');
+        input.value = '';
+        return;
+      }
+
+      const previewDiv = document.getElementById(`preview${field.charAt(0).toUpperCase() + field.slice(1)}`);
+      const uploadArea = document.getElementById(`upload${field.charAt(0).toUpperCase() + field.slice(1)}`);
+
+      // Show loading
+      previewDiv.innerHTML = `
+        <div class="mt-2">
+          <p class="text-sm text-blue-600"><i class="fas fa-spinner fa-spin"></i> Mengupload ${file.name}...</p>
+          <div class="upload-progress"><div class="upload-progress-bar" style="width: 0%"></div></div>
+        </div>
+      `;
+
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const base64 = e.target.result;
+        
+        // Upload to server
+        const res = await callAPI('uploadFile', {
+          fileData: base64,
+          filename: file.name,
+          username: currentUser.username
+        });
+
+        if (res.success) {
+          uploadedFiles[field] = {
+            url: res.url,
+            downloadUrl: res.downloadUrl,
+            isImage: res.isImage,
+            filename: res.filename
+          };
+
+          // Show preview
+          if (res.isImage) {
+            previewDiv.innerHTML = `
+              <img src="${res.url}" class="file-preview" alt="${res.filename}">
+              <p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${res.filename}</p>
+              <button onclick="removeFile('${field}')" class="text-xs text-red-600 hover:underline mt-1"><i class="fas fa-times"></i> Hapus</button>
+            `;
+          } else {
+            previewDiv.innerHTML = `
+              <div class="mt-2 p-2 bg-white rounded border">
+                <i class="fas fa-file text-2xl text-gray-600"></i>
+                <p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${res.filename}</p>
+                <button onclick="removeFile('${field}')" class="text-xs text-red-600 hover:underline mt-1"><i class="fas fa-times"></i> Hapus</button>
+              </div>
+            `;
+          }
+          uploadArea.classList.add('has-file');
+        } else {
+          previewDiv.innerHTML = `<p class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle"></i> Gagal upload: ${res.message}</p>`;
+          uploadArea.classList.remove('has-file');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function removeFile(field) {
+      delete uploadedFiles[field];
+      const previewDiv = document.getElementById(`preview${field.charAt(0).toUpperCase() + field.slice(1)}`);
+      const uploadArea = document.getElementById(`upload${field.charAt(0).toUpperCase() + field.slice(1)}`);
+      const fileInput = document.getElementById(`file${field.charAt(0).toUpperCase() + field.slice(1)}`);
+      
+      previewDiv.innerHTML = '';
+      uploadArea.classList.remove('has-file');
+      fileInput.value = '';
+    }
+
     async function loadTeacherData() {
       const settings = await callAPI('getSettings');
       appSettings = settings;
@@ -425,12 +587,14 @@
       tbody.innerHTML = '';
       if(Array.isArray(evals)) {
         evals.forEach(e => {
+          const fileCount = [e.fileCog, e.fileChar, e.fileUpaya, e.fileKendala, e.fileSolusi, e.fileBantuan].filter(f => f && f.trim() !== '').length;
           tbody.innerHTML += `<tr>
             <td class="p-2 border text-sm">${e.date}</td>
             <td class="p-2 border font-semibold">${e.student}</td>
             <td class="p-2 border">${e.class}</td>
             <td class="p-2 border text-sm italic">${e.cog.substring(0, 50)}${e.cog.length > 50 ? '...' : ''}</td>
             <td class="p-2 border text-sm italic">${e.char.substring(0, 50)}${e.char.length > 50 ? '...' : ''}</td>
+            <td class="p-2 border text-center">${fileCount > 0 ? `<i class="fas fa-paperclip text-blue-600"></i> ${fileCount}` : '-'}</td>
           </tr>`;
         });
       }
@@ -446,13 +610,34 @@
         upaya: document.getElementById('evalUpaya').value.trim(),
         kendala: document.getElementById('evalKendala').value.trim(),
         solusi: document.getElementById('evalSolusi').value.trim(),
-        bantuan: document.getElementById('evalBantuan').value.trim()
+        bantuan: document.getElementById('evalBantuan').value.trim(),
+        fileCog: uploadedFiles.cog ? uploadedFiles.cog.url : '',
+        fileChar: uploadedFiles.char ? uploadedFiles.char.url : '',
+        fileUpaya: uploadedFiles.upaya ? uploadedFiles.upaya.url : '',
+        fileKendala: uploadedFiles.kendala ? uploadedFiles.kendala.url : '',
+        fileSolusi: uploadedFiles.solusi ? uploadedFiles.solusi.url : '',
+        fileBantuan: uploadedFiles.bantuan ? uploadedFiles.bantuan.url : ''
       };
       if(!data.studentName) return alert('Nama siswa harus diisi!');
+
+      const btn = document.getElementById('btnSaveEval');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
       await callAPI('saveEvaluation', { evalData: data });
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Simpan Evaluasi';
+      
       alert('Evaluasi berhasil disimpan!');
       loadTeacherData();
+      
+      // Reset form
       ['evalStudent','evalCog','evalChar','evalUpaya','evalKendala','evalSolusi','evalBantuan'].forEach(id => document.getElementById(id).value = '');
+      ['cog','char','upaya','kendala','solusi','bantuan'].forEach(field => {
+        removeFile(field);
+      });
+      uploadedFiles = {};
     }
 
     function openMonthModal(mode) {
@@ -515,6 +700,18 @@
       }
     }
 
+    // --- HELPER: GENERATE FILE HTML FOR PRINT ---
+    function generateFileHtml(fileUrl, label) {
+      if (!fileUrl || fileUrl.trim() === '') return '';
+      
+      const isImage = fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+      if (isImage) {
+        return `<div class="mt-2"><p class="text-xs font-semibold text-gray-600 mb-1">${label}:</p><img src="${fileUrl}" class="print-image" alt="Bukti"></div>`;
+      } else {
+        return `<div class="mt-2"><p class="text-xs font-semibold text-gray-600 mb-1">${label}:</p><a href="${fileUrl}" target="_blank" class="print-file-link"><i class="fas fa-download"></i> Download Dokumen</a></div>`;
+      }
+    }
+
     function printReport(monthKey) {
       const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
@@ -546,12 +743,12 @@
                 <p class="text-sm text-gray-600">Kelas: ${e.class} | Tanggal: ${e.date}</p>
               </div>
               <table class="w-full border-collapse border border-gray-400 text-sm">
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td><td class="border border-gray-400 p-2">${e.cog||'-'}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td><td class="border border-gray-400 p-2">${e.char||'-'}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td><td class="border border-gray-400 p-2">${e.upaya||'-'}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td><td class="border border-gray-400 p-2">${e.kendala||'-'}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td><td class="border border-gray-400 p-2">${e.solusi||'-'}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td><td class="border border-gray-400 p-2">${e.bantuan||'-'}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td><td class="border border-gray-400 p-2">${e.cog||'-'}${generateFileHtml(e.fileCog, 'Bukti Kognitif')}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td><td class="border border-gray-400 p-2">${e.char||'-'}${generateFileHtml(e.fileChar, 'Bukti Karakter')}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td><td class="border border-gray-400 p-2">${e.upaya||'-'}${generateFileHtml(e.fileUpaya, 'Bukti Upaya')}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td><td class="border border-gray-400 p-2">${e.kendala||'-'}${generateFileHtml(e.fileKendala, 'Bukti Kendala')}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td><td class="border border-gray-400 p-2">${e.solusi||'-'}${generateFileHtml(e.fileSolusi, 'Bukti Solusi')}</td></tr>
+                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td><td class="border border-gray-400 p-2">${e.bantuan||'-'}${generateFileHtml(e.fileBantuan, 'Bukti Bantuan')}</td></tr>
               </table>
             </div>`;
         });
@@ -608,12 +805,12 @@
                     <div class="text-gray-500">${e.date}</div>
                   </div>
                   <table class="w-full border-collapse border border-gray-200">
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50 w-1/5">Kognitif</td><td class="border border-gray-200 p-1">${e.cog||'-'}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Karakter</td><td class="border border-gray-200 p-1">${e.char||'-'}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Upaya</td><td class="border border-gray-200 p-1">${e.upaya||'-'}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Kendala</td><td class="border border-gray-200 p-1">${e.kendala||'-'}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Solusi</td><td class="border border-gray-200 p-1">${e.solusi||'-'}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Bantuan</td><td class="border border-gray-200 p-1">${e.bantuan||'-'}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50 w-1/5">Kognitif</td><td class="border border-gray-200 p-1">${e.cog||'-'}${generateFileHtml(e.fileCog, 'Bukti')}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Karakter</td><td class="border border-gray-200 p-1">${e.char||'-'}${generateFileHtml(e.fileChar, 'Bukti')}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Upaya</td><td class="border border-gray-200 p-1">${e.upaya||'-'}${generateFileHtml(e.fileUpaya, 'Bukti')}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Kendala</td><td class="border border-gray-200 p-1">${e.kendala||'-'}${generateFileHtml(e.fileKendala, 'Bukti')}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Solusi</td><td class="border border-gray-200 p-1">${e.solusi||'-'}${generateFileHtml(e.fileSolusi, 'Bukti')}</td></tr>
+                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Bantuan</td><td class="border border-gray-200 p-1">${e.bantuan||'-'}${generateFileHtml(e.fileBantuan, 'Bukti')}</td></tr>
                   </table>
                 </div>`;
             });
@@ -627,10 +824,10 @@
     function downloadReport(monthKey) {
       const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua_Periode' : getMonthLabel(monthKey).replace(' ', '_');
-      let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan\n';
+      let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan,File Kognitif,File Karakter,File Upaya,File Kendala,File Solusi,File Bantuan\n';
       if(Array.isArray(evals)) {
         evals.forEach(e => {
-          csv += `"${e.date}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}"\n`;
+          csv += `"${e.date}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}","${e.fileCog}","${e.fileChar}","${e.fileUpaya}","${e.fileKendala}","${e.fileSolusi}","${e.fileBantuan}"\n`;
         });
       }
       downloadCSV(csv, `Evaluasi_${currentUser.name}_${periodLabel}.csv`);
@@ -639,16 +836,15 @@
     function downloadAllReports(monthKey) {
       const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua_Periode' : getMonthLabel(monthKey).replace(' ', '_');
-      let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan\n';
+      let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan,File Kognitif,File Karakter,File Upaya,File Kendala,File Solusi,File Bantuan\n';
       if(Array.isArray(evals)) {
         evals.forEach(e => {
-          csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}"\n`;
+          csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}","${e.fileCog}","${e.fileChar}","${e.fileUpaya}","${e.fileKendala}","${e.fileSolusi}","${e.fileBantuan}"\n`;
         });
       }
       downloadCSV(csv, `Rangkuman_${periodLabel}.csv`);
     }
 
-    // --- KIRIM VIA WHATSAPP (MODE GURU) ---
     function sendWAReport(monthKey) {
       const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
@@ -669,11 +865,17 @@
           text += `*${i+1}. ${e.student}* (Kelas ${e.class})\n`;
           text += `📆 ${e.date}\n`;
           if (e.cog) text += `📚 _Kognitif:_ ${e.cog}\n`;
+          if (e.fileCog) text += `📎 _Bukti Kognitif:_ ${e.fileCog}\n`;
           if (e.char) text += `🌱 _Karakter:_ ${e.char}\n`;
+          if (e.fileChar) text += `📎 _Bukti Karakter:_ ${e.fileChar}\n`;
           if (e.upaya) text += `💪 _Upaya:_ ${e.upaya}\n`;
+          if (e.fileUpaya) text += `📎 _Bukti Upaya:_ ${e.fileUpaya}\n`;
           if (e.kendala) text += `⚠️ _Kendala:_ ${e.kendala}\n`;
+          if (e.fileKendala) text += `📎 _Bukti Kendala:_ ${e.fileKendala}\n`;
           if (e.solusi) text += `✅ _Solusi:_ ${e.solusi}\n`;
+          if (e.fileSolusi) text += `📎 _Bukti Solusi:_ ${e.fileSolusi}\n`;
           if (e.bantuan) text += `🤝 _Bantuan:_ ${e.bantuan}\n`;
+          if (e.fileBantuan) text += `📎 _Bukti Bantuan:_ ${e.fileBantuan}\n`;
           text += `\n`;
         });
       }
@@ -685,7 +887,6 @@
       window.open(url, '_blank');
     }
 
-    // --- KIRIM VIA WHATSAPP (MODE ADMIN) - LENGKAP TANPA POTONGAN ---
     function sendWAAdminReport(monthKey) {
       const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
@@ -720,11 +921,17 @@
             grouped[cls][teacher].forEach(e => {
               text += `\n  • *${e.student}* (${e.date})\n`;
               if (e.cog) text += `    📚 _Kognitif:_ ${e.cog}\n`;
+              if (e.fileCog) text += `    📎 _Bukti:_ ${e.fileCog}\n`;
               if (e.char) text += `    🌱 _Karakter:_ ${e.char}\n`;
+              if (e.fileChar) text += `    📎 _Bukti:_ ${e.fileChar}\n`;
               if (e.upaya) text += `    💪 _Upaya:_ ${e.upaya}\n`;
+              if (e.fileUpaya) text += `    📎 _Bukti:_ ${e.fileUpaya}\n`;
               if (e.kendala) text += `    ⚠️ _Kendala:_ ${e.kendala}\n`;
+              if (e.fileKendala) text += `    📎 _Bukti:_ ${e.fileKendala}\n`;
               if (e.solusi) text += `    ✅ _Solusi:_ ${e.solusi}\n`;
+              if (e.fileSolusi) text += `    📎 _Bukti:_ ${e.fileSolusi}\n`;
               if (e.bantuan) text += `    🤝 _Bantuan:_ ${e.bantuan}\n`;
+              if (e.fileBantuan) text += `    📎 _Bukti:_ ${e.fileBantuan}\n`;
             });
             text += `\n`;
           });
@@ -739,7 +946,6 @@
       window.open(url, '_blank');
     }
 
-    // --- ADMIN FUNCTIONS ---
     async function loadAdminData() {
       const settings = await callAPI('getSettings');
       appSettings = settings;
