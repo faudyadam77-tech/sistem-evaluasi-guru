@@ -39,9 +39,7 @@
 </head>
 <body class="bg-gray-100" id="appBody">
 
-  <!-- ========================================== -->
-  <!-- MODAL FILTER PERIODE (UNTUK CETAK/UNDUH/WA) -->
-  <!-- ========================================== -->
+  <!-- MODAL FILTER PERIODE -->
   <div id="monthModal" class="modal-overlay hidden">
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
       <h3 class="text-xl font-bold text-gray-800 mb-1"><i class="fas fa-calendar-alt mr-2 text-blue-600"></i>Pilih Periode</h3>
@@ -71,9 +69,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
   <!-- AREA CETAK FORMAL -->
-  <!-- ========================================== -->
   <div id="printArea">
     <div class="text-center mb-6 border-b-4 border-double border-gray-800 pb-4">
       <img id="printLogo" src="" class="h-20 mx-auto mb-2" onerror="this.style.display='none'">
@@ -111,9 +107,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
   <!-- HALAMAN LOGIN -->
-  <!-- ========================================== -->
   <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 no-print">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
       <div class="text-center mb-4">
@@ -147,9 +141,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
   <!-- DASHBOARD GURU -->
-  <!-- ========================================== -->
   <div id="teacherPage" class="hidden min-h-screen p-4 md:p-8 no-print">
     <div class="max-w-6xl mx-auto">
       
@@ -224,9 +216,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
   <!-- DASHBOARD ADMIN -->
-  <!-- ========================================== -->
   <div id="adminPage" class="hidden min-h-screen flex no-print">
     <div class="w-64 bg-gray-800 text-white p-4">
       <div class="text-center mb-6 pb-4 border-b border-gray-700">
@@ -250,6 +240,11 @@
           <div><label class="font-semibold">Link Background</label><input type="text" id="setBg" class="w-full p-2 border rounded mt-1"></div>
           <div><label class="font-semibold">Nomer WA Kepala Sekolah</label><input type="text" id="setPhone" class="w-full p-2 border rounded mt-1" placeholder="628xxx"></div>
           <div class="md:col-span-2"><label class="font-semibold">Kelas (Pisahkan koma)</label><input type="text" id="setClasses" class="w-full p-2 border rounded mt-1"></div>
+          <div class="md:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-200">
+            <label class="font-semibold text-blue-900"><i class="fas fa-graduation-cap mr-1"></i> Tahun Ajaran</label>
+            <p class="text-xs text-blue-700 mb-2">Format contoh: 2024/2025. Tahun ajaran akan muncul di kop laporan cetak.</p>
+            <input type="text" id="setAcademicYear" class="w-full p-2 border rounded bg-white" placeholder="2024/2025">
+          </div>
         </div>
         <button onclick="saveSettings()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan</button>
       </div>
@@ -294,6 +289,23 @@
         return await response.json();
       } catch (error) {
         return { success: false, message: 'Gagal terhubung ke server.' };
+      }
+    }
+
+    // --- HELPER: TAHUN AJARAN ---
+    function getAcademicYear() {
+      // Ambil dari settings, jika kosong gunakan fallback otomatis
+      if (appSettings.academicYear && appSettings.academicYear.trim() !== '') {
+        return appSettings.academicYear.trim();
+      }
+      // Fallback: hitung otomatis berdasarkan bulan saat ini
+      const now = new Date();
+      const month = now.getMonth() + 1; // 0-11
+      const year = now.getFullYear();
+      if (month >= 7) { // Juli-Desember
+        return `${year}/${year + 1}`;
+      } else { // Januari-Juni
+        return `${year - 1}/${year}`;
       }
     }
 
@@ -490,7 +502,6 @@
       return evals.filter(e => getMonthKey(e.date) === monthKey);
     }
 
-    // --- EKSEKUSI AKSI DARI MODAL ---
     function executeAction(action) {
       const monthKey = document.getElementById('monthFilter').value;
       closeMonthModal();
@@ -521,6 +532,7 @@
       pLogo.src = appSettings.logoUrl || '';
       pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
       document.getElementById('printTitle').innerText = 'Laporan Evaluasi Perkembangan Siswa';
+      document.getElementById('printAcademicYear').innerText = getAcademicYear(); // GUNAKAN FUNGSI HELPER
       document.getElementById('printPeriod').innerText = periodLabel;
       document.getElementById('printTeacherMeta').classList.remove('hidden');
       document.getElementById('printAdminMeta').classList.add('hidden');
@@ -531,7 +543,6 @@
 
       const now = new Date();
       document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
-      document.getElementById('printAcademicYear').innerText = `${now.getFullYear()}/${now.getFullYear()+1}`;
 
       let html = '';
       if(evals.length > 0) {
@@ -569,6 +580,7 @@
       pLogo.src = appSettings.logoUrl || '';
       pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
       document.getElementById('printTitle').innerText = 'Laporan Rangkuman Evaluasi Keseluruhan';
+      document.getElementById('printAcademicYear').innerText = getAcademicYear(); // GUNAKAN FUNGSI HELPER
       document.getElementById('printPeriod').innerText = periodLabel;
       document.getElementById('printTeacherMeta').classList.add('hidden');
       document.getElementById('printAdminMeta').classList.remove('hidden');
@@ -578,7 +590,6 @@
 
       const now = new Date();
       document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
-      document.getElementById('printAcademicYear').innerText = `${now.getFullYear()}/${now.getFullYear()+1}`;
 
       const grouped = {};
       evals.forEach(e => {
@@ -655,6 +666,7 @@
       let text = `📋 *LAPORAN EVALUASI GURU*\n`;
       text += `━━━━━━━━━━━━━━━━━━━━\n`;
       text += `🏫 *${appSettings.schoolName || 'Sekolah'}*\n`;
+      text += `🎓 Tahun Ajaran: *${getAcademicYear()}*\n`;
       text += `👤 Guru: *${currentUser.name}*\n`;
       text += `📅 Periode: *${periodLabel}*\n`;
       text += `📊 Jumlah Siswa: *${evals.length}*\n`;
@@ -688,7 +700,6 @@
       const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
       const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
 
-      // Grouping: Kelas -> Guru
       const grouped = {};
       evals.forEach(e => {
         const cls = e.class || 'Tanpa Kelas';
@@ -701,6 +712,7 @@
       let text = `📊 *RANGKUMAN EVALUASI KESELURUHAN*\n`;
       text += `━━━━━━━━━━━━━━━━━━━━\n`;
       text += `🏫 *${appSettings.schoolName || 'Sekolah'}*\n`;
+      text += `🎓 Tahun Ajaran: *${getAcademicYear()}*\n`;
       text += `📅 Periode: *${periodLabel}*\n`;
       text += `📊 Total Evaluasi: *${evals.length}*\n`;
       text += `━━━━━━━━━━━━━━━━━━━━\n\n`;
@@ -743,6 +755,7 @@
       document.getElementById('setBg').value = settings.bgUrl || '';
       document.getElementById('setPhone').value = settings.principalPhone || '';
       document.getElementById('setClasses').value = settings.classes || '';
+      document.getElementById('setAcademicYear').value = settings.academicYear || ''; // BARU
       if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
       loadAdminTeachers();
       loadAdminEvals();
@@ -754,7 +767,8 @@
         logoUrl: document.getElementById('setLogo').value.trim(),
         bgUrl: document.getElementById('setBg').value.trim(),
         principalPhone: document.getElementById('setPhone').value.trim(),
-        classes: document.getElementById('setClasses').value.trim()
+        classes: document.getElementById('setClasses').value.trim(),
+        academicYear: document.getElementById('setAcademicYear').value.trim() // BARU
       };
       await callAPI('saveSettings', { settings });
       alert('Pengaturan berhasil disimpan!');
