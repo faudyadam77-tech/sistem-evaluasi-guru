@@ -9,66 +9,22 @@
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .hidden { display: none !important; }
-    
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-      display: flex; align-items: center; justify-content: center; z-index: 9999;
-    }
-    
-    .file-upload-area {
-      border: 2px dashed #cbd5e1;
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      background: #f8fafc;
-    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .file-upload-area { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.3s; background: #f8fafc; }
     .file-upload-area:hover { border-color: #3b82f6; background: #eff6ff; }
     .file-upload-area.has-file { border-color: #10b981; background: #f0fdf4; }
-    
-    .file-preview {
-      max-width: 200px;
-      max-height: 150px;
-      margin: 8px auto;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .upload-progress {
-      width: 100%;
-      height: 4px;
-      background: #e5e7eb;
-      border-radius: 2px;
-      overflow: hidden;
-      margin-top: 8px;
-    }
-    .upload-progress-bar {
-      height: 100%;
-      background: #3b82f6;
-      transition: width 0.3s;
-    }
-    
-    @media screen {
-      #printArea { display: none !important; }
-    }
+    .file-preview { max-width: 200px; max-height: 150px; margin: 8px auto; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .upload-progress { width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; margin-top: 8px; }
+    .upload-progress-bar { height: 100%; background: #3b82f6; transition: width 0.3s; }
+    @media screen { #printArea { display: none !important; } }
     @media print {
       body * { visibility: hidden; }
       #printArea, #printArea * { visibility: visible; }
-      #printArea { 
-        display: block !important; 
-        position: absolute; 
-        left: 0; top: 0; 
-        width: 100%; 
-        padding: 20px; 
-        font-family: 'Times New Roman', Times, serif; 
-        color: #000; 
-        background: #fff;
-      }
+      #printArea { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 20px; font-family: 'Times New Roman', Times, serif; color: #000; background: #fff; }
       .no-print { display: none !important; }
       .student-card { page-break-inside: avoid; }
       .class-header { page-break-after: avoid; }
-      .print-image { max-width: 100%; height: auto; margin: 8px 0; border: 1px solid #ddd; }
+      .print-image { max-width: 100%; max-height: 300px; height: auto; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; }
       .print-file-link { color: #2563eb; text-decoration: underline; }
     }
   </style>
@@ -80,27 +36,17 @@
     <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
       <h3 class="text-xl font-bold text-gray-800 mb-1"><i class="fas fa-calendar-alt mr-2 text-blue-600"></i>Pilih Periode</h3>
       <p class="text-sm text-gray-500 mb-4">Pilih bulan dan tahun, lalu pilih aksi yang diinginkan.</p>
-      
       <label class="font-semibold text-gray-700 text-sm">Periode Evaluasi</label>
       <select id="monthFilter" class="w-full p-3 border-2 border-gray-300 rounded-lg mt-1 mb-2 text-gray-700 focus:border-blue-500 focus:outline-none">
         <option value="all">📋 Semua Periode</option>
       </select>
-      
       <div id="monthFilterInfo" class="text-xs text-gray-400 mb-5 italic"></div>
-      
       <label class="font-semibold text-gray-700 text-sm mb-2 block">Pilih Aksi:</label>
       <div class="grid grid-cols-1 gap-2">
-        <button onclick="executeAction('print')" class="flex items-center justify-center gap-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-semibold">
-          <i class="fas fa-print"></i> Cetak Laporan
-        </button>
-        <button onclick="executeAction('download')" class="flex items-center justify-center gap-2 bg-yellow-600 text-white p-3 rounded-lg hover:bg-yellow-700 font-semibold">
-          <i class="fas fa-file-csv"></i> Unduh CSV
-        </button>
-        <button onclick="executeAction('wa')" class="flex items-center justify-center gap-2 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 font-semibold">
-          <i class="fab fa-whatsapp"></i> Kirim via WhatsApp
-        </button>
+        <button onclick="executeAction('print')" class="flex items-center justify-center gap-2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 font-semibold"><i class="fas fa-print"></i> Cetak Laporan</button>
+        <button onclick="executeAction('download')" class="flex items-center justify-center gap-2 bg-yellow-600 text-white p-3 rounded-lg hover:bg-yellow-700 font-semibold"><i class="fas fa-file-csv"></i> Unduh CSV</button>
+        <button onclick="executeAction('wa')" class="flex items-center justify-center gap-2 bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 font-semibold"><i class="fab fa-whatsapp"></i> Kirim via WhatsApp</button>
       </div>
-      
       <button onclick="closeMonthModal()" class="w-full mt-3 bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 font-semibold text-sm">Batal</button>
     </div>
   </div>
@@ -108,12 +54,11 @@
   <!-- AREA CETAK FORMAL -->
   <div id="printArea">
     <div class="text-center mb-6 border-b-4 border-double border-gray-800 pb-4">
-      <img id="printLogo" src="" class="h-20 mx-auto mb-2" onerror="this.style.display='none'">
+      <img id="printLogo" src="" class="h-20 mx-auto mb-2" onerror="this.style.display='none'" referrerpolicy="no-referrer">
       <h1 class="text-2xl font-bold uppercase tracking-wide" id="printSchoolName">NAMA SEKOLAH</h1>
       <p class="text-lg font-semibold mt-1 uppercase" id="printTitle">Laporan Evaluasi Perkembangan Siswa</p>
       <p class="text-sm italic">Tahun Ajaran <span id="printAcademicYear"></span></p>
     </div>
-    
     <div class="mb-6 text-sm">
       <table class="border-none">
         <tr id="printTeacherMeta"><td class="pr-4 font-semibold">Nama Guru</td><td>: <span id="printTeacherName"></span></td></tr>
@@ -122,23 +67,15 @@
         <tr><td class="pr-4 font-semibold">Tanggal Cetak</td><td>: <span id="printDate"></span></td></tr>
       </table>
     </div>
-
     <div id="printContent" class="text-sm leading-relaxed"></div>
-
     <div class="mt-16 flex justify-between text-sm">
       <div class="text-center w-1/2">
-        <p>Mengetahui,</p>
-        <p class="font-bold">Kepala Sekolah</p>
-        <br><br><br>
-        <p class="font-bold underline">(...........................................)</p>
-        <p>NIP. ...................................</p>
+        <p>Mengetahui,</p><p class="font-bold">Kepala Sekolah</p><br><br><br>
+        <p class="font-bold underline">(...........................................)</p><p>NIP. ...................................</p>
       </div>
       <div class="text-center w-1/2">
-        <p>&nbsp;</p>
-        <p class="font-bold" id="printSignRole">Guru Kelas / Mata Pelajaran</p>
-        <br><br><br>
-        <p class="font-bold underline" id="printSignName">(...........................................)</p>
-        <p id="printSignNip">NIP. ...................................</p>
+        <p>&nbsp;</p><p class="font-bold" id="printSignRole">Guru Kelas / Mata Pelajaran</p><br><br><br>
+        <p class="font-bold underline" id="printSignName">(...........................................)</p><p id="printSignNip">NIP. ...................................</p>
       </div>
     </div>
   </div>
@@ -147,7 +84,7 @@
   <div id="loginPage" class="min-h-screen flex items-center justify-center p-4 no-print">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
       <div class="text-center mb-4">
-        <img id="loginLogo" src="" class="h-16 mx-auto mb-2" onerror="this.style.display='none'">
+        <img id="loginLogo" src="" class="h-16 mx-auto mb-2" onerror="this.style.display='none'" referrerpolicy="no-referrer">
         <h2 class="text-2xl font-bold text-gray-800" id="loginSchoolName">Sistem Evaluasi Guru</h2>
       </div>
       <div class="flex border-b mb-4">
@@ -180,120 +117,31 @@
   <!-- DASHBOARD GURU -->
   <div id="teacherPage" class="hidden min-h-screen p-4 md:p-8 no-print">
     <div class="max-w-6xl mx-auto">
-      
       <div class="bg-white rounded-lg shadow mb-6 p-4 flex items-center gap-4">
-        <img id="teacherLogo" src="" class="h-14" onerror="this.style.display='none'">
-        <div>
-          <h1 class="text-xl font-bold text-gray-800" id="teacherSchoolName">Nama Sekolah</h1>
-          <p class="text-sm text-gray-500">Dashboard Evaluasi Guru — <span id="teacherGreeting"></span></p>
-        </div>
+        <img id="teacherLogo" src="" class="h-14" onerror="this.style.display='none'" referrerpolicy="no-referrer">
+        <div><h1 class="text-xl font-bold text-gray-800" id="teacherSchoolName">Nama Sekolah</h1><p class="text-sm text-gray-500">Dashboard Evaluasi Guru — <span id="teacherGreeting"></span></p></div>
         <button onclick="logout()" class="ml-auto bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 text-sm">Logout</button>
       </div>
-
       <div class="bg-white p-6 rounded-lg shadow mb-6">
         <h2 class="text-xl font-bold mb-4 text-gray-800">Input Evaluasi Siswa</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input type="text" id="evalStudent" placeholder="Nama Siswa" class="p-2 border rounded">
           <select id="evalClass" class="p-2 border rounded"></select>
         </div>
-        
-        <!-- KOGNITIF -->
-        <div class="mb-4">
-          <label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label>
-          <textarea id="evalCog" placeholder="Catatan perkembangan kognitif/akademik siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
-          <div id="uploadCog" class="file-upload-area mt-2" onclick="document.getElementById('fileCog').click()">
-            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
-            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
-            <input type="file" id="fileCog" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'cog')">
-            <div id="previewCog"></div>
-          </div>
-        </div>
-        
-        <!-- KARAKTER -->
-        <div class="mb-4">
-          <label class="font-semibold text-gray-700">Perkembangan Karakter/Akhlaq</label>
-          <textarea id="evalChar" placeholder="Catatan perkembangan karakter/akhlaq siswa..." class="w-full p-2 border rounded mt-1" rows="3"></textarea>
-          <div id="uploadChar" class="file-upload-area mt-2" onclick="document.getElementById('fileChar').click()">
-            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
-            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
-            <input type="file" id="fileChar" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'char')">
-            <div id="previewChar"></div>
-          </div>
-        </div>
-        
-        <!-- UPAYA -->
-        <div class="mb-4">
-          <label class="font-semibold text-gray-700">Upaya yang Sudah Dilakukan</label>
-          <textarea id="evalUpaya" placeholder="Upaya yang telah dilakukan guru untuk siswa ini..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          <div id="uploadUpaya" class="file-upload-area mt-2" onclick="document.getElementById('fileUpaya').click()">
-            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
-            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
-            <input type="file" id="fileUpaya" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'upaya')">
-            <div id="previewUpaya"></div>
-          </div>
-        </div>
-        
-        <!-- KENDALA -->
-        <div class="mb-4">
-          <label class="font-semibold text-gray-700">Kendala/Masalah yang Dihadapi</label>
-          <textarea id="evalKendala" placeholder="Kendala atau masalah yang dihadapi..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          <div id="uploadKendala" class="file-upload-area mt-2" onclick="document.getElementById('fileKendala').click()">
-            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
-            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
-            <input type="file" id="fileKendala" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'kendala')">
-            <div id="previewKendala"></div>
-          </div>
-        </div>
-        
-        <!-- SOLUSI -->
-        <div class="mb-4">
-          <label class="font-semibold text-gray-700">Solusi Tindak Lanjut</label>
-          <textarea id="evalSolusi" placeholder="Solusi dan rencana tindak lanjut..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          <div id="uploadSolusi" class="file-upload-area mt-2" onclick="document.getElementById('fileSolusi').click()">
-            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
-            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
-            <input type="file" id="fileSolusi" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'solusi')">
-            <div id="previewSolusi"></div>
-          </div>
-        </div>
-        
-        <!-- BANTUAN -->
-        <div class="mb-4">
-          <label class="font-semibold text-gray-700">Kebutuhan Bantuan</label>
-          <textarea id="evalBantuan" placeholder="Bantuan yang dibutuhkan dari Kepsek/Rekan Guru..." class="w-full p-2 border rounded mt-1" rows="2"></textarea>
-          <div id="uploadBantuan" class="file-upload-area mt-2" onclick="document.getElementById('fileBantuan').click()">
-            <i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i>
-            <p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen bukti (max 10MB)</p>
-            <input type="file" id="fileBantuan" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this, 'bantuan')">
-            <div id="previewBantuan"></div>
-          </div>
-        </div>
-        
+        <div class="mb-4"><label class="font-semibold text-gray-700">Perkembangan Kognitif/Akademik</label><textarea id="evalCog" placeholder="Catatan perkembangan..." class="w-full p-2 border rounded mt-1" rows="3"></textarea><div id="uploadCog" class="file-upload-area mt-2" onclick="document.getElementById('fileCog').click()"><i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i><p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen (max 10MB)</p><input type="file" id="fileCog" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this,'cog')"><div id="previewCog"></div></div></div>
+        <div class="mb-4"><label class="font-semibold text-gray-700">Perkembangan Karakter/Akhlaq</label><textarea id="evalChar" placeholder="Catatan perkembangan..." class="w-full p-2 border rounded mt-1" rows="3"></textarea><div id="uploadChar" class="file-upload-area mt-2" onclick="document.getElementById('fileChar').click()"><i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i><p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen (max 10MB)</p><input type="file" id="fileChar" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this,'char')"><div id="previewChar"></div></div></div>
+        <div class="mb-4"><label class="font-semibold text-gray-700">Upaya yang Sudah Dilakukan</label><textarea id="evalUpaya" placeholder="Upaya yang telah dilakukan..." class="w-full p-2 border rounded mt-1" rows="2"></textarea><div id="uploadUpaya" class="file-upload-area mt-2" onclick="document.getElementById('fileUpaya').click()"><i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i><p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen (max 10MB)</p><input type="file" id="fileUpaya" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this,'upaya')"><div id="previewUpaya"></div></div></div>
+        <div class="mb-4"><label class="font-semibold text-gray-700">Kendala/Masalah yang Dihadapi</label><textarea id="evalKendala" placeholder="Kendala atau masalah..." class="w-full p-2 border rounded mt-1" rows="2"></textarea><div id="uploadKendala" class="file-upload-area mt-2" onclick="document.getElementById('fileKendala').click()"><i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i><p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen (max 10MB)</p><input type="file" id="fileKendala" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this,'kendala')"><div id="previewKendala"></div></div></div>
+        <div class="mb-4"><label class="font-semibold text-gray-700">Solusi Tindak Lanjut</label><textarea id="evalSolusi" placeholder="Solusi dan rencana..." class="w-full p-2 border rounded mt-1" rows="2"></textarea><div id="uploadSolusi" class="file-upload-area mt-2" onclick="document.getElementById('fileSolusi').click()"><i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i><p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen (max 10MB)</p><input type="file" id="fileSolusi" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this,'solusi')"><div id="previewSolusi"></div></div></div>
+        <div class="mb-4"><label class="font-semibold text-gray-700">Kebutuhan Bantuan</label><textarea id="evalBantuan" placeholder="Bantuan yang dibutuhkan..." class="w-full p-2 border rounded mt-1" rows="2"></textarea><div id="uploadBantuan" class="file-upload-area mt-2" onclick="document.getElementById('fileBantuan').click()"><i class="fas fa-cloud-upload-alt text-2xl text-gray-400"></i><p class="text-sm text-gray-500 mt-1">Klik untuk upload foto/dokumen (max 10MB)</p><input type="file" id="fileBantuan" class="hidden" accept="image/*,.pdf,.doc,.docx" onchange="handleFileUpload(this,'bantuan')"><div id="previewBantuan"></div></div></div>
         <button onclick="saveEval()" id="btnSaveEval" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold">Simpan Evaluasi</button>
       </div>
-
       <div class="bg-white p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
           <h2 class="text-xl font-bold text-gray-800">Riwayat Evaluasi</h2>
-          <div class="flex gap-2 flex-wrap">
-            <button onclick="openMonthModal('teacher')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"><i class="fas fa-share-alt"></i> Cetak/Unduh/Kirim</button>
-          </div>
+          <button onclick="openMonthModal('teacher')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"><i class="fas fa-share-alt"></i> Cetak/Unduh/Kirim</button>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="p-2 border">Tanggal</th>
-                <th class="p-2 border">Siswa</th>
-                <th class="p-2 border">Kelas</th>
-                <th class="p-2 border">Kognitif</th>
-                <th class="p-2 border">Karakter</th>
-                <th class="p-2 border">File</th>
-              </tr>
-            </thead>
-            <tbody id="teacherEvalTable"></tbody>
-          </table>
-        </div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-gray-100"><th class="p-2 border">Tanggal</th><th class="p-2 border">Siswa</th><th class="p-2 border">Kelas</th><th class="p-2 border">Kognitif</th><th class="p-2 border">Karakter</th><th class="p-2 border">File</th></tr></thead><tbody id="teacherEvalTable"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -302,9 +150,8 @@
   <div id="adminPage" class="hidden min-h-screen flex no-print">
     <div class="w-64 bg-gray-800 text-white p-4">
       <div class="text-center mb-6 pb-4 border-b border-gray-700">
-        <img id="adminLogo" src="" class="h-14 mx-auto mb-2" onerror="this.style.display='none'">
-        <h2 class="text-lg font-bold" id="adminSchoolName">Nama Sekolah</h2>
-        <p class="text-xs text-gray-400">Admin Panel</p>
+        <img id="adminLogo" src="" class="h-14 mx-auto mb-2" onerror="this.style.display='none'" referrerpolicy="no-referrer">
+        <h2 class="text-lg font-bold" id="adminSchoolName">Nama Sekolah</h2><p class="text-xs text-gray-400">Admin Panel</p>
       </div>
       <ul>
         <li class="mb-2"><button onclick="showAdminTab('settings')" class="w-full text-left p-2 hover:bg-gray-700 rounded"><i class="fas fa-cog mr-2"></i> Pengaturan</button></li>
@@ -322,695 +169,286 @@
           <div><label class="font-semibold">Link Background</label><input type="text" id="setBg" class="w-full p-2 border rounded mt-1"></div>
           <div><label class="font-semibold">Nomer WA Kepala Sekolah</label><input type="text" id="setPhone" class="w-full p-2 border rounded mt-1" placeholder="628xxx"></div>
           <div class="md:col-span-2"><label class="font-semibold">Kelas (Pisahkan koma)</label><input type="text" id="setClasses" class="w-full p-2 border rounded mt-1"></div>
-          <div class="md:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <label class="font-semibold text-blue-900"><i class="fas fa-graduation-cap mr-1"></i> Tahun Ajaran</label>
-            <p class="text-xs text-blue-700 mb-2">Format contoh: 2024/2025. Tahun ajaran akan muncul di kop laporan cetak.</p>
-            <input type="text" id="setAcademicYear" class="w-full p-2 border rounded bg-white" placeholder="2024/2025">
-          </div>
+          <div class="md:col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-200"><label class="font-semibold text-blue-900"><i class="fas fa-graduation-cap mr-1"></i> Tahun Ajaran</label><p class="text-xs text-blue-700 mb-2">Format: 2024/2025</p><input type="text" id="setAcademicYear" class="w-full p-2 border rounded bg-white" placeholder="2024/2025"></div>
         </div>
         <button onclick="saveSettings()" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">Simpan</button>
       </div>
       <div id="tabTeachers" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
         <h2 class="text-2xl font-bold mb-4">Kelola Akun Guru</h2>
-        <table class="w-full text-left border-collapse">
-          <thead><tr class="bg-gray-100"><th class="p-2 border">Nama</th><th class="p-2 border">Username</th><th class="p-2 border">Aksi</th></tr></thead>
-          <tbody id="adminTeachersTable"></tbody>
-        </table>
+        <table class="w-full text-left border-collapse"><thead><tr class="bg-gray-100"><th class="p-2 border">Nama</th><th class="p-2 border">Username</th><th class="p-2 border">Aksi</th></tr></thead><tbody id="adminTeachersTable"></tbody></table>
       </div>
       <div id="tabAllEvals" class="admin-tab hidden bg-white p-6 rounded-lg shadow">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
           <h2 class="text-2xl font-bold">Semua Evaluasi</h2>
           <button onclick="openMonthModal('admin')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"><i class="fas fa-share-alt"></i> Cetak/Unduh/Kirim Rangkuman</button>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead><tr class="bg-gray-100"><th class="p-2 border">Tanggal</th><th class="p-2 border">Guru</th><th class="p-2 border">Siswa</th><th class="p-2 border">Kelas</th><th class="p-2 border">Kognitif</th><th class="p-2 border">Karakter</th></tr></thead>
-            <tbody id="adminEvalsTable"></tbody>
-          </table>
-        </div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-gray-100"><th class="p-2 border">Tanggal</th><th class="p-2 border">Guru</th><th class="p-2 border">Siswa</th><th class="p-2 border">Kelas</th><th class="p-2 border">Kognitif</th><th class="p-2 border">Karakter</th></tr></thead><tbody id="adminEvalsTable"></tbody></table></div>
       </div>
     </div>
   </div>
 
   <script>
-    // >>>>>> MASUKKAN URL WEB APP APPS SCRIPT ANDA DI SINI <<<<<<
-    const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlmdqX0_DEdgq5X3CCC3u7LVCBFAkPcIJCDA1JelsFNWENqJuDVMP1KdEiEhXd7fBI/exec'; 
-    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlmdqX0_DEdgq5X3CCC3u7LVCBFAkPcIJCDA1JelsFNWENqJuDVMP1KdEiEhXd7fBI/exec';
 
-    let currentUser = null;
-    let appSettings = {};
-    let printMode = 'teacher';
-    let cachedTeacherEvals = [];
-    let cachedAdminEvals = [];
-    let uploadedFiles = {}; // Store uploaded file URLs
-
+    let currentUser = null, appSettings = {}, printMode = 'teacher', cachedTeacherEvals = [], cachedAdminEvals = [], uploadedFiles = {};
     const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+    const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
     async function callAPI(action, payload = {}) {
-      try {
-        const response = await fetch(APP_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) });
-        return await response.json();
-      } catch (error) {
-        return { success: false, message: 'Gagal terhubung ke server.' };
-      }
+      try { const r = await fetch(APP_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action, ...payload }) }); return await r.json(); }
+      catch (e) { return { success: false, message: 'Gagal terhubung ke server.' }; }
     }
 
     function getAcademicYear() {
-      if (appSettings.academicYear && appSettings.academicYear.trim() !== '') {
-        return appSettings.academicYear.trim();
-      }
-      const now = new Date();
-      const month = now.getMonth() + 1;
-      const year = now.getFullYear();
-      if (month >= 7) return `${year}/${year + 1}`;
-      else return `${year - 1}/${year}`;
+      if (appSettings.academicYear && appSettings.academicYear.trim() !== '') return appSettings.academicYear.trim();
+      const n = new Date(), m = n.getMonth()+1, y = n.getFullYear();
+      return m >= 7 ? `${y}/${y+1}` : `${y-1}/${y}`;
     }
+    function parseDateId(d) { const m = String(d).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? {day:+m[1],month:+m[2],year:+m[3]} : null; }
+    function getMonthKey(d) { const p = parseDateId(d); return p ? `${p.year}-${String(p.month).padStart(2,'0')}` : 'unknown'; }
+    function getMonthLabel(k) { if(k==='unknown') return 'Tidak Diketahui'; const [y,m]=k.split('-'); return `${BULAN_NAMES[+m]} ${y}`; }
 
-    function parseDateId(dateStr) {
-      const match = String(dateStr).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-      if (match) return { day: parseInt(match[1]), month: parseInt(match[2]), year: parseInt(match[3]) };
-      return null;
-    }
-
-    function getMonthKey(dateStr) {
-      const d = parseDateId(dateStr);
-      if (!d) return 'unknown';
-      return `${d.year}-${String(d.month).padStart(2, '0')}`;
-    }
-
-    function getMonthLabel(monthKey) {
-      if (monthKey === 'unknown') return 'Tanggal Tidak Diketahui';
-      const [y, m] = monthKey.split('-');
-      return `${BULAN_NAMES[parseInt(m)]} ${y}`;
+    // PERBAIKAN: Konversi URL Drive ke format yang bisa ditampilkan
+    function convertDriveUrl(url) {
+      if (!url || url.trim() === '') return '';
+      // Jika sudah format lh3, langsung return
+      if (url.includes('lh3.googleusercontent.com')) return url;
+      // Ekstrak file ID dari berbagai format URL Drive
+      const match = url.match(/(?:id=|\/d\/)([a-zA-Z0-9_-]+)/);
+      if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+      return url;
     }
 
     function updateSchoolHeaders() {
-      const name = appSettings.schoolName || 'Sistem Evaluasi Guru';
-      const logo = appSettings.logoUrl || '';
-
-      document.getElementById('loginSchoolName').innerText = name;
-      const loginLogo = document.getElementById('loginLogo');
-      loginLogo.src = logo;
-      loginLogo.style.display = logo ? 'block' : 'none';
-
-      document.getElementById('teacherSchoolName').innerText = name;
-      const teacherLogo = document.getElementById('teacherLogo');
-      teacherLogo.src = logo;
-      teacherLogo.style.display = logo ? 'block' : 'none';
-
-      document.getElementById('adminSchoolName').innerText = name;
-      const adminLogo = document.getElementById('adminLogo');
-      adminLogo.src = logo;
-      adminLogo.style.display = logo ? 'block' : 'none';
+      const name = appSettings.schoolName || 'Sistem Evaluasi Guru', logo = appSettings.logoUrl || '';
+      ['login','teacher','admin'].forEach(p => {
+        const el = document.getElementById(p+'SchoolName'); if(el) el.innerText = name;
+        const lg = document.getElementById(p+'Logo'); if(lg) { lg.src = logo; lg.style.display = logo ? 'block' : 'none'; }
+      });
     }
-
-    function showMsg(msg, isError = false) {
-      const box = document.getElementById('msgBox');
-      box.innerText = msg;
-      box.className = `mt-4 text-center text-sm font-semibold ${isError ? 'text-red-600' : 'text-green-600'}`;
+    function showMsg(m,e=false) { const b=document.getElementById('msgBox'); b.innerText=m; b.className=`mt-4 text-center text-sm font-semibold ${e?'text-red-600':'text-green-600'}`; }
+    function switchLoginTab(t) {
+      document.getElementById('teacherAuth').classList.toggle('hidden',t!=='teacher');
+      document.getElementById('adminAuth').classList.toggle('hidden',t!=='admin');
+      document.getElementById('tabTeacher').className = t==='teacher'?'flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600':'flex-1 py-2 text-center font-semibold text-gray-500';
+      document.getElementById('tabAdmin').className = t==='admin'?'flex-1 py-2 text-center font-semibold text-red-600 border-b-2 border-red-600':'flex-1 py-2 text-center font-semibold text-gray-500';
     }
-
-    function switchLoginTab(type) {
-      document.getElementById('teacherAuth').classList.toggle('hidden', type !== 'teacher');
-      document.getElementById('adminAuth').classList.toggle('hidden', type !== 'admin');
-      document.getElementById('tabTeacher').className = type === 'teacher' ? 'flex-1 py-2 text-center font-semibold text-blue-600 border-b-2 border-blue-600' : 'flex-1 py-2 text-center font-semibold text-gray-500';
-      document.getElementById('tabAdmin').className = type === 'admin' ? 'flex-1 py-2 text-center font-semibold text-red-600 border-b-2 border-red-600' : 'flex-1 py-2 text-center font-semibold text-gray-500';
-    }
-
-    function toggleRegister(show) {
-      document.getElementById('loginForm').classList.toggle('hidden', show);
-      document.getElementById('registerForm').classList.toggle('hidden', !show);
-    }
-
-    function showAdminTab(tab) {
-      document.querySelectorAll('.admin-tab').forEach(el => el.classList.add('hidden'));
-      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
-    }
-
-    function logout() {
-      currentUser = null;
-      document.getElementById('loginPage').classList.remove('hidden');
-      document.getElementById('teacherPage').classList.add('hidden');
-      document.getElementById('adminPage').classList.add('hidden');
-    }
+    function toggleRegister(s) { document.getElementById('loginForm').classList.toggle('hidden',s); document.getElementById('registerForm').classList.toggle('hidden',!s); }
+    function showAdminTab(t) { document.querySelectorAll('.admin-tab').forEach(e=>e.classList.add('hidden')); document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1)).classList.remove('hidden'); }
+    function logout() { currentUser=null; document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('teacherPage').classList.add('hidden'); document.getElementById('adminPage').classList.add('hidden'); }
 
     async function doRegister() {
-      const name = document.getElementById('regName').value.trim();
-      const user = document.getElementById('regUser').value.trim();
-      const pass = document.getElementById('regPass').value.trim();
-      if(!name || !user || !pass) return showMsg('Semua field harus diisi!', true);
-      const res = await callAPI('register', { username: user, password: pass, name: name });
-      showMsg(res.message, !res.success);
-      if(res.success) { toggleRegister(false); showMsg('Registrasi berhasil! Silakan login.', false); }
+      const n=document.getElementById('regName').value.trim(),u=document.getElementById('regUser').value.trim(),p=document.getElementById('regPass').value.trim();
+      if(!n||!u||!p) return showMsg('Semua field harus diisi!',true);
+      const r=await callAPI('register',{username:u,password:p,name:n}); showMsg(r.message,!r.success);
+      if(r.success){toggleRegister(false);showMsg('Registrasi berhasil! Silakan login.',false);}
     }
-
     async function doLoginTeacher() {
-      const user = document.getElementById('loginUser').value.trim();
-      const pass = document.getElementById('loginPass').value.trim();
-      if(!user || !pass) return showMsg('Username dan password harus diisi!', true);
-      const res = await callAPI('loginTeacher', { username: user, password: pass });
-      if(res.success) {
-        currentUser = res;
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('teacherPage').classList.remove('hidden');
-        document.getElementById('teacherGreeting').innerText = res.name;
-        loadTeacherData();
-      } else showMsg(res.message, true);
+      const u=document.getElementById('loginUser').value.trim(),p=document.getElementById('loginPass').value.trim();
+      if(!u||!p) return showMsg('Username dan password harus diisi!',true);
+      const r=await callAPI('loginTeacher',{username:u,password:p});
+      if(r.success){currentUser=r;document.getElementById('loginPage').classList.add('hidden');document.getElementById('teacherPage').classList.remove('hidden');document.getElementById('teacherGreeting').innerText=r.name;loadTeacherData();}
+      else showMsg(r.message,true);
     }
-
     async function doLoginAdmin() {
-      const pass = document.getElementById('adminPass').value.trim();
-      const res = await callAPI('loginAdmin', { password: pass });
-      if(res.success) {
-        currentUser = { role: 'admin' };
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('adminPage').classList.remove('hidden');
-        loadAdminData();
-      } else showMsg(res.message, true);
+      const p=document.getElementById('adminPass').value.trim();
+      const r=await callAPI('loginAdmin',{password:p});
+      if(r.success){currentUser={role:'admin'};document.getElementById('loginPage').classList.add('hidden');document.getElementById('adminPage').classList.remove('hidden');loadAdminData();}
+      else showMsg(r.message,true);
     }
 
-    // --- FILE UPLOAD HANDLER ---
     async function handleFileUpload(input, field) {
-      const file = input.files[0];
-      if (!file) return;
-
-      if (file.size > MAX_FILE_SIZE) {
-        alert('Ukuran file maksimal 10MB!');
-        input.value = '';
-        return;
-      }
-
-      const previewDiv = document.getElementById(`preview${field.charAt(0).toUpperCase() + field.slice(1)}`);
-      const uploadArea = document.getElementById(`upload${field.charAt(0).toUpperCase() + field.slice(1)}`);
-
-      // Show loading
-      previewDiv.innerHTML = `
-        <div class="mt-2">
-          <p class="text-sm text-blue-600"><i class="fas fa-spinner fa-spin"></i> Mengupload ${file.name}...</p>
-          <div class="upload-progress"><div class="upload-progress-bar" style="width: 0%"></div></div>
-        </div>
-      `;
-
-      // Convert to base64
+      const file = input.files[0]; if(!file) return;
+      if(file.size > MAX_FILE_SIZE){alert('Ukuran file maksimal 10MB!');input.value='';return;}
+      const cap = field.charAt(0).toUpperCase()+field.slice(1);
+      const prev = document.getElementById('preview'+cap), area = document.getElementById('upload'+cap);
+      prev.innerHTML = `<div class="mt-2"><p class="text-sm text-blue-600"><i class="fas fa-spinner fa-spin"></i> Mengupload ${file.name}...</p></div>`;
       const reader = new FileReader();
       reader.onload = async function(e) {
-        const base64 = e.target.result;
-        
-        // Upload to server
-        const res = await callAPI('uploadFile', {
-          fileData: base64,
-          filename: file.name,
-          username: currentUser.username
-        });
-
-        if (res.success) {
-          uploadedFiles[field] = {
-            url: res.url,
-            downloadUrl: res.downloadUrl,
-            isImage: res.isImage,
-            filename: res.filename
-          };
-
-          // Show preview
-          if (res.isImage) {
-            previewDiv.innerHTML = `
-              <img src="${res.url}" class="file-preview" alt="${res.filename}">
-              <p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${res.filename}</p>
-              <button onclick="removeFile('${field}')" class="text-xs text-red-600 hover:underline mt-1"><i class="fas fa-times"></i> Hapus</button>
-            `;
-          } else {
-            previewDiv.innerHTML = `
-              <div class="mt-2 p-2 bg-white rounded border">
-                <i class="fas fa-file text-2xl text-gray-600"></i>
-                <p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${res.filename}</p>
-                <button onclick="removeFile('${field}')" class="text-xs text-red-600 hover:underline mt-1"><i class="fas fa-times"></i> Hapus</button>
-              </div>
-            `;
-          }
-          uploadArea.classList.add('has-file');
-        } else {
-          previewDiv.innerHTML = `<p class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle"></i> Gagal upload: ${res.message}</p>`;
-          uploadArea.classList.remove('has-file');
-        }
+        const res = await callAPI('uploadFile',{fileData:e.target.result,filename:file.name,username:currentUser.username});
+        if(res.success){
+          uploadedFiles[field] = {url:res.url,downloadUrl:res.downloadUrl,isImage:res.isImage,filename:res.filename};
+          if(res.isImage) prev.innerHTML=`<img src="${res.url}" class="file-preview" referrerpolicy="no-referrer" alt="${res.filename}"><p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${res.filename}</p><button onclick="removeFile('${field}')" class="text-xs text-red-600 hover:underline"><i class="fas fa-times"></i> Hapus</button>`;
+          else prev.innerHTML=`<div class="mt-2 p-2 bg-white rounded border"><i class="fas fa-file text-2xl text-gray-600"></i><p class="text-xs text-green-600 mt-1"><i class="fas fa-check-circle"></i> ${res.filename}</p><button onclick="removeFile('${field}')" class="text-xs text-red-600 hover:underline"><i class="fas fa-times"></i> Hapus</button></div>`;
+          area.classList.add('has-file');
+        } else { prev.innerHTML=`<p class="text-sm text-red-600 mt-2"><i class="fas fa-exclamation-circle"></i> Gagal: ${res.message}</p>`; area.classList.remove('has-file'); }
       };
       reader.readAsDataURL(file);
     }
-
-    function removeFile(field) {
-      delete uploadedFiles[field];
-      const previewDiv = document.getElementById(`preview${field.charAt(0).toUpperCase() + field.slice(1)}`);
-      const uploadArea = document.getElementById(`upload${field.charAt(0).toUpperCase() + field.slice(1)}`);
-      const fileInput = document.getElementById(`file${field.charAt(0).toUpperCase() + field.slice(1)}`);
-      
-      previewDiv.innerHTML = '';
-      uploadArea.classList.remove('has-file');
-      fileInput.value = '';
+    function removeFile(f) {
+      delete uploadedFiles[f]; const cap=f.charAt(0).toUpperCase()+f.slice(1);
+      document.getElementById('preview'+cap).innerHTML='';
+      document.getElementById('upload'+cap).classList.remove('has-file');
+      document.getElementById('file'+cap).value='';
     }
 
     async function loadTeacherData() {
-      const settings = await callAPI('getSettings');
-      appSettings = settings;
-      updateSchoolHeaders();
-      if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
-
-      const sel = document.getElementById('evalClass');
-      sel.innerHTML = '';
-      if(settings.classes) settings.classes.split(',').forEach(c => sel.innerHTML += `<option value="${c.trim()}">${c.trim()}</option>`);
-
-      cachedTeacherEvals = await callAPI('getTeacherEvaluations', { username: currentUser.username });
+      appSettings = await callAPI('getSettings'); updateSchoolHeaders();
+      if(appSettings.bgUrl) document.getElementById('appBody').style.backgroundImage=`url(${appSettings.bgUrl})`;
+      const sel=document.getElementById('evalClass'); sel.innerHTML='';
+      if(appSettings.classes) appSettings.classes.split(',').forEach(c=>sel.innerHTML+=`<option value="${c.trim()}">${c.trim()}</option>`);
+      cachedTeacherEvals = await callAPI('getTeacherEvaluations',{username:currentUser.username});
       renderTeacherTable(cachedTeacherEvals);
     }
-
     function renderTeacherTable(evals) {
-      const tbody = document.getElementById('teacherEvalTable');
-      tbody.innerHTML = '';
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
-          const fileCount = [e.fileCog, e.fileChar, e.fileUpaya, e.fileKendala, e.fileSolusi, e.fileBantuan].filter(f => f && f.trim() !== '').length;
-          tbody.innerHTML += `<tr>
-            <td class="p-2 border text-sm">${e.date}</td>
-            <td class="p-2 border font-semibold">${e.student}</td>
-            <td class="p-2 border">${e.class}</td>
-            <td class="p-2 border text-sm italic">${e.cog.substring(0, 50)}${e.cog.length > 50 ? '...' : ''}</td>
-            <td class="p-2 border text-sm italic">${e.char.substring(0, 50)}${e.char.length > 50 ? '...' : ''}</td>
-            <td class="p-2 border text-center">${fileCount > 0 ? `<i class="fas fa-paperclip text-blue-600"></i> ${fileCount}` : '-'}</td>
-          </tr>`;
-        });
-      }
-    }
-
-    async function saveEval() {
-      const data = {
-        username: currentUser.username, teacherName: currentUser.name,
-        studentName: document.getElementById('evalStudent').value.trim(),
-        class: document.getElementById('evalClass').value,
-        cog: document.getElementById('evalCog').value.trim(),
-        char: document.getElementById('evalChar').value.trim(),
-        upaya: document.getElementById('evalUpaya').value.trim(),
-        kendala: document.getElementById('evalKendala').value.trim(),
-        solusi: document.getElementById('evalSolusi').value.trim(),
-        bantuan: document.getElementById('evalBantuan').value.trim(),
-        fileCog: uploadedFiles.cog ? uploadedFiles.cog.url : '',
-        fileChar: uploadedFiles.char ? uploadedFiles.char.url : '',
-        fileUpaya: uploadedFiles.upaya ? uploadedFiles.upaya.url : '',
-        fileKendala: uploadedFiles.kendala ? uploadedFiles.kendala.url : '',
-        fileSolusi: uploadedFiles.solusi ? uploadedFiles.solusi.url : '',
-        fileBantuan: uploadedFiles.bantuan ? uploadedFiles.bantuan.url : ''
-      };
-      if(!data.studentName) return alert('Nama siswa harus diisi!');
-
-      const btn = document.getElementById('btnSaveEval');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-
-      await callAPI('saveEvaluation', { evalData: data });
-      
-      btn.disabled = false;
-      btn.innerHTML = 'Simpan Evaluasi';
-      
-      alert('Evaluasi berhasil disimpan!');
-      loadTeacherData();
-      
-      // Reset form
-      ['evalStudent','evalCog','evalChar','evalUpaya','evalKendala','evalSolusi','evalBantuan'].forEach(id => document.getElementById(id).value = '');
-      ['cog','char','upaya','kendala','solusi','bantuan'].forEach(field => {
-        removeFile(field);
+      const tb=document.getElementById('teacherEvalTable'); tb.innerHTML='';
+      if(Array.isArray(evals)) evals.forEach(e=>{
+        const fc=[e.fileCog,e.fileChar,e.fileUpaya,e.fileKendala,e.fileSolusi,e.fileBantuan].filter(f=>f&&f.trim()!=='').length;
+        tb.innerHTML+=`<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border font-semibold">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,50)}${e.cog.length>50?'...':''}</td><td class="p-2 border text-sm italic">${e.char.substring(0,50)}${e.char.length>50?'...':''}</td><td class="p-2 border text-center">${fc>0?`<i class="fas fa-paperclip text-blue-600"></i> ${fc}`:'-'}</td></tr>`;
       });
-      uploadedFiles = {};
+    }
+    async function saveEval() {
+      const d={username:currentUser.username,teacherName:currentUser.name,studentName:document.getElementById('evalStudent').value.trim(),class:document.getElementById('evalClass').value,
+        cog:document.getElementById('evalCog').value.trim(),char:document.getElementById('evalChar').value.trim(),upaya:document.getElementById('evalUpaya').value.trim(),
+        kendala:document.getElementById('evalKendala').value.trim(),solusi:document.getElementById('evalSolusi').value.trim(),bantuan:document.getElementById('evalBantuan').value.trim(),
+        fileCog:uploadedFiles.cog?uploadedFiles.cog.url:'',fileChar:uploadedFiles.char?uploadedFiles.char.url:'',fileUpaya:uploadedFiles.upaya?uploadedFiles.upaya.url:'',
+        fileKendala:uploadedFiles.kendala?uploadedFiles.kendala.url:'',fileSolusi:uploadedFiles.solusi?uploadedFiles.solusi.url:'',fileBantuan:uploadedFiles.bantuan?uploadedFiles.bantuan.url:''};
+      if(!d.studentName) return alert('Nama siswa harus diisi!');
+      const btn=document.getElementById('btnSaveEval'); btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+      await callAPI('saveEvaluation',{evalData:d}); btn.disabled=false; btn.innerHTML='Simpan Evaluasi';
+      alert('Evaluasi berhasil disimpan!'); loadTeacherData();
+      ['evalStudent','evalCog','evalChar','evalUpaya','evalKendala','evalSolusi','evalBantuan'].forEach(id=>document.getElementById(id).value='');
+      ['cog','char','upaya','kendala','solusi','bantuan'].forEach(f=>removeFile(f)); uploadedFiles={};
     }
 
     function openMonthModal(mode) {
-      printMode = mode;
-      const evals = mode === 'teacher' ? cachedTeacherEvals : cachedAdminEvals;
-      const select = document.getElementById('monthFilter');
-      select.innerHTML = '<option value="all">📋 Semua Periode</option>';
-
-      const monthSet = new Set();
-      if (Array.isArray(evals)) {
-        evals.forEach(e => {
-          const key = getMonthKey(e.date);
-          if (key !== 'unknown') monthSet.add(key);
-        });
-      }
-
-      const sorted = Array.from(monthSet).sort().reverse();
-      sorted.forEach(key => {
-        const opt = document.createElement('option');
-        opt.value = key;
-        opt.textContent = `📅 ${getMonthLabel(key)}`;
-        select.appendChild(opt);
-      });
-
-      const info = document.getElementById('monthFilterInfo');
-      info.innerText = sorted.length > 0 
-        ? `Ditemukan ${sorted.length} periode dari ${evals.length} data evaluasi.` 
-        : 'Belum ada data evaluasi.';
-
+      printMode=mode; const evals=mode==='teacher'?cachedTeacherEvals:cachedAdminEvals;
+      const sel=document.getElementById('monthFilter'); sel.innerHTML='<option value="all">📋 Semua Periode</option>';
+      const ms=new Set(); if(Array.isArray(evals)) evals.forEach(e=>{const k=getMonthKey(e.date);if(k!=='unknown')ms.add(k);});
+      const sorted=Array.from(ms).sort().reverse();
+      sorted.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=`📅 ${getMonthLabel(k)}`;sel.appendChild(o);});
+      document.getElementById('monthFilterInfo').innerText=sorted.length>0?`Ditemukan ${sorted.length} periode dari ${evals.length} data.`:'Belum ada data.';
       document.getElementById('monthModal').classList.remove('hidden');
     }
-
-    function closeMonthModal() {
-      document.getElementById('monthModal').classList.add('hidden');
+    function closeMonthModal(){document.getElementById('monthModal').classList.add('hidden');}
+    function filterEvalsByMonth(e,m){if(!Array.isArray(e))return[];return m==='all'?e:e.filter(x=>getMonthKey(x.date)===m);}
+    function executeAction(a) {
+      const mk=document.getElementById('monthFilter').value; closeMonthModal();
+      if(a==='print'){printMode==='teacher'?printReport(mk):adminPrintReport(mk);}
+      else if(a==='download'){printMode==='teacher'?downloadReport(mk):downloadAllReports(mk);}
+      else if(a==='wa'){if(!appSettings.principalPhone||appSettings.principalPhone.trim()===''){alert('Nomor WA Kepsek belum diatur!');return;}printMode==='teacher'?sendWAReport(mk):sendWAAdminReport(mk);}
     }
 
-    function filterEvalsByMonth(evals, monthKey) {
-      if (!Array.isArray(evals)) return [];
-      if (monthKey === 'all') return evals;
-      return evals.filter(e => getMonthKey(e.date) === monthKey);
-    }
-
-    function executeAction(action) {
-      const monthKey = document.getElementById('monthFilter').value;
-      closeMonthModal();
-      
-      if (action === 'print') {
-        if (printMode === 'teacher') printReport(monthKey);
-        else adminPrintReport(monthKey);
-      } else if (action === 'download') {
-        if (printMode === 'teacher') downloadReport(monthKey);
-        else downloadAllReports(monthKey);
-      } else if (action === 'wa') {
-        if (!appSettings.principalPhone || appSettings.principalPhone.trim() === '') {
-          alert('Nomor WhatsApp Kepala Sekolah belum diatur!\nSilakan minta Admin mengaturnya di Pengaturan.');
-          return;
-        }
-        if (printMode === 'teacher') sendWAReport(monthKey);
-        else sendWAAdminReport(monthKey);
-      }
-    }
-
-    // --- HELPER: GENERATE FILE HTML FOR PRINT ---
+    // PERBAIKAN: Helper generate HTML file untuk cetak dengan URL yang benar
     function generateFileHtml(fileUrl, label) {
       if (!fileUrl || fileUrl.trim() === '') return '';
-      
-      const isImage = fileUrl.match(/\.(jpg|jpeg|png|gif|webp)$/i);
-      if (isImage) {
-        return `<div class="mt-2"><p class="text-xs font-semibold text-gray-600 mb-1">${label}:</p><img src="${fileUrl}" class="print-image" alt="Bukti"></div>`;
-      } else {
-        return `<div class="mt-2"><p class="text-xs font-semibold text-gray-600 mb-1">${label}:</p><a href="${fileUrl}" target="_blank" class="print-file-link"><i class="fas fa-download"></i> Download Dokumen</a></div>`;
-      }
+      const displayUrl = convertDriveUrl(fileUrl);
+      return `<div class="mt-2"><p class="text-xs font-semibold text-gray-600 mb-1">📎 ${label}:</p><img src="${displayUrl}" class="print-image" referrerpolicy="no-referrer" crossorigin="anonymous" alt="Bukti" onerror="this.outerHTML='<a href=\\'${displayUrl}\\' target=\\'_blank\\' class=\\'print-file-link\\'>📎 Klik untuk melihat bukti</a>'"></div>`;
     }
 
-    function printReport(monthKey) {
-      const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
-      const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
-
-      document.getElementById('printSchoolName').innerText = appSettings.schoolName || 'NAMA SEKOLAH';
-      const pLogo = document.getElementById('printLogo');
-      pLogo.src = appSettings.logoUrl || '';
-      pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
-      document.getElementById('printTitle').innerText = 'Laporan Evaluasi Perkembangan Siswa';
-      document.getElementById('printAcademicYear').innerText = getAcademicYear();
-      document.getElementById('printPeriod').innerText = periodLabel;
-      document.getElementById('printTeacherMeta').classList.remove('hidden');
-      document.getElementById('printAdminMeta').classList.add('hidden');
-      document.getElementById('printTeacherName').innerText = currentUser.name;
-      document.getElementById('printSignRole').innerText = 'Guru Kelas / Mata Pelajaran';
-      document.getElementById('printSignName').innerText = `(${currentUser.name})`;
-      document.getElementById('printSignNip').innerText = 'NIP. ...................................';
-
-      const now = new Date();
-      document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
-
-      let html = '';
-      if(evals.length > 0) {
-        evals.forEach((e, i) => {
-          html += `
-            <div class="mb-8 ${i < evals.length-1 ? 'print-page-break' : ''}">
-              <div class="bg-gray-50 border-l-4 border-blue-800 p-4 mb-4">
-                <h3 class="text-lg font-bold uppercase">Siswa: ${e.student}</h3>
-                <p class="text-sm text-gray-600">Kelas: ${e.class} | Tanggal: ${e.date}</p>
-              </div>
-              <table class="w-full border-collapse border border-gray-400 text-sm">
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td><td class="border border-gray-400 p-2">${e.cog||'-'}${generateFileHtml(e.fileCog, 'Bukti Kognitif')}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td><td class="border border-gray-400 p-2">${e.char||'-'}${generateFileHtml(e.fileChar, 'Bukti Karakter')}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td><td class="border border-gray-400 p-2">${e.upaya||'-'}${generateFileHtml(e.fileUpaya, 'Bukti Upaya')}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td><td class="border border-gray-400 p-2">${e.kendala||'-'}${generateFileHtml(e.fileKendala, 'Bukti Kendala')}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td><td class="border border-gray-400 p-2">${e.solusi||'-'}${generateFileHtml(e.fileSolusi, 'Bukti Solusi')}</td></tr>
-                <tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td><td class="border border-gray-400 p-2">${e.bantuan||'-'}${generateFileHtml(e.fileBantuan, 'Bukti Bantuan')}</td></tr>
-              </table>
-            </div>`;
-        });
-      } else {
-        html = '<p class="text-center italic text-gray-500 mt-8">Tidak ada data evaluasi pada periode ini.</p>';
-      }
-      document.getElementById('printContent').innerHTML = html;
-      setTimeout(() => window.print(), 500);
-    }
-
-    function adminPrintReport(monthKey) {
-      const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
-      const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
-
-      document.getElementById('printSchoolName').innerText = appSettings.schoolName || 'NAMA SEKOLAH';
-      const pLogo = document.getElementById('printLogo');
-      pLogo.src = appSettings.logoUrl || '';
-      pLogo.style.display = appSettings.logoUrl ? 'block' : 'none';
-      document.getElementById('printTitle').innerText = 'Laporan Rangkuman Evaluasi Keseluruhan';
-      document.getElementById('printAcademicYear').innerText = getAcademicYear();
-      document.getElementById('printPeriod').innerText = periodLabel;
-      document.getElementById('printTeacherMeta').classList.add('hidden');
-      document.getElementById('printAdminMeta').classList.remove('hidden');
-      document.getElementById('printSignRole').innerText = 'Admin / Operator Sekolah';
-      document.getElementById('printSignName').innerText = '(........................................... )';
-      document.getElementById('printSignNip').innerText = 'NIP. ...................................';
-
-      const now = new Date();
-      document.getElementById('printDate').innerText = now.toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' });
-
-      const grouped = {};
-      evals.forEach(e => {
-        const cls = e.class || 'Tanpa Kelas';
-        const teacher = e.teacher || 'Guru Tidak Diketahui';
-        if (!grouped[cls]) grouped[cls] = {};
-        if (!grouped[cls][teacher]) grouped[cls][teacher] = [];
-        grouped[cls][teacher].push(e);
+    // PERBAIKAN: Preload semua gambar sebelum print
+    function preloadAndPrint() {
+      const imgs = document.querySelectorAll('#printContent img');
+      if (imgs.length === 0) { setTimeout(()=>window.print(), 500); return; }
+      let loaded = 0; const total = imgs.length;
+      imgs.forEach(img => {
+        if (img.complete) { loaded++; if(loaded>=total) setTimeout(()=>window.print(),500); }
+        else {
+          img.onload = () => { loaded++; if(loaded>=total) setTimeout(()=>window.print(),500); };
+          img.onerror = () => { loaded++; if(loaded>=total) setTimeout(()=>window.print(),500); };
+        }
       });
+      setTimeout(()=>window.print(), 5000); // Fallback max 5 detik
+    }
 
-      let html = '';
-      const sortedClasses = Object.keys(grouped).sort((a,b) => a.localeCompare(b, 'id', { numeric: true }));
-      if (sortedClasses.length === 0) {
-        html = '<p class="text-center italic text-gray-500 mt-8">Tidak ada data evaluasi pada periode ini.</p>';
-      } else {
-        sortedClasses.forEach(cls => {
-          html += `<h2 class="text-xl font-bold mt-8 mb-3 border-b-2 border-gray-800 pb-1 uppercase class-header">Kelas: ${cls}</h2>`;
-          Object.keys(grouped[cls]).sort().forEach(teacher => {
-            html += `<h3 class="text-lg font-semibold mt-4 mb-2 text-gray-700 class-header">Guru: ${teacher}</h3>`;
-            grouped[cls][teacher].forEach(e => {
-              html += `
-                <div class="mb-4 border border-gray-300 rounded p-3 text-xs student-card">
-                  <div class="flex justify-between items-center mb-1">
-                    <div class="font-bold text-sm">${e.student}</div>
-                    <div class="text-gray-500">${e.date}</div>
-                  </div>
-                  <table class="w-full border-collapse border border-gray-200">
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50 w-1/5">Kognitif</td><td class="border border-gray-200 p-1">${e.cog||'-'}${generateFileHtml(e.fileCog, 'Bukti')}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Karakter</td><td class="border border-gray-200 p-1">${e.char||'-'}${generateFileHtml(e.fileChar, 'Bukti')}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Upaya</td><td class="border border-gray-200 p-1">${e.upaya||'-'}${generateFileHtml(e.fileUpaya, 'Bukti')}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Kendala</td><td class="border border-gray-200 p-1">${e.kendala||'-'}${generateFileHtml(e.fileKendala, 'Bukti')}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Solusi</td><td class="border border-gray-200 p-1">${e.solusi||'-'}${generateFileHtml(e.fileSolusi, 'Bukti')}</td></tr>
-                    <tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Bantuan</td><td class="border border-gray-200 p-1">${e.bantuan||'-'}${generateFileHtml(e.fileBantuan, 'Bukti')}</td></tr>
-                  </table>
-                </div>`;
-            });
+    function printReport(mk) {
+      const evals=filterEvalsByMonth(cachedTeacherEvals,mk), pl=mk==='all'?'Semua Periode':getMonthLabel(mk);
+      document.getElementById('printSchoolName').innerText=appSettings.schoolName||'NAMA SEKOLAH';
+      const pL=document.getElementById('printLogo'); pL.src=appSettings.logoUrl||''; pL.style.display=appSettings.logoUrl?'block':'none';
+      document.getElementById('printTitle').innerText='Laporan Evaluasi Perkembangan Siswa';
+      document.getElementById('printAcademicYear').innerText=getAcademicYear();
+      document.getElementById('printPeriod').innerText=pl;
+      document.getElementById('printTeacherMeta').classList.remove('hidden'); document.getElementById('printAdminMeta').classList.add('hidden');
+      document.getElementById('printTeacherName').innerText=currentUser.name;
+      document.getElementById('printSignRole').innerText='Guru Kelas / Mata Pelajaran';
+      document.getElementById('printSignName').innerText=`(${currentUser.name})`; document.getElementById('printSignNip').innerText='NIP. ...................................';
+      document.getElementById('printDate').innerText=new Date().toLocaleDateString('id-ID',{year:'numeric',month:'long',day:'numeric'});
+      let h='';
+      if(evals.length>0) evals.forEach((e,i)=>{
+        h+=`<div class="mb-8 ${i<evals.length-1?'print-page-break':''}"><div class="bg-gray-50 border-l-4 border-blue-800 p-4 mb-4"><h3 class="text-lg font-bold uppercase">Siswa: ${e.student}</h3><p class="text-sm text-gray-600">Kelas: ${e.class} | Tanggal: ${e.date}</p></div><table class="w-full border-collapse border border-gray-400 text-sm"><tr><td class="border border-gray-400 p-2 font-bold bg-gray-100 w-1/4">Perkembangan Kognitif/Akademik</td><td class="border border-gray-400 p-2">${e.cog||'-'}${generateFileHtml(e.fileCog,'Bukti Kognitif')}</td></tr><tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Perkembangan Karakter/Akhlaq</td><td class="border border-gray-400 p-2">${e.char||'-'}${generateFileHtml(e.fileChar,'Bukti Karakter')}</td></tr><tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Upaya yang Sudah Dilakukan</td><td class="border border-gray-400 p-2">${e.upaya||'-'}${generateFileHtml(e.fileUpaya,'Bukti Upaya')}</td></tr><tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kendala/Masalah</td><td class="border border-gray-400 p-2">${e.kendala||'-'}${generateFileHtml(e.fileKendala,'Bukti Kendala')}</td></tr><tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Solusi Tindak Lanjut</td><td class="border border-gray-400 p-2">${e.solusi||'-'}${generateFileHtml(e.fileSolusi,'Bukti Solusi')}</td></tr><tr><td class="border border-gray-400 p-2 font-bold bg-gray-100">Kebutuhan Bantuan</td><td class="border border-gray-400 p-2">${e.bantuan||'-'}${generateFileHtml(e.fileBantuan,'Bukti Bantuan')}</td></tr></table></div>`;
+      }); else h='<p class="text-center italic text-gray-500 mt-8">Tidak ada data evaluasi pada periode ini.</p>';
+      document.getElementById('printContent').innerHTML=h;
+      preloadAndPrint();
+    }
+
+    function adminPrintReport(mk) {
+      const evals=filterEvalsByMonth(cachedAdminEvals,mk), pl=mk==='all'?'Semua Periode':getMonthLabel(mk);
+      document.getElementById('printSchoolName').innerText=appSettings.schoolName||'NAMA SEKOLAH';
+      const pL=document.getElementById('printLogo'); pL.src=appSettings.logoUrl||''; pL.style.display=appSettings.logoUrl?'block':'none';
+      document.getElementById('printTitle').innerText='Laporan Rangkuman Evaluasi Keseluruhan';
+      document.getElementById('printAcademicYear').innerText=getAcademicYear();
+      document.getElementById('printPeriod').innerText=pl;
+      document.getElementById('printTeacherMeta').classList.add('hidden'); document.getElementById('printAdminMeta').classList.remove('hidden');
+      document.getElementById('printSignRole').innerText='Admin / Operator Sekolah';
+      document.getElementById('printSignName').innerText='(........................................... )'; document.getElementById('printSignNip').innerText='NIP. ...................................';
+      document.getElementById('printDate').innerText=new Date().toLocaleDateString('id-ID',{year:'numeric',month:'long',day:'numeric'});
+      const g={}; evals.forEach(e=>{const c=e.class||'Tanpa Kelas',t=e.teacher||'Tidak Diketahui';if(!g[c])g[c]={};if(!g[c][t])g[c][t]=[];g[c][t].push(e);});
+      let h=''; const sc=Object.keys(g).sort((a,b)=>a.localeCompare(b,'id',{numeric:true}));
+      if(sc.length===0) h='<p class="text-center italic text-gray-500 mt-8">Tidak ada data.</p>';
+      else sc.forEach(c=>{
+        h+=`<h2 class="text-xl font-bold mt-8 mb-3 border-b-2 border-gray-800 pb-1 uppercase class-header">Kelas: ${c}</h2>`;
+        Object.keys(g[c]).sort().forEach(t=>{
+          h+=`<h3 class="text-lg font-semibold mt-4 mb-2 text-gray-700 class-header">Guru: ${t}</h3>`;
+          g[c][t].forEach(e=>{
+            h+=`<div class="mb-4 border border-gray-300 rounded p-3 text-xs student-card"><div class="flex justify-between items-center mb-1"><div class="font-bold text-sm">${e.student}</div><div class="text-gray-500">${e.date}</div></div><table class="w-full border-collapse border border-gray-200"><tr><td class="border border-gray-200 p-1 font-bold bg-gray-50 w-1/5">Kognitif</td><td class="border border-gray-200 p-1">${e.cog||'-'}${generateFileHtml(e.fileCog,'Bukti')}</td></tr><tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Karakter</td><td class="border border-gray-200 p-1">${e.char||'-'}${generateFileHtml(e.fileChar,'Bukti')}</td></tr><tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Upaya</td><td class="border border-gray-200 p-1">${e.upaya||'-'}${generateFileHtml(e.fileUpaya,'Bukti')}</td></tr><tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Kendala</td><td class="border border-gray-200 p-1">${e.kendala||'-'}${generateFileHtml(e.fileKendala,'Bukti')}</td></tr><tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Solusi</td><td class="border border-gray-200 p-1">${e.solusi||'-'}${generateFileHtml(e.fileSolusi,'Bukti')}</td></tr><tr><td class="border border-gray-200 p-1 font-bold bg-gray-50">Bantuan</td><td class="border border-gray-200 p-1">${e.bantuan||'-'}${generateFileHtml(e.fileBantuan,'Bukti')}</td></tr></table></div>`;
           });
         });
-      }
-      document.getElementById('printContent').innerHTML = html;
-      setTimeout(() => window.print(), 500);
-    }
-
-    function downloadReport(monthKey) {
-      const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
-      const periodLabel = monthKey === 'all' ? 'Semua_Periode' : getMonthLabel(monthKey).replace(' ', '_');
-      let csv = 'Tanggal,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan,File Kognitif,File Karakter,File Upaya,File Kendala,File Solusi,File Bantuan\n';
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
-          csv += `"${e.date}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}","${e.fileCog}","${e.fileChar}","${e.fileUpaya}","${e.fileKendala}","${e.fileSolusi}","${e.fileBantuan}"\n`;
-        });
-      }
-      downloadCSV(csv, `Evaluasi_${currentUser.name}_${periodLabel}.csv`);
-    }
-
-    function downloadAllReports(monthKey) {
-      const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
-      const periodLabel = monthKey === 'all' ? 'Semua_Periode' : getMonthLabel(monthKey).replace(' ', '_');
-      let csv = 'Tanggal,Guru,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan,File Kognitif,File Karakter,File Upaya,File Kendala,File Solusi,File Bantuan\n';
-      if(Array.isArray(evals)) {
-        evals.forEach(e => {
-          csv += `"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}","${e.fileCog}","${e.fileChar}","${e.fileUpaya}","${e.fileKendala}","${e.fileSolusi}","${e.fileBantuan}"\n`;
-        });
-      }
-      downloadCSV(csv, `Rangkuman_${periodLabel}.csv`);
-    }
-
-    function sendWAReport(monthKey) {
-      const evals = filterEvalsByMonth(cachedTeacherEvals, monthKey);
-      const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
-      
-      let text = `📋 *LAPORAN EVALUASI GURU*\n`;
-      text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `🏫 *${appSettings.schoolName || 'Sekolah'}*\n`;
-      text += `🎓 Tahun Ajaran: *${getAcademicYear()}*\n`;
-      text += `👤 Guru: *${currentUser.name}*\n`;
-      text += `📅 Periode: *${periodLabel}*\n`;
-      text += `📊 Jumlah Siswa: *${evals.length}*\n`;
-      text += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-      if (evals.length === 0) {
-        text += `_Tidak ada data evaluasi pada periode ini._`;
-      } else {
-        evals.forEach((e, i) => {
-          text += `*${i+1}. ${e.student}* (Kelas ${e.class})\n`;
-          text += `📆 ${e.date}\n`;
-          if (e.cog) text += `📚 _Kognitif:_ ${e.cog}\n`;
-          if (e.fileCog) text += `📎 _Bukti Kognitif:_ ${e.fileCog}\n`;
-          if (e.char) text += `🌱 _Karakter:_ ${e.char}\n`;
-          if (e.fileChar) text += `📎 _Bukti Karakter:_ ${e.fileChar}\n`;
-          if (e.upaya) text += `💪 _Upaya:_ ${e.upaya}\n`;
-          if (e.fileUpaya) text += `📎 _Bukti Upaya:_ ${e.fileUpaya}\n`;
-          if (e.kendala) text += `⚠️ _Kendala:_ ${e.kendala}\n`;
-          if (e.fileKendala) text += `📎 _Bukti Kendala:_ ${e.fileKendala}\n`;
-          if (e.solusi) text += `✅ _Solusi:_ ${e.solusi}\n`;
-          if (e.fileSolusi) text += `📎 _Bukti Solusi:_ ${e.fileSolusi}\n`;
-          if (e.bantuan) text += `🤝 _Bantuan:_ ${e.bantuan}\n`;
-          if (e.fileBantuan) text += `📎 _Bukti Bantuan:_ ${e.fileBantuan}\n`;
-          text += `\n`;
-        });
-      }
-
-      text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `_Dikirim melalui Sistem Evaluasi ${appSettings.schoolName || 'Sekolah'}_`;
-
-      const url = `https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
-    }
-
-    function sendWAAdminReport(monthKey) {
-      const evals = filterEvalsByMonth(cachedAdminEvals, monthKey);
-      const periodLabel = monthKey === 'all' ? 'Semua Periode' : getMonthLabel(monthKey);
-
-      const grouped = {};
-      evals.forEach(e => {
-        const cls = e.class || 'Tanpa Kelas';
-        const teacher = e.teacher || 'Guru Tidak Diketahui';
-        if (!grouped[cls]) grouped[cls] = {};
-        if (!grouped[cls][teacher]) grouped[cls][teacher] = [];
-        grouped[cls][teacher].push(e);
       });
+      document.getElementById('printContent').innerHTML=h;
+      preloadAndPrint();
+    }
 
-      let text = `📊 *RANGKUMAN EVALUASI KESELURUHAN*\n`;
-      text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `🏫 *${appSettings.schoolName || 'Sekolah'}*\n`;
-      text += `🎓 Tahun Ajaran: *${getAcademicYear()}*\n`;
-      text += `📅 Periode: *${periodLabel}*\n`;
-      text += `📊 Total Evaluasi: *${evals.length}*\n`;
-      text += `━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-      const sortedClasses = Object.keys(grouped).sort((a,b) => a.localeCompare(b, 'id', { numeric: true }));
-      
-      if (sortedClasses.length === 0) {
-        text += `_Tidak ada data evaluasi pada periode ini._`;
-      } else {
-        sortedClasses.forEach(cls => {
-          text += `🎓 *KELAS: ${cls}*\n`;
-          text += `─────────────────\n`;
-          Object.keys(grouped[cls]).sort().forEach(teacher => {
-            text += `👨‍🏫 _Guru: ${teacher}_\n`;
-            grouped[cls][teacher].forEach(e => {
-              text += `\n  • *${e.student}* (${e.date})\n`;
-              if (e.cog) text += `    📚 _Kognitif:_ ${e.cog}\n`;
-              if (e.fileCog) text += `    📎 _Bukti:_ ${e.fileCog}\n`;
-              if (e.char) text += `    🌱 _Karakter:_ ${e.char}\n`;
-              if (e.fileChar) text += `    📎 _Bukti:_ ${e.fileChar}\n`;
-              if (e.upaya) text += `    💪 _Upaya:_ ${e.upaya}\n`;
-              if (e.fileUpaya) text += `    📎 _Bukti:_ ${e.fileUpaya}\n`;
-              if (e.kendala) text += `    ⚠️ _Kendala:_ ${e.kendala}\n`;
-              if (e.fileKendala) text += `    📎 _Bukti:_ ${e.fileKendala}\n`;
-              if (e.solusi) text += `    ✅ _Solusi:_ ${e.solusi}\n`;
-              if (e.fileSolusi) text += `    📎 _Bukti:_ ${e.fileSolusi}\n`;
-              if (e.bantuan) text += `    🤝 _Bantuan:_ ${e.bantuan}\n`;
-              if (e.fileBantuan) text += `    📎 _Bukti:_ ${e.fileBantuan}\n`;
-            });
-            text += `\n`;
-          });
-          text += `\n`;
-        });
-      }
-
-      text += `━━━━━━━━━━━━━━━━━━━━\n`;
-      text += `_Dikirim melalui Sistem Evaluasi ${appSettings.schoolName || 'Sekolah'}_`;
-
-      const url = `https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank');
+    function downloadReport(mk) {
+      const evals=filterEvalsByMonth(cachedTeacherEvals,mk),pl=mk==='all'?'Semua_Periode':getMonthLabel(mk).replace(' ','_');
+      let c='Tanggal,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan,FileCog,FileChar,FileUpaya,FileKendala,FileSolusi,FileBantuan\n';
+      if(Array.isArray(evals)) evals.forEach(e=>{c+=`"${e.date}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}","${e.fileCog}","${e.fileChar}","${e.fileUpaya}","${e.fileKendala}","${e.fileSolusi}","${e.fileBantuan}"\n`;});
+      downloadCSV(c,`Evaluasi_${currentUser.name}_${pl}.csv`);
+    }
+    function downloadAllReports(mk) {
+      const evals=filterEvalsByMonth(cachedAdminEvals,mk),pl=mk==='all'?'Semua_Periode':getMonthLabel(mk).replace(' ','_');
+      let c='Tanggal,Guru,Siswa,Kelas,Kognitif,Karakter,Upaya,Kendala,Solusi,Bantuan,FileCog,FileChar,FileUpaya,FileKendala,FileSolusi,FileBantuan\n';
+      if(Array.isArray(evals)) evals.forEach(e=>{c+=`"${e.date}","${e.teacher}","${e.student}","${e.class}","${e.cog}","${e.char}","${e.upaya}","${e.kendala}","${e.solusi}","${e.bantuan}","${e.fileCog}","${e.fileChar}","${e.fileUpaya}","${e.fileKendala}","${e.fileSolusi}","${e.fileBantuan}"\n`;});
+      downloadCSV(c,`Rangkuman_${pl}.csv`);
+    }
+    function sendWAReport(mk) {
+      const evals=filterEvalsByMonth(cachedTeacherEvals,mk),pl=mk==='all'?'Semua Periode':getMonthLabel(mk);
+      let t=`📋 *LAPORAN EVALUASI GURU*\n━━━━━━━━━━━━━━━━━━━━\n🏫 *${appSettings.schoolName||'Sekolah'}*\n🎓 Tahun Ajaran: *${getAcademicYear()}*\n👤 Guru: *${currentUser.name}*\n📅 Periode: *${pl}*\n📊 Jumlah: *${evals.length}*\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+      if(!evals.length) t+='_Tidak ada data._'; else evals.forEach((e,i)=>{t+=`*${i+1}. ${e.student}* (${e.class})\n📆 ${e.date}\n${e.cog?`📚 _Kognitif:_ ${e.cog}\n`:''}${e.fileCog?`📎 ${convertDriveUrl(e.fileCog)}\n`:''}${e.char?`🌱 _Karakter:_ ${e.char}\n`:''}${e.fileChar?`📎 ${convertDriveUrl(e.fileChar)}\n`:''}${e.upaya?`💪 _Upaya:_ ${e.upaya}\n`:''}${e.fileUpaya?`📎 ${convertDriveUrl(e.fileUpaya)}\n`:''}${e.kendala?`⚠️ _Kendala:_ ${e.kendala}\n`:''}${e.fileKendala?`📎 ${convertDriveUrl(e.fileKendala)}\n`:''}${e.solusi?`✅ _Solusi:_ ${e.solusi}\n`:''}${e.fileSolusi?`📎 ${convertDriveUrl(e.fileSolusi)}\n`:''}${e.bantuan?`🤝 _Bantuan:_ ${e.bantuan}\n`:''}${e.fileBantuan?`📎 ${convertDriveUrl(e.fileBantuan)}\n`:''}\n`;});
+      t+=`━━━━━━━━━━━━━━━━━━━━\n_Dikirim via Sistem Evaluasi ${appSettings.schoolName||'Sekolah'}_`;
+      window.open(`https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(t)}`,'_blank');
+    }
+    function sendWAAdminReport(mk) {
+      const evals=filterEvalsByMonth(cachedAdminEvals,mk),pl=mk==='all'?'Semua Periode':getMonthLabel(mk);
+      const g={}; evals.forEach(e=>{const c=e.class||'Tanpa Kelas',t=e.teacher||'?';if(!g[c])g[c]={};if(!g[c][t])g[c][t]=[];g[c][t].push(e);});
+      let t=`📊 *RANGKUMAN EVALUASI KESELURUHAN*\n━━━━━━━━━━━━━━━━━━━━\n🏫 *${appSettings.schoolName||'Sekolah'}*\n🎓 Tahun Ajaran: *${getAcademicYear()}*\n📅 Periode: *${pl}*\n📊 Total: *${evals.length}*\n━━━━━━━━━━━━━━━━━━━━\n\n`;
+      const sc=Object.keys(g).sort((a,b)=>a.localeCompare(b,'id',{numeric:true}));
+      if(!sc.length) t+='_Tidak ada data._'; else sc.forEach(c=>{t+=`🎓 *KELAS: ${c}*\n─────────────────\n`;Object.keys(g[c]).sort().forEach(tch=>{t+=`👨‍🏫 _Guru: ${tch}_\n`;g[c][tch].forEach(e=>{t+=`\n  • *${e.student}* (${e.date})\n${e.cog?`    📚 ${e.cog}\n`:''}${e.fileCog?`    📎 ${convertDriveUrl(e.fileCog)}\n`:''}${e.char?`    🌱 ${e.char}\n`:''}${e.fileChar?`    📎 ${convertDriveUrl(e.fileChar)}\n`:''}${e.upaya?`    💪 ${e.upaya}\n`:''}${e.kendala?`    ⚠️ ${e.kendala}\n`:''}${e.solusi?`    ✅ ${e.solusi}\n`:''}${e.bantuan?`    🤝 ${e.bantuan}\n`:''}`;});t+='\n';});t+='\n';});
+      t+=`━━━━━━━━━━━━━━━━━━━━\n_Dikirim via Sistem Evaluasi ${appSettings.schoolName||'Sekolah'}_`;
+      window.open(`https://wa.me/${appSettings.principalPhone}?text=${encodeURIComponent(t)}`,'_blank');
     }
 
     async function loadAdminData() {
-      const settings = await callAPI('getSettings');
-      appSettings = settings;
-      updateSchoolHeaders();
-      document.getElementById('setSchoolName').value = settings.schoolName || '';
-      document.getElementById('setLogo').value = settings.logoUrl || '';
-      document.getElementById('setBg').value = settings.bgUrl || '';
-      document.getElementById('setPhone').value = settings.principalPhone || '';
-      document.getElementById('setClasses').value = settings.classes || '';
-      document.getElementById('setAcademicYear').value = settings.academicYear || '';
-      if(settings.bgUrl) document.getElementById('appBody').style.backgroundImage = `url(${settings.bgUrl})`;
-      loadAdminTeachers();
-      loadAdminEvals();
+      appSettings=await callAPI('getSettings'); updateSchoolHeaders();
+      document.getElementById('setSchoolName').value=appSettings.schoolName||''; document.getElementById('setLogo').value=appSettings.logoUrl||'';
+      document.getElementById('setBg').value=appSettings.bgUrl||''; document.getElementById('setPhone').value=appSettings.principalPhone||'';
+      document.getElementById('setClasses').value=appSettings.classes||''; document.getElementById('setAcademicYear').value=appSettings.academicYear||'';
+      if(appSettings.bgUrl) document.getElementById('appBody').style.backgroundImage=`url(${appSettings.bgUrl})`;
+      loadAdminTeachers(); loadAdminEvals();
     }
-
     async function saveSettings() {
-      const settings = {
-        schoolName: document.getElementById('setSchoolName').value.trim(),
-        logoUrl: document.getElementById('setLogo').value.trim(),
-        bgUrl: document.getElementById('setBg').value.trim(),
-        principalPhone: document.getElementById('setPhone').value.trim(),
-        classes: document.getElementById('setClasses').value.trim(),
-        academicYear: document.getElementById('setAcademicYear').value.trim()
-      };
-      await callAPI('saveSettings', { settings });
-      alert('Pengaturan berhasil disimpan!');
-      loadAdminData();
+      const s={schoolName:document.getElementById('setSchoolName').value.trim(),logoUrl:document.getElementById('setLogo').value.trim(),bgUrl:document.getElementById('setBg').value.trim(),principalPhone:document.getElementById('setPhone').value.trim(),classes:document.getElementById('setClasses').value.trim(),academicYear:document.getElementById('setAcademicYear').value.trim()};
+      await callAPI('saveSettings',{settings:s}); alert('Pengaturan berhasil disimpan!'); loadAdminData();
     }
-
     async function loadAdminTeachers() {
-      const teachers = await callAPI('getTeachers');
-      const tbody = document.getElementById('adminTeachersTable');
-      tbody.innerHTML = '';
-      if(Array.isArray(teachers)) {
-        teachers.forEach(t => {
-          tbody.innerHTML += `<tr><td class="p-2 border">${t.name}</td><td class="p-2 border">${t.username}</td><td class="p-2 border"><button onclick="deleteTeacher('${t.username}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">Hapus</button></td></tr>`;
-        });
-      }
+      const t=await callAPI('getTeachers'),tb=document.getElementById('adminTeachersTable'); tb.innerHTML='';
+      if(Array.isArray(t)) t.forEach(x=>{tb.innerHTML+=`<tr><td class="p-2 border">${x.name}</td><td class="p-2 border">${x.username}</td><td class="p-2 border"><button onclick="deleteTeacher('${x.username}')" class="bg-red-500 text-white px-3 py-1 rounded text-sm">Hapus</button></td></tr>`;});
     }
-
-    async function deleteTeacher(username) {
-      if(confirm('Hapus guru ini beserta semua datanya?')) {
-        await callAPI('deleteTeacher', { username });
-        loadAdminTeachers(); loadAdminEvals();
-      }
-    }
-
+    async function deleteTeacher(u){if(confirm('Hapus guru ini beserta semua datanya?')){await callAPI('deleteTeacher',{username:u});loadAdminTeachers();loadAdminEvals();}}
     async function loadAdminEvals() {
-      cachedAdminEvals = await callAPI('getAllEvaluations');
-      const tbody = document.getElementById('adminEvalsTable');
-      tbody.innerHTML = '';
-      if(Array.isArray(cachedAdminEvals)) {
-        cachedAdminEvals.forEach(e => {
-          tbody.innerHTML += `<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border">${e.teacher}</td><td class="p-2 border">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,30)}...</td><td class="p-2 border text-sm italic">${e.char.substring(0,30)}...</td></tr>`;
-        });
-      }
+      cachedAdminEvals=await callAPI('getAllEvaluations'); const tb=document.getElementById('adminEvalsTable'); tb.innerHTML='';
+      if(Array.isArray(cachedAdminEvals)) cachedAdminEvals.forEach(e=>{tb.innerHTML+=`<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border">${e.teacher}</td><td class="p-2 border">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,30)}...</td><td class="p-2 border text-sm italic">${e.char.substring(0,30)}...</td></tr>`;});
     }
-
-    function downloadCSV(csv, filename) {
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
-    }
+    function downloadCSV(c,f){const b=new Blob([c],{type:'text/csv;charset=utf-8;'}),l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=f;l.click();}
   </script>
 </body>
 </html>
