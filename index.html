@@ -51,6 +51,30 @@
     </div>
   </div>
 
+  <!-- MODAL KONFIRMASI HAPUS -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-exclamation-triangle text-2xl text-red-600"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-gray-800">Konfirmasi Hapus</h3>
+          <p class="text-sm text-gray-500">Tindakan ini tidak dapat dibatalkan</p>
+        </div>
+      </div>
+      <div class="bg-red-50 border-l-4 border-red-500 p-3 mb-4 text-sm text-red-800">
+        <p class="font-semibold mb-1">Evaluasi ini akan dihapus permanen:</p>
+        <p id="deleteInfo" class="text-xs"></p>
+        <p class="text-xs mt-2"><i class="fas fa-info-circle"></i> File bukti di Google Drive juga akan dihapus otomatis.</p>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="closeDeleteModal()" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg hover:bg-gray-300 font-semibold">Batal</button>
+        <button onclick="confirmDelete()" id="btnConfirmDelete" class="flex-1 bg-red-600 text-white p-3 rounded-lg hover:bg-red-700 font-semibold"><i class="fas fa-trash mr-1"></i> Ya, Hapus</button>
+      </div>
+    </div>
+  </div>
+
   <!-- AREA CETAK FORMAL -->
   <div id="printArea">
     <div class="text-center mb-6 border-b-4 border-double border-gray-800 pb-4">
@@ -69,14 +93,8 @@
     </div>
     <div id="printContent" class="text-sm leading-relaxed"></div>
     <div class="mt-16 flex justify-between text-sm">
-      <div class="text-center w-1/2">
-        <p>Mengetahui,</p><p class="font-bold">Kepala Sekolah</p><br><br><br>
-        <p class="font-bold underline">(...........................................)</p><p>NIP. ...................................</p>
-      </div>
-      <div class="text-center w-1/2">
-        <p>&nbsp;</p><p class="font-bold" id="printSignRole">Guru Kelas / Mata Pelajaran</p><br><br><br>
-        <p class="font-bold underline" id="printSignName">(...........................................)</p><p id="printSignNip">NIP. ...................................</p>
-      </div>
+      <div class="text-center w-1/2"><p>Mengetahui,</p><p class="font-bold">Kepala Sekolah</p><br><br><br><p class="font-bold underline">(...........................................)</p><p>NIP. ...................................</p></div>
+      <div class="text-center w-1/2"><p>&nbsp;</p><p class="font-bold" id="printSignRole">Guru Kelas / Mata Pelajaran</p><br><br><br><p class="font-bold underline" id="printSignName">(...........................................)</p><p id="printSignNip">NIP. ...................................</p></div>
     </div>
   </div>
 
@@ -141,7 +159,22 @@
           <h2 class="text-xl font-bold text-gray-800">Riwayat Evaluasi</h2>
           <button onclick="openMonthModal('teacher')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"><i class="fas fa-share-alt"></i> Cetak/Unduh/Kirim</button>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-gray-100"><th class="p-2 border">Tanggal</th><th class="p-2 border">Siswa</th><th class="p-2 border">Kelas</th><th class="p-2 border">Kognitif</th><th class="p-2 border">Karakter</th><th class="p-2 border">File</th></tr></thead><tbody id="teacherEvalTable"></tbody></table></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-2 border">Tanggal</th>
+                <th class="p-2 border">Siswa</th>
+                <th class="p-2 border">Kelas</th>
+                <th class="p-2 border">Kognitif</th>
+                <th class="p-2 border">Karakter</th>
+                <th class="p-2 border">File</th>
+                <th class="p-2 border text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="teacherEvalTable"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -182,7 +215,22 @@
           <h2 class="text-2xl font-bold">Semua Evaluasi</h2>
           <button onclick="openMonthModal('admin')" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm"><i class="fas fa-share-alt"></i> Cetak/Unduh/Kirim Rangkuman</button>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-gray-100"><th class="p-2 border">Tanggal</th><th class="p-2 border">Guru</th><th class="p-2 border">Siswa</th><th class="p-2 border">Kelas</th><th class="p-2 border">Kognitif</th><th class="p-2 border">Karakter</th></tr></thead><tbody id="adminEvalsTable"></tbody></table></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="p-2 border">Tanggal</th>
+                <th class="p-2 border">Guru</th>
+                <th class="p-2 border">Siswa</th>
+                <th class="p-2 border">Kelas</th>
+                <th class="p-2 border">Kognitif</th>
+                <th class="p-2 border">Karakter</th>
+                <th class="p-2 border text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="adminEvalsTable"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -191,6 +239,7 @@
     const APP_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxlmdqX0_DEdgq5X3CCC3u7LVCBFAkPcIJCDA1JelsFNWENqJuDVMP1KdEiEhXd7fBI/exec';
 
     let currentUser = null, appSettings = {}, printMode = 'teacher', cachedTeacherEvals = [], cachedAdminEvals = [], uploadedFiles = {};
+    let deleteTarget = { id: null, isAdmin: false }; // BARU: State untuk modal hapus
     const BULAN_NAMES = ['','Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
     const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -207,13 +256,9 @@
     function parseDateId(d) { const m = String(d).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? {day:+m[1],month:+m[2],year:+m[3]} : null; }
     function getMonthKey(d) { const p = parseDateId(d); return p ? `${p.year}-${String(p.month).padStart(2,'0')}` : 'unknown'; }
     function getMonthLabel(k) { if(k==='unknown') return 'Tidak Diketahui'; const [y,m]=k.split('-'); return `${BULAN_NAMES[+m]} ${y}`; }
-
-    // PERBAIKAN: Konversi URL Drive ke format yang bisa ditampilkan
     function convertDriveUrl(url) {
       if (!url || url.trim() === '') return '';
-      // Jika sudah format lh3, langsung return
       if (url.includes('lh3.googleusercontent.com')) return url;
-      // Ekstrak file ID dari berbagai format URL Drive
       const match = url.match(/(?:id=|\/d\/)([a-zA-Z0-9_-]+)/);
       if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
       return url;
@@ -294,7 +339,17 @@
       const tb=document.getElementById('teacherEvalTable'); tb.innerHTML='';
       if(Array.isArray(evals)) evals.forEach(e=>{
         const fc=[e.fileCog,e.fileChar,e.fileUpaya,e.fileKendala,e.fileSolusi,e.fileBantuan].filter(f=>f&&f.trim()!=='').length;
-        tb.innerHTML+=`<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border font-semibold">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,50)}${e.cog.length>50?'...':''}</td><td class="p-2 border text-sm italic">${e.char.substring(0,50)}${e.char.length>50?'...':''}</td><td class="p-2 border text-center">${fc>0?`<i class="fas fa-paperclip text-blue-600"></i> ${fc}`:'-'}</td></tr>`;
+        tb.innerHTML+=`<tr>
+          <td class="p-2 border text-sm">${e.date}</td>
+          <td class="p-2 border font-semibold">${e.student}</td>
+          <td class="p-2 border">${e.class}</td>
+          <td class="p-2 border text-sm italic">${e.cog.substring(0,50)}${e.cog.length>50?'...':''}</td>
+          <td class="p-2 border text-sm italic">${e.char.substring(0,50)}${e.char.length>50?'...':''}</td>
+          <td class="p-2 border text-center">${fc>0?`<i class="fas fa-paperclip text-blue-600"></i> ${fc}`:'-'}</td>
+          <td class="p-2 border text-center">
+            <button onclick="openDeleteModal('${e.id}','${e.student.replace(/'/g,"\\'")}','${e.class}','teacher')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs" title="Hapus"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
       });
     }
     async function saveEval() {
@@ -309,6 +364,45 @@
       alert('Evaluasi berhasil disimpan!'); loadTeacherData();
       ['evalStudent','evalCog','evalChar','evalUpaya','evalKendala','evalSolusi','evalBantuan'].forEach(id=>document.getElementById(id).value='');
       ['cog','char','upaya','kendala','solusi','bantuan'].forEach(f=>removeFile(f)); uploadedFiles={};
+    }
+
+    // --- FITUR HAPUS EVALUASI (BARU!) ---
+    function openDeleteModal(id, student, cls, mode) {
+      deleteTarget = { id: id, isAdmin: mode === 'admin' };
+      document.getElementById('deleteInfo').innerHTML = `
+        <strong>Siswa:</strong> ${student}<br>
+        <strong>Kelas:</strong> ${cls}<br>
+        <strong>ID Evaluasi:</strong> ${id}
+      `;
+      document.getElementById('deleteModal').classList.remove('hidden');
+    }
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+      deleteTarget = { id: null, isAdmin: false };
+    }
+    async function confirmDelete() {
+      if (!deleteTarget.id) return;
+      const btn = document.getElementById('btnConfirmDelete');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menghapus...';
+      
+      const res = await callAPI('deleteEvaluation', {
+        id: deleteTarget.id,
+        username: currentUser.username,
+        isAdmin: deleteTarget.isAdmin
+      });
+      
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-trash mr-1"></i> Ya, Hapus';
+      
+      if (res.success) {
+        closeDeleteModal();
+        alert('✅ Evaluasi dan file buktinya berhasil dihapus!');
+        if (deleteTarget.isAdmin) loadAdminEvals();
+        else loadTeacherData();
+      } else {
+        alert('❌ Gagal menghapus: ' + res.message);
+      }
     }
 
     function openMonthModal(mode) {
@@ -329,14 +423,12 @@
       else if(a==='wa'){if(!appSettings.principalPhone||appSettings.principalPhone.trim()===''){alert('Nomor WA Kepsek belum diatur!');return;}printMode==='teacher'?sendWAReport(mk):sendWAAdminReport(mk);}
     }
 
-    // PERBAIKAN: Helper generate HTML file untuk cetak dengan URL yang benar
     function generateFileHtml(fileUrl, label) {
       if (!fileUrl || fileUrl.trim() === '') return '';
       const displayUrl = convertDriveUrl(fileUrl);
       return `<div class="mt-2"><p class="text-xs font-semibold text-gray-600 mb-1">📎 ${label}:</p><img src="${displayUrl}" class="print-image" referrerpolicy="no-referrer" crossorigin="anonymous" alt="Bukti" onerror="this.outerHTML='<a href=\\'${displayUrl}\\' target=\\'_blank\\' class=\\'print-file-link\\'>📎 Klik untuk melihat bukti</a>'"></div>`;
     }
 
-    // PERBAIKAN: Preload semua gambar sebelum print
     function preloadAndPrint() {
       const imgs = document.querySelectorAll('#printContent img');
       if (imgs.length === 0) { setTimeout(()=>window.print(), 500); return; }
@@ -348,7 +440,7 @@
           img.onerror = () => { loaded++; if(loaded>=total) setTimeout(()=>window.print(),500); };
         }
       });
-      setTimeout(()=>window.print(), 5000); // Fallback max 5 detik
+      setTimeout(()=>window.print(), 5000);
     }
 
     function printReport(mk) {
@@ -446,7 +538,19 @@
     async function deleteTeacher(u){if(confirm('Hapus guru ini beserta semua datanya?')){await callAPI('deleteTeacher',{username:u});loadAdminTeachers();loadAdminEvals();}}
     async function loadAdminEvals() {
       cachedAdminEvals=await callAPI('getAllEvaluations'); const tb=document.getElementById('adminEvalsTable'); tb.innerHTML='';
-      if(Array.isArray(cachedAdminEvals)) cachedAdminEvals.forEach(e=>{tb.innerHTML+=`<tr><td class="p-2 border text-sm">${e.date}</td><td class="p-2 border">${e.teacher}</td><td class="p-2 border">${e.student}</td><td class="p-2 border">${e.class}</td><td class="p-2 border text-sm italic">${e.cog.substring(0,30)}...</td><td class="p-2 border text-sm italic">${e.char.substring(0,30)}...</td></tr>`;});
+      if(Array.isArray(cachedAdminEvals)) cachedAdminEvals.forEach(e=>{
+        tb.innerHTML+=`<tr>
+          <td class="p-2 border text-sm">${e.date}</td>
+          <td class="p-2 border">${e.teacher}</td>
+          <td class="p-2 border">${e.student}</td>
+          <td class="p-2 border">${e.class}</td>
+          <td class="p-2 border text-sm italic">${e.cog.substring(0,30)}...</td>
+          <td class="p-2 border text-sm italic">${e.char.substring(0,30)}...</td>
+          <td class="p-2 border text-center">
+            <button onclick="openDeleteModal('${e.id}','${e.student.replace(/'/g,"\\'")}','${e.class}','admin')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs" title="Hapus"><i class="fas fa-trash"></i></button>
+          </td>
+        </tr>`;
+      });
     }
     function downloadCSV(c,f){const b=new Blob([c],{type:'text/csv;charset=utf-8;'}),l=document.createElement('a');l.href=URL.createObjectURL(b);l.download=f;l.click();}
   </script>
